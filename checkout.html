@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finalizar compra — NewLounge Sport</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+      --border:#2a2a2a;--border2:#333;
+      --cyan:#00E5FF;--cyan2:#80F0FF;
+      --green:#34C759;--red:#FF3B30;--warn:#FF9500;
+      --text:#F5F5F5;--text2:#999;--text3:#555;
+      --ff:'Inter',-apple-system,Helvetica Neue,sans-serif;--r:8px;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--ff);font-size:15px;line-height:1.6;min-height:100vh;}
+    a{color:inherit;text-decoration:none;}
+    img{display:block;max-width:100%;}
+
+    /* HEADER */
+    .header{
+      background:rgba(10,10,10,.97);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:0 24px;height:58px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:100;
+    }
+    .logo{font-size:18px;font-weight:800;}
+    .logo span{color:var(--cyan);}
+    .header-back{font-size:13px;color:var(--text2);transition:color .2s;}
+    .header-back:hover{color:var(--cyan);}
+
+    /* LAYOUT */
+    .checkout-layout{
+      max-width:1100px;margin:0 auto;
+      padding:32px 24px 80px;
+      display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start;
+    }
+
+    /* STEPS */
+    .steps-bar{
+      display:flex;align-items:center;gap:0;margin-bottom:28px;
+    }
+    .step-item{
+      display:flex;align-items:center;gap:8px;flex:1;
+    }
+    .step-circle{
+      width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;flex-shrink:0;
+      background:var(--bg2);color:var(--text3);transition:all .3s;
+    }
+    .step-circle.active{border-color:var(--cyan);color:var(--cyan);}
+    .step-circle.done{border-color:var(--green);background:var(--green);color:#000;}
+    .step-label{font-size:12px;color:var(--text3);font-weight:500;transition:color .3s;white-space:nowrap;}
+    .step-label.active{color:var(--text);}
+    .step-line{flex:1;height:1px;background:var(--border);margin:0 8px;}
+    .step-line.done{background:var(--green);}
+
+    /* CARDS */
+    .card{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--r);overflow:hidden;margin-bottom:16px;
+    }
+    .card-header{
+      padding:16px 20px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .card-header h3{font-size:14px;font-weight:700;}
+    .card-header .step-n{
+      font-size:10px;letter-spacing:2px;text-transform:uppercase;
+      color:var(--cyan);font-weight:600;
+    }
+    .card-body{padding:20px;}
+
+    /* FORM */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-grp{margin-bottom:16px;}
+    .form-grp:last-child{margin-bottom:0;}
+    .form-grp label{
+      display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;
+      color:var(--text2);margin-bottom:6px;font-weight:500;
+    }
+    .form-grp input,.form-grp select{
+      width:100%;background:var(--bg3);border:1px solid var(--border2);
+      border-radius:6px;color:var(--text);font-family:var(--ff);
+      font-size:14px;padding:11px 14px;outline:none;transition:border-color .2s;
+      -webkit-appearance:none;
+    }
+    .form-grp input:focus,.form-grp select:focus{border-color:var(--cyan);}
+    .form-grp input::placeholder{color:var(--text3);}
+    .form-grp input.ok{border-color:var(--green);}
+    .form-grp input.err{border-color:var(--red);}
+    .form-err{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+
+    /* BOTÕES */
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:13px 24px;border-radius:var(--r);font-family:var(--ff);
+      font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;
+    }
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .btn-cyan{background:var(--cyan);color:#000;width:100%;}
+    .btn-cyan:hover:not(:disabled){background:var(--cyan2);}
+    .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+
+    /* RESUMO LATERAL */
+    .resumo{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--r);position:sticky;top:80px;
+    }
+    .resumo-header{
+      padding:16px 20px;border-bottom:1px solid var(--border);
+      font-size:13px;font-weight:700;
+    }
+    .resumo-items{padding:16px 20px;border-bottom:1px solid var(--border);}
+    .resumo-item{
+      display:flex;gap:12px;align-items:center;margin-bottom:12px;
+    }
+    .resumo-item:last-child{margin-bottom:0;}
+    .resumo-foto{
+      width:52px;height:52px;border-radius:6px;
+      background:var(--bg3);overflow:hidden;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:22px;
+    }
+    .resumo-foto img{width:100%;height:100%;object-fit:cover;}
+    .resumo-info{flex:1;}
+    .resumo-nome{font-size:13px;font-weight:600;margin-bottom:2px;}
+    .resumo-var{font-size:11px;color:var(--text2);}
+    .resumo-preco{font-size:14px;font-weight:700;color:var(--cyan);white-space:nowrap;}
+    .resumo-totais{padding:16px 20px;}
+    .resumo-linha{
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:13px;margin-bottom:8px;
+    }
+    .resumo-linha span{color:var(--text2);}
+    .resumo-linha strong{color:var(--text);}
+    .resumo-total{
+      display:flex;justify-content:space-between;align-items:center;
+      padding-top:12px;border-top:1px solid var(--border);
+      margin-top:4px;
+    }
+    .resumo-total span{font-size:14px;font-weight:600;}
+    .resumo-total strong{font-size:22px;font-weight:800;}
+    .cupom-row{display:flex;gap:8px;margin-top:12px;}
+    .cupom-input{
+      flex:1;background:var(--bg3);border:1px solid var(--border2);
+      border-radius:6px;color:var(--text);font-family:var(--ff);
+      font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s;
+      text-transform:uppercase;
+    }
+    .cupom-input:focus{border-color:var(--cyan);}
+    .btn-cupom{
+      background:var(--bg4);border:1px solid var(--border2);color:var(--text2);
+      font-family:var(--ff);font-size:12px;font-weight:600;
+      padding:9px 14px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;
+    }
+    .btn-cupom:hover{border-color:var(--cyan);color:var(--cyan);}
+    .cupom-ok{font-size:12px;color:var(--green);margin-top:6px;display:none;}
+    .cupom-err{font-size:12px;color:var(--red);margin-top:6px;display:none;}
+
+    /* PIX */
+    .pix-box{
+      background:var(--bg3);border:1px solid rgba(0,229,255,.2);
+      border-radius:12px;padding:28px;text-align:center;
+    }
+    .pix-tag{
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);
+      color:var(--cyan);font-size:11px;font-weight:600;letter-spacing:1.5px;
+      text-transform:uppercase;padding:4px 14px;border-radius:999px;
+      margin-bottom:16px;
+    }
+    .pix-qr{
+      width:180px;height:180px;margin:0 auto 16px;
+      background:#fff;border-radius:8px;padding:8px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .pix-qr canvas,.pix-qr img{width:164px!important;height:164px!important;}
+    .pix-valor{font-size:32px;font-weight:800;color:var(--cyan);margin-bottom:4px;}
+    .pix-destinatario{font-size:13px;color:var(--text2);margin-bottom:20px;}
+    .pix-copia-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+    .pix-copia-box{
+      display:flex;gap:8px;background:var(--bg2);border:1px solid var(--border);
+      border-radius:6px;padding:10px 14px;align-items:center;margin-bottom:16px;
+    }
+    .pix-copia-txt{
+      flex:1;font-size:11px;color:var(--text2);
+      word-break:break-all;text-align:left;font-family:monospace;
+    }
+    .btn-copiar-pix{
+      background:var(--cyan);color:#000;border:none;
+      font-family:var(--ff);font-size:12px;font-weight:700;
+      padding:7px 14px;border-radius:4px;cursor:pointer;flex-shrink:0;
+      transition:background .2s;
+    }
+    .btn-copiar-pix:hover{background:var(--cyan2);}
+    .pix-instrucoes{
+      font-size:12px;color:var(--text2);line-height:1.7;
+      background:var(--bg2);border-radius:6px;padding:12px;text-align:left;
+      border:1px solid var(--border);
+    }
+    .pix-instrucoes strong{color:var(--text);}
+
+    /* CONFIRMAÇÃO */
+    .confirmacao{text-align:center;padding:48px 24px;}
+    .conf-ico{font-size:72px;margin-bottom:16px;}
+    .conf-title{font-size:26px;font-weight:800;margin-bottom:8px;}
+    .conf-sub{font-size:15px;color:var(--text2);margin-bottom:24px;line-height:1.65;}
+    .conf-pedido{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--r);padding:20px;display:inline-block;margin-bottom:28px;
+    }
+    .conf-pedido .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+    .conf-pedido .num{font-size:24px;font-weight:800;font-family:monospace;color:var(--cyan);}
+    .conf-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+    /* MÉTODO PAGAMENTO */
+    .metodos{display:flex;flex-direction:column;gap:10px;}
+    .metodo{
+      border:2px solid var(--border);border-radius:var(--r);
+      padding:14px 16px;cursor:pointer;transition:border-color .2s;
+      display:flex;align-items:center;gap:14px;
+    }
+    .metodo.selected{border-color:var(--cyan);background:rgba(0,229,255,.04);}
+    .metodo-radio{
+      width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);
+      flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;
+    }
+    .metodo.selected .metodo-radio{border-color:var(--cyan);}
+    .metodo.selected .metodo-radio::after{
+      content:'';width:10px;height:10px;border-radius:50%;background:var(--cyan);display:block;
+    }
+    .metodo-ico{font-size:24px;}
+    .metodo-info strong{font-size:14px;font-weight:700;display:block;}
+    .metodo-info span{font-size:12px;color:var(--text2);}
+    .metodo-badge{
+      margin-left:auto;font-size:10px;font-weight:700;
+      background:rgba(52,199,89,.15);color:var(--green);
+      padding:3px 8px;border-radius:4px;flex-shrink:0;
+    }
+
+    /* TOAST */
+    .toast{
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--bg3);border:1px solid var(--border);
+      border-radius:var(--r);padding:12px 24px;font-size:14px;font-weight:500;
+      z-index:999;opacity:0;transition:all .3s;white-space:nowrap;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .toast.ok{border-color:var(--green);color:var(--green);}
+    .toast.err{border-color:var(--red);color:var(--red);}
+    .toast.info{border-color:var(--cyan);color:var(--cyan);}
+
+    /* SPINNER */
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* EMPTY CART */
+    .empty-cart{text-align:center;padding:80px 20px;}
+    .empty-cart h2{font-size:24px;margin-bottom:12px;}
+    .empty-cart p{color:var(--text2);margin-bottom:24px;}
+
+    @media(max-width:900px){
+      .checkout-layout{grid-template-columns:1fr;gap:20px;}
+      .resumo{position:static;}
+    }
+    @media(max-width:600px){
+      .checkout-layout{padding:16px 14px 60px;}
+      .form-row{grid-template-columns:1fr;}
+      .steps-bar .step-label{display:none;}
+      .pix-box{padding:20px 14px;}
+    }
+      .logo img{height:38px;width:auto;display:block;}
+    .logo{display:flex;align-items:center;}
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="loja.html" class="logo">NEWLOUNGE<span> SPORT</span></a>
+  <a href="loja.html" class="header-back">← Continuar comprando</a>
+</header>
+
+<div id="app"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================================
+// ⚙️  CONFIGURAÇÃO PIX — preencha com seus dados
+// =============================================================
+const PIX_CHAVE        = '7dd0b480-3596-4d3b-8e47-37704b9620fc'; // Chave aleatória Santander PJ
+const PIX_NOME         = 'NewLounge Sport';                       // Nome na conta PJ (máx 25 chars)
+const PIX_CIDADE       = 'MACEIO';                             // Cidade (sem acento, máx 15 chars)
+const PIX_NOME_EXIBIDO = 'NewLounge Sport MACEIÓ';              // Exibido para o cliente
+// =============================================================
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+// =============================================================
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Logo da loja — cole a URL pública do Supabase Storage aqui:
+const LOGO_URL = 'COLE_URL_DA_LOGO_AQUI';
+window.addEventListener('DOMContentLoaded',()=>{if(LOGO_URL&&!LOGO_URL.includes('COLE_URL')){document.querySelectorAll('.logo').forEach(el=>{el.innerHTML='<img src=\"'+LOGO_URL+'\" alt=\"NewLounge Sport\">';});}});
+
+let carrinho   = JSON.parse(localStorage.getItem('vs_cart') || '[]');
+let pedidoId   = null;
+let pedidoNum  = null;
+let cupomAtual = null;
+let desconto   = 0;
+let frete      = 0;
+let metodo     = 'pix';
+
+// ===== INIT =====
+function init() {
+  if (!carrinho.length) {
+    document.getElementById('app').innerHTML = `
+      <div class="empty-cart">
+        <div style="font-size:64px;margin-bottom:16px;">🛒</div>
+        <h2>Carrinho vazio</h2>
+        <p>Adicione produtos antes de finalizar a compra.</p>
+        <a href="loja.html" class="btn btn-cyan" style="display:inline-flex;width:auto;padding:13px 28px;">Ir para a loja</a>
+      </div>`;
+    return;
+  }
+  renderLayout();
+}
+
+// ===== RENDER LAYOUT =====
+function renderLayout() {
+  document.getElementById('app').innerHTML = `
+    <div class="checkout-layout">
+      <div id="checkout-left">
+        <!-- STEPS -->
+        <div class="steps-bar" id="steps-bar">
+          <div class="step-item">
+            <div class="step-circle active" id="sc1">1</div>
+            <span class="step-label active" id="sl1">Seus dados</span>
+          </div>
+          <div class="step-line" id="line1"></div>
+          <div class="step-item">
+            <div class="step-circle" id="sc2">2</div>
+            <span class="step-label" id="sl2">Endereço</span>
+          </div>
+          <div class="step-line" id="line2"></div>
+          <div class="step-item">
+            <div class="step-circle" id="sc3">3</div>
+            <span class="step-label" id="sl3">Pagamento</span>
+          </div>
+        </div>
+        <!-- CONTEÚDO DO STEP -->
+        <div id="step-content"></div>
+      </div>
+
+      <!-- RESUMO -->
+      <div class="resumo" id="resumo-lateral">
+        <div class="resumo-header">Resumo do pedido</div>
+        <div class="resumo-items" id="resumo-items"></div>
+        <div class="resumo-totais">
+          <div class="resumo-linha"><span>Subtotal</span><strong id="r-subtotal">—</strong></div>
+          <div class="resumo-linha" id="r-desc-row" style="display:none;"><span style="color:var(--green)">Desconto</span><strong style="color:var(--green)" id="r-desc">—</strong></div>
+          <div class="resumo-linha"><span>Frete</span><strong id="r-frete">A calcular</strong></div>
+          <div class="resumo-total">
+            <span>Total</span>
+            <strong id="r-total">—</strong>
+          </div>
+          <div class="cupom-row">
+            <input class="cupom-input" type="text" placeholder="CUPOM DE DESCONTO" id="cupom-input" maxlength="20">
+            <button class="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+          </div>
+          <div class="cupom-ok" id="cupom-ok"></div>
+          <div class="cupom-err" id="cupom-err"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  renderResumo();
+  renderStep1();
+}
+
+// ===== RESUMO =====
+function renderResumo() {
+  const sub = carrinho.reduce((s, i) => s + i.preco * i.qty, 0);
+  const total = sub - desconto + frete;
+  document.getElementById('resumo-items').innerHTML = carrinho.map(i => `
+    <div class="resumo-item">
+      <div class="resumo-foto">${i.foto ? `<img src="${i.foto}">` : '👕'}</div>
+      <div class="resumo-info">
+        <div class="resumo-nome">${i.nome}</div>
+        <div class="resumo-var">${[i.tamanho, i.cor].filter(Boolean).join(' · ')} · Qtd: ${i.qty}</div>
+      </div>
+      <div class="resumo-preco">${fmt(i.preco * i.qty)}</div>
+    </div>`).join('');
+  document.getElementById('r-subtotal').textContent = fmt(sub);
+  document.getElementById('r-frete').textContent = frete > 0 ? fmt(frete) : 'A calcular';
+  document.getElementById('r-total').textContent = fmt(total);
+  if (desconto > 0) {
+    document.getElementById('r-desc-row').style.display = 'flex';
+    document.getElementById('r-desc').textContent = '-' + fmt(desconto);
+  }
+}
+
+// ===== STEP 1 — DADOS PESSOAIS =====
+function renderStep1() {
+  document.getElementById('step-content').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h3>Seus dados</h3>
+        <span class="step-n">Passo 1 de 3</span>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-grp">
+            <label>Nome completo *</label>
+            <input type="text" id="s1-nome" placeholder="João da Silva" autocomplete="name">
+          </div>
+          <div class="form-grp">
+            <label>E-mail *</label>
+            <input type="email" id="s1-email" placeholder="joao@email.com" autocomplete="email">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-grp">
+            <label>Telefone / WhatsApp *</label>
+            <input type="tel" id="s1-fone" placeholder="(82) 99999-9999" autocomplete="tel">
+          </div>
+          <div class="form-grp">
+            <label>CPF *</label>
+            <input type="text" id="s1-cpf" placeholder="000.000.000-00" maxlength="14">
+          </div>
+        </div>
+        <button class="btn btn-cyan" style="margin-top:8px;" onclick="avancarStep1()">
+          Continuar → Endereço
+        </button>
+      </div>
+    </div>`;
+
+  // Máscaras
+  document.getElementById('s1-fone').oninput = function() {
+    let v = this.value.replace(/\D/g,'').substring(0,11);
+    if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3');
+    else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d*)/,'($1) $2-$3');
+    else if (v.length > 2) v = v.replace(/(\d{2})(\d*)/,'($1) $2');
+    this.value = v;
+  };
+  document.getElementById('s1-cpf').oninput = function() {
+    let v = this.value.replace(/\D/g,'').substring(0,11);
+    v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    this.value = v;
+  };
+}
+
+function avancarStep1() {
+  const nome  = document.getElementById('s1-nome').value.trim();
+  const email = document.getElementById('s1-email').value.trim();
+  const fone  = document.getElementById('s1-fone').value.trim();
+  const cpf   = document.getElementById('s1-cpf').value.trim();
+  if (!nome || !email || !fone || !cpf) { toast('Preencha todos os campos obrigatórios', 'err'); return; }
+  if (!email.includes('@')) { toast('E-mail inválido', 'err'); return; }
+  window._cliente = { nome, email, fone, cpf };
+  setStep(1, 2); renderStep2();
+}
+
+// ===== STEP 2 — ENDEREÇO =====
+function renderStep2() {
+  document.getElementById('step-content').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h3>Endereço de entrega</h3>
+        <span class="step-n">Passo 2 de 3</span>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-grp">
+            <label>CEP *</label>
+            <input type="text" id="s2-cep" placeholder="00000-000" maxlength="9" oninput="buscarCEP(this)">
+          </div>
+          <div class="form-grp" style="display:flex;align-items:flex-end;">
+            <span id="cep-status" style="font-size:13px;color:var(--text2);padding-bottom:11px;"></span>
+          </div>
+        </div>
+        <div class="form-grp"><label>Logradouro *</label><input type="text" id="s2-logr" placeholder="Rua, Avenida, etc."></div>
+        <div class="form-row">
+          <div class="form-grp"><label>Número *</label><input type="text" id="s2-num" placeholder="123"></div>
+          <div class="form-grp"><label>Complemento</label><input type="text" id="s2-comp" placeholder="Apto, Bloco..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-grp"><label>Bairro *</label><input type="text" id="s2-bairro" placeholder="Bairro"></div>
+          <div class="form-grp"><label>Cidade *</label><input type="text" id="s2-cidade" placeholder="Cidade"></div>
+        </div>
+        <div class="form-grp" style="max-width:120px;"><label>Estado *</label><input type="text" id="s2-estado" placeholder="AL" maxlength="2"></div>
+        <div style="margin-top:4px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;">
+          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Frete estimado</div>
+          <div id="frete-opcoes" style="font-size:13px;color:var(--text2);">Preencha o CEP para calcular</div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <button class="btn btn-ghost" style="flex:1" onclick="voltarStep(1)">← Voltar</button>
+          <button class="btn btn-cyan" style="flex:2" onclick="avancarStep2()">Continuar → Pagamento</button>
+        </div>
+      </div>
+    </div>`;
+
+  // Máscara CEP
+  document.getElementById('s2-cep').oninput = function() {
+    let v = this.value.replace(/\D/g,'').substring(0,8);
+    if (v.length > 5) v = v.replace(/(\d{5})(\d)/,'$1-$2');
+    this.value = v;
+  };
+}
+
+async function buscarCEP(input) {
+  const cep = input.value.replace(/\D/g,'');
+  if (cep.length !== 8) return;
+  document.getElementById('cep-status').innerHTML = '<span style="color:var(--cyan)">🔍 Buscando...</span>';
+  try {
+    const res  = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await res.json();
+    if (data.erro) { document.getElementById('cep-status').innerHTML = '<span style="color:var(--red)">CEP não encontrado</span>'; return; }
+    document.getElementById('s2-logr').value   = data.logradouro || '';
+    document.getElementById('s2-bairro').value = data.bairro     || '';
+    document.getElementById('s2-cidade').value = data.localidade || '';
+    document.getElementById('s2-estado').value = data.uf         || '';
+    document.getElementById('cep-status').innerHTML = '<span style="color:var(--green)">✅ CEP encontrado</span>';
+    // Calcular frete simulado
+    const uf = data.uf;
+    const frAL = uf === 'AL';
+    const frNE = ['AL','BA','CE','MA','PB','PE','PI','RN','SE'].includes(uf);
+    document.getElementById('frete-opcoes').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="radio" name="frete" value="${frAL?0:frNE?1590:2490}" onchange="setFrete(this.value)">
+          <span>🚚 Padrão — <strong>${frAL?'GRÁTIS':frNE?'R$ 15,90':'R$ 24,90'}</strong> — ${frAL?'3-5':frNE?'5-8':'8-12'} dias úteis</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="radio" name="frete" value="${frAL?0:frNE?2990:4990}" onchange="setFrete(this.value)">
+          <span>⚡ Expresso — <strong>${frAL?'GRÁTIS':frNE?'R$ 29,90':'R$ 49,90'}</strong> — ${frAL?'1-2':frNE?'2-3':'3-5'} dias úteis</span>
+        </label>
+      </div>`;
+    document.getElementById('s2-num').focus();
+  } catch(e) {
+    document.getElementById('cep-status').innerHTML = '<span style="color:var(--red)">Erro ao buscar CEP</span>';
+  }
+}
+
+function setFrete(centavos) {
+  frete = Number(centavos) / 100;
+  renderResumo();
+}
+
+function avancarStep2() {
+  const logr   = document.getElementById('s2-logr').value.trim();
+  const num    = document.getElementById('s2-num').value.trim();
+  const bairro = document.getElementById('s2-bairro').value.trim();
+  const cidade = document.getElementById('s2-cidade').value.trim();
+  const estado = document.getElementById('s2-estado').value.trim();
+  const cep    = document.getElementById('s2-cep').value.trim();
+  if (!logr || !num || !bairro || !cidade || !estado || !cep) { toast('Preencha todos os campos de endereço', 'err'); return; }
+  window._endereco = {
+    cep, logradouro: logr, numero: num,
+    complemento: document.getElementById('s2-comp').value.trim(),
+    bairro, cidade, estado,
+  };
+  setStep(2, 3); renderStep3();
+}
+
+// ===== STEP 3 — PAGAMENTO =====
+function renderStep3() {
+  const sub   = carrinho.reduce((s,i) => s + i.preco * i.qty, 0);
+  const total = sub - desconto + frete;
+  document.getElementById('step-content').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h3>Forma de pagamento</h3>
+        <span class="step-n">Passo 3 de 3</span>
+      </div>
+      <div class="card-body">
+        <div class="metodos">
+          <div class="metodo selected" id="metodo-pix" onclick="selecionarMetodo('pix')">
+            <div class="metodo-radio"></div>
+            <div class="metodo-ico">📱</div>
+            <div class="metodo-info">
+              <strong>Pix</strong>
+              <span>Aprovação imediata · 5% de desconto</span>
+            </div>
+            <span class="metodo-badge">Recomendado</span>
+          </div>
+          <div class="metodo" id="metodo-cartao" onclick="selecionarMetodo('cartao')">
+            <div class="metodo-radio"></div>
+            <div class="metodo-ico">💳</div>
+            <div class="metodo-info">
+              <strong>Cartão de crédito</strong>
+              <span>Em até 12x · Via Mercado Pago</span>
+            </div>
+            <span class="metodo-badge">Seguro</span>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:14px;background:var(--bg3);border-radius:6px;font-size:12px;color:var(--text2);">
+          <strong style="color:var(--text);">Total a pagar:</strong>
+          <span style="font-size:20px;font-weight:800;color:var(--cyan);margin-left:8px;" id="total-pagar">${fmt(total)}</span>
+          <span id="desconto-pix-info" style="font-size:12px;color:var(--green);margin-left:8px;">no Pix: ${fmt(total*0.95)} (-5%)</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <button class="btn btn-ghost" style="flex:1" onclick="voltarStep(2)">← Voltar</button>
+          <button class="btn btn-cyan" style="flex:2" id="btn-pagar" onclick="confirmarPedido()">
+            Gerar QR Code Pix →
+          </button>
+        </div>
+        <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px;">
+          🔒 Ambiente seguro · Seus dados são protegidos
+        </p>
+      </div>
+    </div>`;
+}
+
+function selecionarMetodo(m) {
+  metodo = m;
+  document.querySelectorAll('.metodo').forEach(el => el.classList.remove('selected'));
+  document.getElementById('metodo-' + m)?.classList.add('selected');
+  // Atualiza o botão conforme método
+  const btn = document.getElementById('btn-pagar');
+  const descInfo = document.getElementById('desconto-pix-info');
+  if (btn) {
+    btn.textContent = m === 'pix' ? 'Gerar QR Code Pix →' : 'Pagar com cartão →';
+  }
+  if (descInfo) descInfo.style.display = m === 'pix' ? 'inline' : 'none';
+}
+
+// ===== CONFIRMAR PEDIDO =====
+async function confirmarPedido() {
+  const btn = document.getElementById('btn-pagar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Processando...';
+
+  const sub   = carrinho.reduce((s,i) => s + i.preco * i.qty, 0);
+  // Pix tem 5% de desconto
+  const descPix = metodo === 'pix' ? sub * 0.05 : 0;
+  const total = sub - desconto - descPix + frete;
+  const num   = gerarNumeroPedido();
+
+  try {
+    // Salvar pedido no Supabase
+    const { data: pedido, error: errPedido } = await sb.from('pedidos').insert({
+      numero:           num,
+      cliente_email:    window._cliente.email,
+      cliente_nome:     window._cliente.nome,
+      status:           'aguardando_pagamento',
+      subtotal:         sub,
+      desconto_cupom:   desconto + descPix,
+      frete:            frete,
+      total:            total,
+      cupom_codigo:     cupomAtual?.codigo || (descPix > 0 ? 'PIX5' : ''),
+      metodo_pagamento: metodo,
+      endereco_entrega: window._endereco,
+    }).select().single();
+
+    if (errPedido) throw errPedido;
+    pedidoId  = pedido.id;
+    pedidoNum = pedido.numero;
+
+    // Salvar itens
+    const itens = carrinho.map(i => ({
+      pedido_id:        pedidoId,
+      produto_nome:     i.nome,
+      produto_foto:     i.foto || '',
+      variante_tamanho: i.tamanho || '',
+      variante_cor:     i.cor || '',
+      quantidade:       i.qty,
+      preco_unitario:   i.preco,
+      preco_total:      i.preco * i.qty,
+    }));
+    await sb.from('itens_pedido').insert(itens);
+
+    // ===== ESCOLHA DO MÉTODO =====
+    if (metodo === 'cartao') {
+      // CARTÃO — chama a Netlify Function que cria pagamento no MP
+      await pagarComCartao(num, total);
+    } else {
+      // PIX — mostra QR Code, dinheiro vai direto pro C6
+      localStorage.removeItem('vs_cart');
+      carrinho = [];
+      renderPix(total, num);
+    }
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = metodo === 'pix' ? 'Gerar QR Code Pix →' : 'Pagar com cartão →';
+    toast('Erro ao criar pedido: ' + e.message, 'err');
+  }
+}
+
+// ===== PAGAMENTO COM CARTÃO (Mercado Pago) =====
+async function pagarComCartao(num, total) {
+  const btn = document.getElementById('btn-pagar');
+  btn.innerHTML = '<span class="spinner"></span> Redirecionando ao pagamento...';
+
+  try {
+    const resp = await fetch('/.netlify/functions/criar-pagamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        itens: carrinho,
+        cliente: window._cliente,
+        endereco: window._endereco,
+        pedidoId: pedidoId,
+        frete: frete,
+        desconto: desconto,
+        cupom: cupomAtual?.codigo || '',
+      }),
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok || !data.init_point) {
+      throw new Error(data.error || 'Não foi possível iniciar o pagamento');
+    }
+
+    // Limpa carrinho e redireciona para o checkout seguro do Mercado Pago
+    localStorage.removeItem('vs_cart');
+    carrinho = [];
+    window.location.href = data.init_point;
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Pagar com cartão →';
+    toast('Erro no pagamento: ' + e.message + '. Tente o Pix.', 'err');
+  }
+}
+
+// ===== PIX QR CODE =====
+function renderPix(total, num) {
+  const txId   = ('VS' + num.replace(/\D/g,'')).substring(0,25).padEnd(5,'0');
+  const pixStr = gerarPixEMV(PIX_CHAVE, PIX_NOME, PIX_CIDADE, total, txId);
+
+  document.getElementById('checkout-left').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h3>💚 Pague via Pix</h3>
+        <span class="step-n">Pedido #${num}</span>
+      </div>
+      <div class="card-body">
+        <div class="pix-box">
+          <div class="pix-tag">🔒 Pix Seguro · Instantâneo</div>
+          <div class="pix-valor">${fmt(total)}</div>
+          <p class="pix-destinatario">Para: <strong>${PIX_NOME_EXIBIDO}</strong></p>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Pedido <strong style="color:var(--text)">#${num}</strong></p>
+
+          <!-- QR CODE -->
+          <div class="pix-qr" id="qr-container"></div>
+
+          <!-- COPIA E COLA -->
+          <div class="pix-copia-label">Pix Copia e Cola</div>
+          <div class="pix-copia-box">
+            <span class="pix-copia-txt" id="pix-str">${pixStr}</span>
+            <button class="btn-copiar-pix" onclick="copiarPix()">Copiar</button>
+          </div>
+
+          <!-- INSTRUÇÕES -->
+          <div class="pix-instrucoes">
+            <strong>Como pagar:</strong><br>
+            1. Abra o app do seu banco<br>
+            2. Acesse a área <strong>Pix</strong><br>
+            3. Escaneie o QR Code <strong>ou</strong> use o "Copia e Cola"<br>
+            4. Confirme o valor e conclua o pagamento<br>
+            5. Guardaremos seu pedido — confirmaremos em até <strong>24h</strong> úteis
+          </div>
+        </div>
+
+        <!-- AVISO -->
+        <div style="margin-top:16px;padding:14px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.2);border-radius:6px;font-size:13px;color:var(--warn);">
+          ⚠️ Após o pagamento, você receberá a confirmação por e-mail em <strong>${window._cliente?.email || 'seu e-mail'}</strong>.
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+          <a href="loja.html" class="btn btn-ghost" style="flex:1;">🛍️ Continuar comprando</a>
+          <button class="btn" style="flex:1;background:rgba(52,199,89,.15);color:var(--green);border:1px solid rgba(52,199,89,.3);" onclick="verConfirmacao()">
+            ✅ Já paguei
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  // Gerar QR Code
+  try {
+    new QRCode(document.getElementById('qr-container'), {
+      text:         pixStr,
+      width:        164,
+      height:       164,
+      colorDark:    '#000000',
+      colorLight:   '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  } catch(e) {
+    document.getElementById('qr-container').innerHTML = '<p style="font-size:11px;color:var(--text3);">Use o código acima</p>';
+  }
+}
+
+function copiarPix() {
+  const str = document.getElementById('pix-str').textContent;
+  navigator.clipboard.writeText(str).then(() => {
+    toast('Código Pix copiado!', 'ok');
+  });
+}
+
+function verConfirmacao() {
+  document.getElementById('checkout-left').innerHTML = `
+    <div class="confirmacao">
+      <div class="conf-ico">🎉</div>
+      <h2 class="conf-title">Pedido recebido!</h2>
+      <p class="conf-sub">
+        Assim que confirmarmos seu pagamento Pix, seu pedido entrará em processamento.<br>
+        Você receberá um e-mail de confirmação em <strong>${window._cliente?.email||'seu e-mail'}</strong>.
+      </p>
+      <div class="conf-pedido">
+        <div class="lbl">Número do pedido</div>
+        <div class="num">#${pedidoNum}</div>
+      </div>
+      <div class="conf-links">
+        <a href="loja.html" class="btn btn-ghost">← Voltar à loja</a>
+        <a href="loja.html" class="btn btn-cyan" style="width:auto;padding:13px 24px;">🛍️ Continuar comprando</a>
+      </div>
+    </div>`;
+  document.getElementById('resumo-lateral').style.display = 'none';
+}
+
+// ===== STEPS NAVIGATION =====
+function setStep(atual, proximo) {
+  // Marca atual como done
+  document.getElementById('sc' + atual).classList.remove('active');
+  document.getElementById('sc' + atual).classList.add('done');
+  document.getElementById('sc' + atual).textContent = '✓';
+  document.getElementById('sl' + atual).classList.remove('active');
+  if (document.getElementById('line' + atual)) document.getElementById('line' + atual).classList.add('done');
+  // Ativa próximo
+  document.getElementById('sc' + proximo)?.classList.add('active');
+  document.getElementById('sl' + proximo)?.classList.add('active');
+}
+
+function voltarStep(para) {
+  if (para === 1) {
+    document.getElementById('sc2').classList.remove('active');
+    document.getElementById('sl2').classList.remove('active');
+    document.getElementById('sc1').classList.remove('done');
+    document.getElementById('sc1').textContent = '1';
+    document.getElementById('sc1').classList.add('active');
+    document.getElementById('sl1').classList.add('active');
+    document.getElementById('line1').classList.remove('done');
+    renderStep1();
+  } else if (para === 2) {
+    document.getElementById('sc3').classList.remove('active');
+    document.getElementById('sl3').classList.remove('active');
+    document.getElementById('sc2').classList.remove('done');
+    document.getElementById('sc2').textContent = '2';
+    document.getElementById('sc2').classList.add('active');
+    document.getElementById('sl2').classList.add('active');
+    document.getElementById('line2').classList.remove('done');
+    renderStep2();
+  }
+}
+
+// ===== CUPOM =====
+async function aplicarCupom() {
+  const codigo = document.getElementById('cupom-input').value.trim().toUpperCase();
+  const okEl   = document.getElementById('cupom-ok');
+  const errEl  = document.getElementById('cupom-err');
+  okEl.style.display = errEl.style.display = 'none';
+  if (!codigo) return;
+  const { data } = await sb.from('cupons')
+    .select('*').eq('codigo', codigo).eq('ativo', true).single();
+  if (!data) { errEl.textContent = 'Cupom inválido ou expirado'; errEl.style.display = 'block'; return; }
+  if (data.validade && new Date(data.validade) < new Date()) { errEl.textContent = 'Cupom expirado'; errEl.style.display = 'block'; return; }
+  if (data.usos_maximo && data.usos_atual >= data.usos_maximo) { errEl.textContent = 'Cupom esgotado'; errEl.style.display = 'block'; return; }
+  const sub = carrinho.reduce((s,i) => s + i.preco * i.qty, 0);
+  if (sub < (data.valor_minimo || 0)) { errEl.textContent = `Pedido mínimo: ${fmt(data.valor_minimo)}`; errEl.style.display = 'block'; return; }
+  cupomAtual = data;
+  desconto   = data.tipo === 'percentual' ? sub * (data.valor / 100) : Math.min(data.valor, sub);
+  okEl.textContent = `✅ Cupom aplicado: -${fmt(desconto)}`;
+  okEl.style.display = 'block';
+  renderResumo();
+}
+
+// ===== PIX EMV FORMAT =====
+function gerarPixEMV(chave, nome, cidade, valor, txId) {
+  function f(id, v) { return id + v.length.toString().padStart(2,'0') + v; }
+  const acc  = f('00','BR.GOV.BCB.PIX') + f('01', chave);
+  const add  = f('05', txId.substring(0,25));
+  let p = f('00','01') + f('26',acc) + f('52','0000') + f('53','986') +
+    f('54', valor.toFixed(2)) + f('58','BR') +
+    f('59', nome.substring(0,25).toUpperCase()) +
+    f('60', cidade.substring(0,15).toUpperCase()) +
+    f('62', add) + '6304';
+  return p + crc16(p);
+}
+
+function crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,'0');
+}
+
+// ===== UTILS =====
+function gerarNumeroPedido() {
+  return 'VS' + Date.now().toString().slice(-8) + Math.floor(Math.random()*100).toString().padStart(2,'0');
+}
+function fmt(v) {
+  return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+let toastT;
+function toast(msg, tipo='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `toast show ${tipo}`;
+  clearTimeout(toastT); toastT = setTimeout(() => el.className = 'toast', 3500);
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do Investidor — New Lounge Invest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#080808;--bg2:#0f0f0f;--bg3:#161616;--bg4:#1e1e1e;
+      --border:#1c1c1c;--border2:#282828;
+      --gold:#c9a96e;--gold2:#e8d5b0;
+      --text:#f0ede6;--text2:#9a9080;--text3:#5a5248;
+      --serif:'Playfair Display',Georgia,serif;
+      --sans:'Inter',-apple-system,Helvetica Neue,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{display:block;max-width:100%;}
+
+    /* LOGIN */
+    .login-screen{
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.06) 0%, transparent 60%);
+    }
+    .login-box{
+      background:var(--bg2);border:1px solid var(--border2);
+      border-radius:10px;padding:52px 44px;
+      width:440px;max-width:95vw;
+    }
+    .login-brand{text-align:center;margin-bottom:36px;}
+    .login-brand .eye{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);}
+    .login-brand h1{font-family:var(--serif);font-size:26px;font-weight:700;margin:8px 0 4px;}
+    .login-brand p{font-size:14px;color:var(--text2);}
+    .login-divider{width:48px;height:1px;background:var(--gold);margin:20px auto;}
+
+    label{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text2);margin-bottom:7px;}
+    input,select{
+      width:100%;background:var(--bg3);border:1px solid var(--border2);
+      border-radius:4px;color:var(--text);font-family:var(--sans);
+      font-size:14px;padding:11px 15px;outline:none;transition:border-color .2s;-webkit-appearance:none;
+      margin-bottom:16px;
+    }
+    input:focus,select:focus{border-color:var(--gold);}
+    input::placeholder{color:var(--text3);}
+
+    .btn-login{
+      width:100%;background:var(--gold);color:#080808;
+      border:none;font-family:var(--sans);font-size:13px;
+      letter-spacing:1.5px;text-transform:uppercase;font-weight:600;
+      padding:13px;border-radius:4px;cursor:pointer;transition:background .2s;
+    }
+    .btn-login:hover{background:var(--gold2);}
+    .btn-login:disabled{opacity:.5;cursor:not-allowed;}
+    .login-error{color:#e05252;font-size:13px;text-align:center;margin-top:12px;display:none;}
+    .login-footer{text-align:center;margin-top:20px;font-size:12px;color:var(--text3);}
+    .login-footer a{color:var(--gold);}
+
+    /* DASHBOARD */
+    #dash{display:none;}
+
+    .header{
+      background:var(--bg2);border-bottom:1px solid var(--border);
+      padding:0 48px;height:68px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:100;
+    }
+    .header-left{display:flex;align-items:center;gap:12px;}
+    .header-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+    .header-brand{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+    .header-right{display:flex;align-items:center;gap:12px;}
+    .btn-ghost{
+      font-size:12px;letter-spacing:1px;text-transform:uppercase;
+      border:1px solid var(--border2);padding:8px 18px;border-radius:2px;
+      color:var(--text2);cursor:pointer;background:transparent;font-family:var(--sans);
+      transition:all .2s;
+    }
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+    .main{padding:48px;max-width:1280px;margin:0 auto;}
+
+    /* WELCOME */
+    .welcome{
+      display:flex;align-items:flex-start;justify-content:space-between;
+      flex-wrap:wrap;gap:20px;margin-bottom:48px;
+      padding-bottom:32px;border-bottom:1px solid var(--border);
+    }
+    .welcome-txt .eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+    .welcome-txt h2{font-family:var(--serif);font-size:clamp(24px,3vw,36px);font-weight:700;line-height:1.2;}
+    .welcome-txt p{font-size:14px;color:var(--text2);margin-top:8px;max-width:480px;}
+    .welcome-badge{
+      background:var(--bg3);border:1px solid var(--border2);
+      border-radius:6px;padding:16px 24px;text-align:center;
+    }
+    .welcome-badge .num{font-size:32px;font-weight:700;color:var(--gold);}
+    .welcome-badge .lbl{font-size:11px;color:var(--text3);letter-spacing:1px;margin-top:4px;}
+
+    /* FILTROS */
+    .filters{
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px;
+    }
+    .filter-pill{
+      padding:6px 18px;border-radius:999px;font-size:12px;font-weight:500;
+      cursor:pointer;border:1px solid var(--border2);background:transparent;
+      color:var(--text2);font-family:var(--sans);transition:all .2s;
+    }
+    .filter-pill.active{background:var(--gold);border-color:var(--gold);color:#080808;font-weight:600;}
+    .filter-pill:hover:not(.active){border-color:var(--text2);color:var(--text);}
+    .filter-search{
+      background:var(--bg2);border:1px solid var(--border2);
+      border-radius:4px;color:var(--text);font-family:var(--sans);
+      font-size:13px;padding:8px 14px;outline:none;transition:border-color .2s;
+      width:220px;margin-left:auto;
+    }
+    .filter-search:focus{border-color:var(--gold);}
+
+    /* GRID */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+    .card{
+      background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;
+      transition:border-color .2s,transform .2s;cursor:pointer;
+    }
+    .card:hover{border-color:rgba(201,169,110,.25);transform:translateY(-2px);}
+    .card-foto{position:relative;aspect-ratio:4/3;background:var(--bg3);overflow:hidden;}
+    .card-foto img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+    .card:hover .card-foto img{transform:scale(1.04);}
+    .card-foto-placeholder{
+      width:100%;height:100%;display:flex;align-items:center;
+      justify-content:center;font-size:40px;color:var(--text3);
+    }
+    .card-badge{
+      position:absolute;top:12px;left:12px;
+      font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+      background:rgba(8,8,8,.88);border:1px solid var(--gold);
+      color:var(--gold);padding:3px 9px;border-radius:2px;
+    }
+    .card-exclusive{
+      position:absolute;top:12px;right:12px;
+      font-size:9px;letter-spacing:1px;text-transform:uppercase;
+      background:rgba(201,169,110,.15);border:1px solid var(--gold);
+      color:var(--gold);padding:3px 9px;border-radius:2px;
+    }
+    .card-body{padding:20px;}
+    .card-loc{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+    .card-title{font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.3;margin-bottom:10px;}
+    .card-specs{display:flex;gap:12px;font-size:11px;color:var(--text2);flex-wrap:wrap;margin-bottom:14px;}
+    .card-spec::before{content:'◆ ';font-size:7px;color:var(--gold);}
+    .card-footer{
+      display:flex;align-items:flex-end;justify-content:space-between;
+      padding-top:14px;border-top:1px solid var(--border);gap:8px;
+    }
+    .card-preco{font-size:18px;font-weight:700;color:var(--text);}
+    .card-yield{text-align:right;}
+    .yield-n{font-size:15px;color:var(--gold);font-weight:600;display:block;}
+    .yield-l{font-size:10px;color:var(--text3);}
+    .card-cta{
+      display:flex;gap:8px;padding:12px 20px;
+      border-top:1px solid var(--border);background:var(--bg3);
+    }
+    .btn-sm{
+      flex:1;font-size:12px;padding:7px;border-radius:3px;
+      cursor:pointer;font-family:var(--sans);font-weight:500;
+      text-align:center;transition:all .2s;border:1px solid var(--border2);
+      background:transparent;color:var(--text2);
+    }
+    .btn-sm.primary{background:var(--gold);border-color:var(--gold);color:#080808;}
+    .btn-sm:hover:not(.primary){border-color:var(--gold);color:var(--gold);}
+
+    /* EMPTY */
+    .empty{grid-column:1/-1;text-align:center;padding:60px;color:var(--text2);}
+    .spinner{
+      display:inline-block;width:24px;height:24px;
+      border:2px solid var(--border2);border-top-color:var(--gold);
+      border-radius:50%;animation:spin .7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* TOAST */
+    .toast{
+      position:fixed;bottom:24px;right:24px;
+      background:var(--bg3);border:1px solid var(--border2);
+      border-radius:6px;padding:12px 20px;font-size:13px;z-index:999;
+      transform:translateY(80px);opacity:0;transition:all .3s;
+    }
+    .toast.show.ok{transform:translateY(0);opacity:1;border-color:#52c07a;color:#52c07a;}
+
+    @media(max-width:768px){
+      .header{padding:0 16px;}
+      .main{padding:24px 16px;}
+      .filters{gap:6px;}
+      .filter-search{width:100%;margin-left:0;}
+      .welcome{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="eye">New Lounge Invest</div>
+      <h1>Área do Investidor</h1>
+      <div class="login-divider"></div>
+      <p>Acesso restrito a investidores credenciados</p>
+    </div>
+    <div>
+      <label>Email</label>
+      <input type="email" id="l-email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div>
+      <label>Senha</label>
+      <input type="password" id="l-senha" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="fazerLogin()">Entrar na área restrita</button>
+    <p class="login-error" id="login-err">Credenciais incorretas. Tente novamente.</p>
+    <div class="login-footer">
+      <a href="/">← Voltar ao site</a>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash">
+  <header class="header">
+    <div class="header-left">
+      <div class="header-dot"></div>
+      <span class="header-brand">NEW LOUNGE · Investidor</span>
+    </div>
+    <div class="header-right">
+      <a href="/" class="btn-ghost" style="text-decoration:none;">Site público</a>
+      <button class="btn-ghost" onclick="fazerLogout()">Sair</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <div class="welcome">
+      <div class="welcome-txt">
+        <div class="eyebrow">Portfólio exclusivo</div>
+        <h2>Oportunidades em <em style="font-style:italic;color:var(--gold);">curadoria ativa</em></h2>
+        <p>Acesso completo ao portfólio, incluindo imóveis off-market e oportunidades pré-lançamento não divulgadas publicamente.</p>
+      </div>
+      <div class="welcome-badge">
+        <div class="num" id="w-count">—</div>
+        <div class="lbl">Imóveis disponíveis</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-pill active" onclick="setFiltro('todos',this)">Todos</button>
+      <button class="filter-pill" onclick="setFiltro('alto-padrao',this)">Alto padrão</button>
+      <button class="filter-pill" onclick="setFiltro('beira-mar',this)">Beira-mar</button>
+      <button class="filter-pill" onclick="setFiltro('compacto',this)">Compacto</button>
+      <button class="filter-pill" onclick="setFiltro('comercial',this)">Comercial</button>
+      <button class="filter-pill" onclick="setFiltro('terreno',this)">Terreno</button>
+      <button class="filter-pill" onclick="setFiltro('off-market',this)">Off-market</button>
+      <button class="filter-pill" onclick="setFiltro('lancamento',this)">Lançamento</button>
+      <input class="filter-search" type="text" placeholder="Buscar imóvel..." oninput="renderGrid()">
+    </div>
+
+    <div class="grid" id="grid">
+      <div class="empty"><div class="spinner"></div></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let imoveis = [];
+let filtro  = 'todos';
+
+// AUTH
+async function fazerLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const senha = document.getElementById('l-senha').value;
+  const err   = document.getElementById('login-err');
+  const btn   = document.getElementById('btn-login');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Entrando...';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  btn.disabled = false; btn.textContent = 'Entrar na área restrita';
+  if (error) { err.style.display = 'block'; }
+  else { mostrarDash(); }
+}
+
+async function fazerLogout() {
+  await sb.auth.signOut();
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('dash').style.display  = 'none';
+}
+
+async function mostrarDash() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dash').style.display  = 'block';
+  await carregar();
+}
+
+window.addEventListener('load', async () => {
+  document.getElementById('l-senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) mostrarDash();
+});
+
+// DADOS — investidor vê todos (auth libera RLS)
+async function carregar() {
+  // Busca todos — a RLS auth permite SELECT sem filtro ativo
+  const { data } = await sb.from('imoveis').select('*')
+    .order('destaque', { ascending: false })
+    .order('ordem')
+    .order('criado_em', { ascending: false });
+  imoveis = data || [];
+  document.getElementById('w-count').textContent = imoveis.filter(i => i.ativo).length;
+  renderGrid();
+}
+
+function setFiltro(tipo, el) {
+  filtro = tipo;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid  = document.getElementById('grid');
+  const busca = document.querySelector('.filter-search').value.toLowerCase();
+  let lista = filtro === 'todos' ? imoveis : imoveis.filter(i => i.tipo === filtro);
+  if (busca) lista = lista.filter(i =>
+    (i.titulo||'').toLowerCase().includes(busca) ||
+    (i.localizacao||'').toLowerCase().includes(busca)
+  );
+  if (!lista.length) { grid.innerHTML = '<div class="empty">Nenhum imóvel encontrado.</div>'; return; }
+  grid.innerHTML = lista.map(im => cardHTML(im)).join('');
+}
+
+const TIPOS = {
+  'alto-padrao':'Alto padrão','beira-mar':'Beira-mar','compacto':'Compacto',
+  'comercial':'Comercial','terreno':'Terreno','lancamento':'Lançamento',
+  'off-market':'Off-market','investimento':'Investimento',
+};
+
+function cardHTML(im) {
+  const foto  = im.foto_principal || (im.fotos && im.fotos[0]) || '';
+  const preco = im.preco_display  || (im.preco ? 'R$ ' + Number(im.preco).toLocaleString('pt-BR') : '');
+  const specs = [];
+  if (im.area_m2) specs.push(im.area_m2 + ' m²');
+  if (im.suites)  specs.push(im.suites + ' suítes');
+  else if (im.quartos) specs.push(im.quartos + ' quartos');
+  if (im.vagas)   specs.push(im.vagas + ' vagas');
+  const wpp = im.whatsapp || '5582999570442';
+  const msg = encodeURIComponent(`Olá! Tenho interesse no imóvel: ${im.titulo}${im.localizacao ? ' — ' + im.localizacao : ''}. Podemos conversar?`);
+  const isOM = im.tipo === 'off-market' || !im.ativo;
+  return `
+    <div class="card">
+      <div class="card-foto" onclick="window.open('imovel?id=${im.id}','_blank')">
+        ${foto ? `<img src="${foto}" alt="${im.titulo}" loading="lazy">` : `<div class="card-foto-placeholder">🏠</div>`}
+        ${im.badge ? `<span class="card-badge">${im.badge}</span>` : ''}
+        ${isOM ? `<span class="card-exclusive">✦ Exclusivo</span>` : ''}
+      </div>
+      <div class="card-body">
+        ${im.localizacao ? `<div class="card-loc">${im.localizacao}</div>` : ''}
+        <div class="card-title">${im.titulo}</div>
+        ${specs.length ? `<div class="card-specs">${specs.map(s=>`<span class="card-spec">${s}</span>`).join('')}</div>` : ''}
+        <div class="card-footer">
+          ${preco ? `<span class="card-preco">${preco}</span>` : '<span></span>'}
+          ${im.yield_texto ? `<div class="card-yield"><span class="yield-n">${im.yield_texto}</span><span class="yield-l">${im.yield_label||'Yield'}</span></div>` : ''}
+        </div>
+      </div>
+      <div class="card-cta">
+        <button class="btn-sm" onclick="window.open('imovel?id=${im.id}','_blank')">Ver detalhes</button>
+        <a class="btn-sm primary" href="https://wa.me/${wpp}?text=${msg}" target="_blank">💬 Interesse</a>
+      </div>
+    </div>
+  `;
+}
+
+let toastT;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast show ok';
+  clearTimeout(toastT); toastT = setTimeout(() => el.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

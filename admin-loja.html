@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Loja — NewLounge Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#080808;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+      --border:#242424;--border2:#2e2e2e;
+      --cyan:#00E5FF;--cyan2:#80F0FF;
+      --red:#FF3B30;--green:#34C759;--warn:#FF9500;
+      --text:#F5F5F5;--text2:#888;--text3:#444;
+      --ff:'Inter',-apple-system,sans-serif;--r:6px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--ff);font-size:14px;line-height:1.5;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{display:block;max-width:100%;}
+
+    /* LOGIN */
+    .login-screen{
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,.05) 0%,transparent 60%);
+    }
+    .login-box{
+      background:var(--bg2);border:1px solid var(--border2);
+      border-radius:12px;padding:52px 44px;width:440px;max-width:95vw;
+    }
+    .login-brand{text-align:center;margin-bottom:32px;}
+    .login-logo{font-size:22px;font-weight:800;margin-bottom:6px;}
+    .login-logo span{color:var(--cyan);}
+    .login-brand h2{font-size:16px;font-weight:500;color:var(--text2);}
+
+    label{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text2);margin-bottom:7px;}
+    input,textarea,select{
+      width:100%;background:var(--bg3);border:1px solid var(--border2);
+      border-radius:var(--r);color:var(--text);font-family:var(--ff);
+      font-size:14px;padding:11px 15px;outline:none;transition:border-color .2s;
+      -webkit-appearance:none;margin-bottom:16px;
+    }
+    input:focus,textarea:focus,select:focus{border-color:var(--cyan);}
+    input::placeholder,textarea::placeholder{color:var(--text3);}
+    textarea{resize:vertical;min-height:80px;margin-bottom:0;}
+    select option{background:var(--bg3);}
+    input[type=checkbox]{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;margin-bottom:0;}
+    input[type=number]{-moz-appearance:textfield;}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      padding:10px 20px;border-radius:var(--r);font-family:var(--ff);
+      font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;
+    }
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .btn-full{width:100%;}
+    .btn-cyan{background:var(--cyan);color:#000;}
+    .btn-cyan:hover:not(:disabled){background:var(--cyan2);}
+    .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+    .btn-danger{background:transparent;border:1px solid #3a1a1a;color:var(--red);}
+    .btn-danger:hover{background:#1f0a0a;}
+    .btn-sm{padding:6px 14px;font-size:12px;}
+    .btn-xs{padding:4px 10px;font-size:11px;}
+
+    /* DASHBOARD */
+    #dash{display:none;}
+    .dash-header{
+      background:var(--bg2);border-bottom:1px solid var(--border);
+      padding:0 28px;height:58px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:200;
+    }
+    .dash-logo{font-size:16px;font-weight:800;}
+    .dash-logo span{color:var(--cyan);}
+    .dash-logo small{color:var(--text3);font-size:11px;font-weight:400;margin-left:6px;}
+    .dash-actions{display:flex;gap:8px;align-items:center;}
+
+    .dash-main{padding:24px 28px 60px;max-width:1400px;margin:0 auto;}
+
+    /* TABS */
+    .tabs-bar{
+      display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:28px;
+      overflow-x:auto;scrollbar-width:none;
+    }
+    .tabs-bar::-webkit-scrollbar{display:none;}
+    .tab{
+      padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;
+      border-bottom:2px solid transparent;color:var(--text2);background:none;border:none;
+      font-family:var(--ff);white-space:nowrap;transition:color .2s;
+      border-bottom:2px solid transparent;
+    }
+    .tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+    .tab:hover:not(.active){color:var(--text);}
+    .tab-content{display:none;}
+    .tab-content.active{display:block;}
+
+    /* STATS */
+    .stats-row{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;
+    }
+    .stat{
+      background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+      padding:18px 20px;
+    }
+    .stat-n{font-size:28px;font-weight:700;line-height:1;}
+    .stat-cyan{color:var(--cyan);}
+    .stat-green{color:var(--green);}
+    .stat-warn{color:var(--warn);}
+    .stat-red{color:var(--red);}
+    .stat-lbl{font-size:11px;color:var(--text2);margin-top:5px;letter-spacing:.5px;}
+
+    /* TOOLBAR */
+    .toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+    .toolbar h2{font-size:16px;font-weight:600;}
+    .toolbar-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .search-box{
+      background:var(--bg2);border:1px solid var(--border2);
+      border-radius:var(--r);color:var(--text);font-family:var(--ff);
+      font-size:13px;padding:8px 14px;outline:none;width:220px;
+      transition:border-color .2s;
+    }
+    .search-box:focus{border-color:var(--cyan);}
+
+    /* TABELA */
+    .tabela-wrap{overflow-x:auto;}
+    .tabela{width:100%;border-collapse:collapse;}
+    .tabela th{
+      font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+      color:var(--text3);padding:10px 16px;text-align:left;
+      border-bottom:1px solid var(--border);background:var(--bg2);font-weight:600;
+    }
+    .tabela td{
+      padding:12px 16px;border-bottom:1px solid var(--border);
+      vertical-align:middle;font-size:13px;
+    }
+    .tabela tr:hover td{background:rgba(255,255,255,.02);}
+    .tabela tr:last-child td{border-bottom:none;}
+    .prod-thumb-sm{
+      width:44px;height:44px;border-radius:4px;object-fit:cover;
+      background:var(--bg3);
+    }
+    .status-badge{
+      font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+      padding:3px 9px;border-radius:4px;
+    }
+    .status-ativo{background:rgba(52,199,89,.15);color:var(--green);}
+    .status-inativo{background:rgba(255,59,48,.15);color:var(--red);}
+    .status-aguardando{background:rgba(255,149,0,.15);color:var(--warn);}
+    .status-aprovado{background:rgba(52,199,89,.15);color:var(--green);}
+    .status-enviado{background:rgba(0,229,255,.15);color:var(--cyan);}
+    .status-cancelado{background:rgba(255,59,48,.15);color:var(--red);}
+    .td-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+    /* MODAL */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;
+      display:none;align-items:flex-start;justify-content:center;
+      padding:20px;overflow-y:auto;
+    }
+    .modal-overlay.open{display:flex;}
+    .modal-box{
+      background:var(--bg2);border:1px solid var(--border2);
+      border-radius:12px;width:100%;max-width:860px;margin:auto;overflow:hidden;
+    }
+    .modal-header{
+      padding:20px 24px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .modal-header h3{font-size:15px;font-weight:600;}
+    .modal-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;}
+    .modal-body{padding:24px;max-height:78vh;overflow-y:auto;}
+    .modal-footer{
+      padding:16px 24px;border-top:1px solid var(--border);
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+    }
+
+    .sec-title{
+      font-size:10px;letter-spacing:2px;text-transform:uppercase;
+      color:var(--cyan);font-weight:600;
+      margin:20px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);
+    }
+    .sec-title:first-child{margin-top:0;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+    .grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+    .form-grp{margin-bottom:14px;}
+    .form-grp label{margin-bottom:6px;}
+    .form-grp input,.form-grp textarea,.form-grp select{margin-bottom:0;}
+    .inline-chk{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+    .inline-chk label{text-transform:none;font-size:13px;color:var(--text);letter-spacing:0;margin:0;cursor:pointer;}
+
+    /* FOTO UPLOAD */
+    .foto-drop{
+      border:2px dashed var(--border2);border-radius:var(--r);
+      padding:24px;text-align:center;cursor:pointer;position:relative;
+      transition:border-color .2s,background .2s;
+    }
+    .foto-drop:hover,.foto-drop.drag{border-color:var(--cyan);background:rgba(0,229,255,.03);}
+    .foto-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;background:none;padding:0;}
+    .foto-drop-ico{font-size:24px;margin-bottom:6px;}
+    .foto-drop-txt{font-size:13px;color:var(--text2);}
+    .foto-drop-txt strong{color:var(--cyan);}
+    .fotos-prev{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:10px;}
+    .foto-prev-item{position:relative;aspect-ratio:1;border-radius:4px;overflow:hidden;border:2px solid transparent;}
+    .foto-prev-item.principal{border-color:var(--cyan);}
+    .foto-prev-item img{width:100%;height:100%;object-fit:cover;}
+    .foto-prev-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.75);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .foto-prev-del:hover{background:var(--red);}
+    .foto-principal-lbl{position:absolute;bottom:4px;left:4px;font-size:8px;font-weight:700;background:var(--cyan);color:#000;padding:1px 5px;border-radius:2px;}
+
+    /* VARIANTES */
+    .variante-row{
+      display:grid;grid-template-columns:1fr 1fr 1fr 80px 40px;gap:8px;align-items:end;
+      padding:10px 0;border-bottom:1px solid var(--border);
+    }
+    .variante-row:last-child{border-bottom:none;}
+    .btn-add-var{
+      background:transparent;border:1px dashed var(--border2);
+      color:var(--text2);font-family:var(--ff);font-size:13px;
+      padding:9px;border-radius:var(--r);cursor:pointer;width:100%;
+      transition:all .2s;margin-top:10px;
+    }
+    .btn-add-var:hover{border-color:var(--cyan);color:var(--cyan);}
+
+    /* TOAST */
+    .toast{
+      position:fixed;bottom:24px;right:24px;
+      background:var(--bg3);border:1px solid var(--border2);
+      border-radius:var(--r);padding:12px 20px;font-size:13px;font-weight:500;
+      z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;
+    }
+    .toast.visible{transform:translateY(0);opacity:1;}
+    .toast.ok{border-color:var(--green);color:var(--green);}
+    .toast.error{border-color:var(--red);color:var(--red);}
+    .toast.warn{border-color:var(--warn);color:var(--warn);}
+
+    /* LOADING */
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading-row{text-align:center;padding:40px;color:var(--text2);}
+    .empty-row{text-align:center;padding:40px;color:var(--text2);}
+
+    @media(max-width:768px){
+      .dash-main{padding:16px 14px 40px;}
+      .stats-row{grid-template-columns:repeat(2,1fr);}
+      .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+      .variante-row{grid-template-columns:1fr 1fr;gap:6px;}
+    }
+      .logo img{height:38px;width:auto;display:block;}
+    .logo{display:flex;align-items:center;}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="login-logo">NEWLOUNGE<span> SPORT</span></div>
+      <h2>Painel Administrativo</h2>
+    </div>
+    <div class="form-grp"><label>Email</label><input type="email" id="l-email" placeholder="admin@email.com" autocomplete="email"></div>
+    <div class="form-grp"><label>Senha</label><input type="password" id="l-senha" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-cyan btn-full" id="btn-login" onclick="login()">Entrar</button>
+    <p id="l-err" style="color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none;">Email ou senha incorretos.</p>
+    <p style="text-align:center;margin-top:16px;"><a href="/admin.html" style="font-size:12px;color:var(--text3);">← Admin imobiliário</a></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash">
+  <header class="dash-header">
+    <div>
+      <span class="dash-logo">NEWLOUNGE<span> SPORT</span><small>Admin</small></span>
+    </div>
+    <div class="dash-actions">
+      <a href="loja.html" class="btn btn-ghost btn-sm" target="_blank">← Ver loja</a>
+      <a href="/admin.html" class="btn btn-ghost btn-sm">🏠 Imóveis</a>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n stat-cyan" id="s-produtos">—</div><div class="stat-lbl">Produtos ativos</div></div>
+      <div class="stat"><div class="stat-n stat-warn" id="s-pedidos">—</div><div class="stat-lbl">Pedidos hoje</div></div>
+      <div class="stat"><div class="stat-n stat-green" id="s-faturamento">—</div><div class="stat-lbl">Faturamento mês</div></div>
+      <div class="stat"><div class="stat-n stat-red" id="s-estoque-baixo">—</div><div class="stat-lbl">Estoque crítico</div></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-bar">
+      <button class="tab active" onclick="setTab('produtos',this)">📦 Produtos</button>
+      <button class="tab" onclick="setTab('categorias',this)">🏷️ Categorias</button>
+      <button class="tab" onclick="setTab('pedidos',this)">📋 Pedidos</button>
+      <button class="tab" onclick="setTab('cupons',this)">🎫 Cupons</button>
+      <button class="tab" onclick="setTab('banners',this)">🖼️ Banners</button>
+    </div>
+
+    <!-- TAB: PRODUTOS -->
+    <div class="tab-content active" id="tab-produtos">
+      <div class="toolbar">
+        <h2>Produtos</h2>
+        <div class="toolbar-right">
+          <input class="search-box" type="text" placeholder="Buscar produto..." id="busca-produto" oninput="renderProdutos()">
+          <button class="btn btn-cyan" onclick="abrirModalProduto(null)">+ Novo produto</button>
+        </div>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Foto</th><th>Produto</th><th>Categoria</th>
+              <th>Preço</th><th>Estoque</th><th>Status</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-produtos">
+            <tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: CATEGORIAS -->
+    <div class="tab-content" id="tab-categorias">
+      <div class="toolbar">
+        <h2>Categorias</h2>
+        <button class="btn btn-cyan" onclick="abrirModalCategoria(null)">+ Nova categoria</button>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Ícone</th><th>Nome</th><th>Slug</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-cats">
+            <tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: PEDIDOS -->
+    <div class="tab-content" id="tab-pedidos">
+      <div class="toolbar">
+        <h2>Pedidos</h2>
+        <div class="toolbar-right">
+          <select class="search-box" id="filtro-status" onchange="renderPedidos()" style="width:auto;">
+            <option value="">Todos os status</option>
+            <option value="aguardando_pagamento">Aguardando pagamento</option>
+            <option value="pagamento_aprovado">Pagamento aprovado</option>
+            <option value="em_separacao">Em separação</option>
+            <option value="enviado">Enviado</option>
+            <option value="entregue">Entregue</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Número</th><th>Cliente</th><th>Total</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-pedidos">
+            <tr><td colspan="6" class="loading-row"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: CUPONS -->
+    <div class="tab-content" id="tab-cupons">
+      <div class="toolbar">
+        <h2>Cupons de desconto</h2>
+        <button class="btn btn-cyan" onclick="abrirModalCupom(null)">+ Novo cupom</button>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Código</th><th>Tipo</th><th>Valor</th><th>Mín.</th><th>Usos</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-cupons">
+            <tr><td colspan="8" class="loading-row"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: BANNERS -->
+    <div class="tab-content" id="tab-banners">
+      <div class="toolbar">
+        <h2>Banners e campanhas</h2>
+        <button class="btn btn-cyan" onclick="abrirModalBanner(null)">+ Novo banner</button>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Posição</th><th>Título</th><th>Link</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-banners">
+            <tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL PRODUTO -->
+<div id="modal-produto" class="modal-overlay" onclick="fecharOverlay(event,'modal-produto')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="mp-titulo">Novo produto</h3>
+      <button class="modal-close" onclick="fecharModal('modal-produto')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="sec-title">Identificação</div>
+      <div class="form-grp"><label>Nome do produto *</label><input type="text" id="mp-nome" placeholder="Ex: Tênis Runner Pro 2024"></div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Categoria</label>
+          <select id="mp-cat"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-grp"><label>Marca</label>
+          <input type="text" id="mp-marca" placeholder="Digite a marca (ex: NewLounge, Nike...)" list="marcas-sugeridas" autocomplete="off">
+          <datalist id="marcas-sugeridas"></datalist>
+        </div>
+      </div>
+      <div class="form-grp"><label>Slug (URL amigável)</label><input type="text" id="mp-slug" placeholder="tenis-runner-pro-2024"></div>
+      <div class="form-grp"><label>Gênero</label>
+        <select id="mp-genero">
+          <option value="unissex">Unissex</option>
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+          <option value="infantil">Infantil</option>
+        </select>
+      </div>
+
+      <div class="sec-title">Preços</div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Preço original (R$) *</label><input type="number" id="mp-preco" placeholder="199.90" step="0.01"></div>
+        <div class="form-grp"><label>Preço promocional (R$)</label><input type="number" id="mp-preco-promo" placeholder="Deixe vazio se não tiver promo" step="0.01"></div>
+      </div>
+
+      <div class="sec-title">Descrição</div>
+      <div class="form-grp"><label>Descrição curta</label><input type="text" id="mp-desc-curta" placeholder="Frase de destaque para o card"></div>
+      <div class="form-grp"><label>Descrição completa</label><textarea id="mp-desc" rows="4" placeholder="Descrição detalhada do produto..."></textarea></div>
+
+      <div class="sec-title">Fotos</div>
+      <div class="foto-drop" id="mp-drop">
+        <input type="file" id="mp-fotos" accept="image/*" multiple onchange="handleFotos(this.files)">
+        <div class="foto-drop-ico">📸</div>
+        <div class="foto-drop-txt"><strong>Adicionar fotos</strong><br><small>JPG, PNG, WEBP · Máx. 10MB · 1ª foto = principal</small></div>
+      </div>
+      <div class="fotos-prev" id="mp-fotos-prev"></div>
+
+      <div class="sec-title">Variações (tamanho × cor × estoque)</div>
+      <div id="variantes-lista"></div>
+      <button class="btn-add-var" onclick="adicionarVariante()">+ Adicionar variação (tamanho/cor/estoque)</button>
+
+      <div class="sec-title">Configurações</div>
+      <div class="grid-2">
+        <div class="inline-chk"><input type="checkbox" id="mp-ativo" checked><label for="mp-ativo">Produto ativo (visível na loja)</label></div>
+        <div class="inline-chk"><input type="checkbox" id="mp-destaque"><label for="mp-destaque">⭐ Produto em destaque</label></div>
+        <div class="inline-chk"><input type="checkbox" id="mp-novo"><label for="mp-novo">✨ Marcado como novidade</label></div>
+        <div class="inline-chk"><input type="checkbox" id="mp-oferta"><label for="mp-oferta">🔥 Marcado como oferta</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn btn-danger btn-sm" id="mp-del" style="display:none" onclick="deletarProduto()">🗑 Deletar</button></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="fecharModal('modal-produto')">Cancelar</button>
+        <button class="btn btn-cyan" id="mp-save" onclick="salvarProduto()">Salvar produto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CATEGORIA -->
+<div id="modal-cat" class="modal-overlay" onclick="fecharOverlay(event,'modal-cat')">
+  <div class="modal-box" style="max-width:480px;" onclick="event.stopPropagation()">
+    <div class="modal-header"><h3 id="mcat-titulo">Nova categoria</h3><button class="modal-close" onclick="fecharModal('modal-cat')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>Nome *</label><input type="text" id="mcat-nome" placeholder="Ex: Tênis"></div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Slug</label><input type="text" id="mcat-slug" placeholder="tenis"></div>
+        <div class="form-grp"><label>Ícone (emoji)</label><input type="text" id="mcat-ico" placeholder="👟"></div>
+      </div>
+      <div class="form-grp"><label>Descrição</label><input type="text" id="mcat-desc" placeholder="Descrição da categoria"></div>
+      <div class="form-grp"><label>Ordem</label><input type="number" id="mcat-ordem" value="0"></div>
+      <div class="inline-chk"><input type="checkbox" id="mcat-ativo" checked><label for="mcat-ativo">Ativa</label></div>
+      <div class="inline-chk"><input type="checkbox" id="mcat-dest"><label for="mcat-dest">Em destaque na home</label></div>
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn btn-danger btn-sm" id="mcat-del" style="display:none" onclick="deletarCategoria()">🗑 Deletar</button></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="fecharModal('modal-cat')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="salvarCategoria()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PEDIDO -->
+<div id="modal-pedido" class="modal-overlay" onclick="fecharOverlay(event,'modal-pedido')">
+  <div class="modal-box" style="max-width:640px;" onclick="event.stopPropagation()">
+    <div class="modal-header"><h3 id="mped-numero">Pedido</h3><button class="modal-close" onclick="fecharModal('modal-pedido')">×</button></div>
+    <div class="modal-body" id="mped-body"></div>
+    <div class="modal-footer">
+      <div></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="fecharModal('modal-pedido')">Fechar</button>
+        <button class="btn btn-cyan" onclick="salvarPedido()">Salvar status</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CUPOM -->
+<div id="modal-cupom" class="modal-overlay" onclick="fecharOverlay(event,'modal-cupom')">
+  <div class="modal-box" style="max-width:480px;" onclick="event.stopPropagation()">
+    <div class="modal-header"><h3 id="mcup-titulo">Novo cupom</h3><button class="modal-close" onclick="fecharModal('modal-cupom')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>Código *</label><input type="text" id="mcup-codigo" placeholder="PROMO20" style="text-transform:uppercase"></div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Tipo</label>
+          <select id="mcup-tipo">
+            <option value="percentual">Percentual (%)</option>
+            <option value="fixo">Valor fixo (R$)</option>
+          </select>
+        </div>
+        <div class="form-grp"><label>Valor *</label><input type="number" id="mcup-valor" placeholder="20" step="0.01"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Valor mínimo (R$)</label><input type="number" id="mcup-min" placeholder="0" step="0.01"></div>
+        <div class="form-grp"><label>Limite de usos</label><input type="number" id="mcup-max" placeholder="Ilimitado"></div>
+      </div>
+      <div class="form-grp"><label>Validade</label><input type="datetime-local" id="mcup-val"></div>
+      <div class="form-grp"><label>Descrição interna</label><input type="text" id="mcup-desc" placeholder="Ex: Campanha Black Friday"></div>
+      <div class="inline-chk"><input type="checkbox" id="mcup-ativo" checked><label for="mcup-ativo">Ativo</label></div>
+      <div class="inline-chk"><input type="checkbox" id="mcup-primeira"><label for="mcup-primeira">Somente primeira compra</label></div>
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn btn-danger btn-sm" id="mcup-del" style="display:none" onclick="deletarCupom()">🗑 Deletar</button></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="fecharModal('modal-cupom')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="salvarCupom()">Salvar cupom</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BANNER -->
+<div id="modal-banner" class="modal-overlay" onclick="fecharOverlay(event,'modal-banner')">
+  <div class="modal-box" style="max-width:520px;" onclick="event.stopPropagation()">
+    <div class="modal-header"><h3 id="mban-titulo">Novo banner</h3><button class="modal-close" onclick="fecharModal('modal-banner')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>Título *</label><input type="text" id="mban-titulo-f" placeholder="Ex: Monte sua casa, equipe sua rotina."></div>
+      <div class="form-grp"><label>Subtítulo</label><input type="text" id="mban-sub" placeholder="Subtítulo ou descrição"></div>
+      <div class="form-grp"><label>Chamada (texto auxiliar)</label><input type="text" id="mban-chamada"></div>
+      <div class="form-grp"><label>URL da imagem</label><input type="text" id="mban-img" placeholder="https://..."></div>
+      <div class="form-grp"><label>Link do botão</label><input type="text" id="mban-link" placeholder="https://..."></div>
+      <div class="form-grp"><label>Texto do botão</label><input type="text" id="mban-btntxt" placeholder="Ver produtos"></div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Posição</label>
+          <select id="mban-pos">
+            <option value="hero">Hero (principal)</option>
+            <option value="secundario">Secundário</option>
+            <option value="categoria">Categoria</option>
+            <option value="cross_promo">Cross promo</option>
+            <option value="rodape">Rodapé</option>
+          </select>
+        </div>
+        <div class="form-grp"><label>Plataforma</label>
+          <select id="mban-plat">
+            <option value="loja">Loja</option>
+            <option value="imoveis">Imóveis</option>
+            <option value="ambos">Ambos</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grp"><label>Ordem</label><input type="number" id="mban-ordem" value="0"></div>
+      <div class="inline-chk"><input type="checkbox" id="mban-ativo" checked><label for="mban-ativo">Ativo</label></div>
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn btn-danger btn-sm" id="mban-del" style="display:none" onclick="deletarBanner()">🗑 Deletar</button></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="fecharModal('modal-banner')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="salvarBanner()">Salvar banner</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let produtos   = [], categorias = [], marcas = [], pedidos = [], cupons = [], banners = [];
+let editandoId = null, fotos = [], variantesForm = [];
+
+// ===== AUTH =====
+async function login() {
+  const email = document.getElementById('l-email').value.trim();
+  const senha = document.getElementById('l-senha').value;
+  const btn   = document.getElementById('btn-login');
+  const err   = document.getElementById('l-err');
+  err.style.display = 'none'; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (error) { err.style.display = 'block'; }
+  else { mostrarDash(); }
+}
+async function logout() { await sb.auth.signOut(); location.reload(); }
+async function mostrarDash() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dash').style.display = 'block';
+  await Promise.all([carregarProdutos(), carregarCategorias(), carregarMarcas(), carregarPedidos(), carregarCupons(), carregarBanners()]);
+  popularSelects();
+}
+window.addEventListener('load', async () => {
+  document.getElementById('l-senha').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) mostrarDash();
+});
+
+// ===== TABS =====
+function setTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ===== CARREGAR DADOS =====
+async function carregarProdutos() {
+  const { data } = await sb.from('produtos').select('*,categorias_loja(nome)')
+    .order('criado_em', { ascending: false });
+  produtos = data || [];
+  document.getElementById('s-produtos').textContent = produtos.filter(p => p.ativo).length;
+  renderProdutos();
+}
+async function carregarCategorias() {
+  const { data } = await sb.from('categorias_loja').select('*').order('ordem');
+  categorias = data || [];
+  renderCategorias();
+}
+async function carregarMarcas() {
+  const { data } = await sb.from('marcas').select('*').order('nome');
+  marcas = data || [];
+}
+async function carregarPedidos() {
+  const { data } = await sb.from('pedidos').select('*').order('criado_em', { ascending: false }).limit(100);
+  pedidos = data || [];
+  document.getElementById('s-pedidos').textContent = pedidos.filter(p => {
+    return new Date(p.criado_em).toDateString() === new Date().toDateString();
+  }).length;
+  const mes = new Date(); mes.setDate(1); mes.setHours(0,0,0,0);
+  const fat = pedidos.filter(p => new Date(p.criado_em) >= mes && p.status === 'pagamento_aprovado')
+    .reduce((s, p) => s + Number(p.total), 0);
+  document.getElementById('s-faturamento').textContent = formatPreco(fat);
+  renderPedidos();
+}
+async function carregarCupons() {
+  const { data } = await sb.from('cupons').select('*').order('criado_em', { ascending: false });
+  cupons = data || [];
+  renderCupons();
+}
+async function carregarBanners() {
+  const { data } = await sb.from('banners_loja').select('*').order('ordem');
+  banners = data || [];
+  renderBanners();
+}
+
+function popularSelects() {
+  const catSel = document.getElementById('mp-cat');
+  catSel.innerHTML = '<option value="">Sem categoria</option>' +
+    categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  // Marcas viram sugestões no datalist (mas o campo aceita texto livre)
+  const datalist = document.getElementById('marcas-sugeridas');
+  if (datalist) {
+    const nomesUnicos = [...new Set(produtos.map(p => p.marca_nome).filter(Boolean))];
+    datalist.innerHTML = nomesUnicos.map(n => `<option value="${n}">`).join('');
+  }
+}
+
+// ===== RENDER TABELAS =====
+function renderProdutos() {
+  const busca = document.getElementById('busca-produto')?.value.toLowerCase() || '';
+  let lista = busca ? produtos.filter(p => (p.nome||'').toLowerCase().includes(busca)) : produtos;
+  const tbody = document.getElementById('tbody-produtos');
+  if (!lista.length) { tbody.innerHTML = `<tr><td colspan="7" class="empty-row">Nenhum produto cadastrado</td></tr>`; return; }
+  tbody.innerHTML = lista.map(p => {
+    const preco = p.preco_promo ? `<span style="color:var(--green)">${formatPreco(p.preco_promo)}</span> <small style="text-decoration:line-through;color:var(--text3)">${formatPreco(p.preco)}</small>` : formatPreco(p.preco);
+    return `<tr>
+      <td>${p.foto_principal ? `<img src="${p.foto_principal}" class="prod-thumb-sm">` : '👕'}</td>
+      <td><strong>${p.nome}</strong>${p.destaque?' ⭐':''}${p.novidade?' ✨':''}${p.oferta?' 🔥':''}</td>
+      <td style="color:var(--text2)">${p.categorias_loja?.nome||'—'}</td>
+      <td>${preco}</td>
+      <td>—</td>
+      <td><span class="status-badge ${p.ativo?'status-ativo':'status-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
+      <td class="td-actions">
+        <button class="btn btn-ghost btn-xs" onclick="abrirModalProduto('${p.id}')">✏️ Editar</button>
+        <button class="btn btn-ghost btn-xs" onclick="toggleProduto('${p.id}',${p.ativo})">${p.ativo?'Pausar':'Ativar'}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCategorias() {
+  const tbody = document.getElementById('tbody-cats');
+  if (!categorias.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhuma categoria</td></tr>`; return; }
+  tbody.innerHTML = categorias.map(c => `<tr>
+    <td style="font-size:24px">${c.icone||'🏷️'}</td>
+    <td><strong>${c.nome}</strong>${c.destaque?' ★':''}</td>
+    <td style="color:var(--text2)">${c.slug}</td>
+    <td><span class="status-badge ${c.ativo?'status-ativo':'status-inativo'}">${c.ativo?'Ativa':'Inativa'}</span></td>
+    <td class="td-actions">
+      <button class="btn btn-ghost btn-xs" onclick="abrirModalCategoria('${c.id}')">✏️ Editar</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderPedidos() {
+  const filtro = document.getElementById('filtro-status')?.value || '';
+  let lista = filtro ? pedidos.filter(p => p.status === filtro) : pedidos;
+  const tbody = document.getElementById('tbody-pedidos');
+  if (!lista.length) { tbody.innerHTML = `<tr><td colspan="6" class="empty-row">Nenhum pedido encontrado</td></tr>`; return; }
+  const statusCls = s => {
+    if (s.includes('aprovado') || s === 'entregue') return 'status-aprovado';
+    if (s === 'enviado') return 'status-enviado';
+    if (s === 'cancelado') return 'status-cancelado';
+    return 'status-aguardando';
+  };
+  tbody.innerHTML = lista.map(p => `<tr>
+    <td><strong>#${p.numero||p.id.slice(0,8)}</strong></td>
+    <td>${p.cliente_nome}<br><small style="color:var(--text3)">${p.cliente_email}</small></td>
+    <td><strong>${formatPreco(p.total)}</strong></td>
+    <td><span class="status-badge ${statusCls(p.status)}">${p.status.replace(/_/g,' ')}</span></td>
+    <td style="color:var(--text2);font-size:12px">${new Date(p.criado_em).toLocaleDateString('pt-BR')}</td>
+    <td class="td-actions">
+      <button class="btn btn-ghost btn-xs" onclick="abrirModalPedido('${p.id}')">Ver detalhes</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderCupons() {
+  const tbody = document.getElementById('tbody-cupons');
+  if (!cupons.length) { tbody.innerHTML = `<tr><td colspan="8" class="empty-row">Nenhum cupom</td></tr>`; return; }
+  tbody.innerHTML = cupons.map(c => `<tr>
+    <td><strong style="font-family:monospace;color:var(--cyan)">${c.codigo}</strong></td>
+    <td>${c.tipo === 'percentual' ? 'Percentual' : 'Fixo'}</td>
+    <td><strong>${c.tipo === 'percentual' ? c.valor + '%' : formatPreco(c.valor)}</strong></td>
+    <td>${c.valor_minimo > 0 ? formatPreco(c.valor_minimo) : '—'}</td>
+    <td>${c.usos_atual}/${c.usos_maximo || '∞'}</td>
+    <td style="font-size:12px;color:var(--text2)">${c.validade ? new Date(c.validade).toLocaleDateString('pt-BR') : 'Sem validade'}</td>
+    <td><span class="status-badge ${c.ativo?'status-ativo':'status-inativo'}">${c.ativo?'Ativo':'Inativo'}</span></td>
+    <td class="td-actions">
+      <button class="btn btn-ghost btn-xs" onclick="abrirModalCupom('${c.id}')">✏️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderBanners() {
+  const tbody = document.getElementById('tbody-banners');
+  if (!banners.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhum banner</td></tr>`; return; }
+  tbody.innerHTML = banners.map(b => `<tr>
+    <td><span class="status-badge status-ativo">${b.posicao}</span></td>
+    <td><strong>${b.titulo||'—'}</strong><br><small style="color:var(--text2)">${b.subtitulo||''}</small></td>
+    <td style="font-size:12px;color:var(--text2)">${b.link||'—'}</td>
+    <td><span class="status-badge ${b.ativo?'status-ativo':'status-inativo'}">${b.ativo?'Ativo':'Inativo'}</span></td>
+    <td class="td-actions">
+      <button class="btn btn-ghost btn-xs" onclick="abrirModalBanner('${b.id}')">✏️ Editar</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ===== MODAL PRODUTO =====
+async function abrirModalProduto(id) {
+  editandoId = id; fotos = []; variantesForm = [];
+  popularSelects();
+  document.getElementById('mp-del').style.display = id ? 'inline-flex' : 'none';
+  document.getElementById('mp-titulo').textContent = id ? 'Editar produto' : 'Novo produto';
+  if (id) {
+    const p = produtos.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('mp-nome').value       = p.nome || '';
+    document.getElementById('mp-slug').value       = p.slug || '';
+    document.getElementById('mp-preco').value      = p.preco || '';
+    document.getElementById('mp-preco-promo').value= p.preco_promo || '';
+    document.getElementById('mp-desc').value       = p.descricao || '';
+    document.getElementById('mp-desc-curta').value = p.descricao_curta || '';
+    document.getElementById('mp-cat').value        = p.categoria_id || '';
+    document.getElementById('mp-marca').value      = p.marca_nome || '';
+    document.getElementById('mp-genero').value     = p.genero || 'unissex';
+    document.getElementById('mp-ativo').checked    = p.ativo !== false;
+    document.getElementById('mp-destaque').checked = p.destaque || false;
+    document.getElementById('mp-novo').checked     = p.novidade || false;
+    document.getElementById('mp-oferta').checked   = p.oferta || false;
+    if (p.foto_principal) fotos = [{ url: p.foto_principal, file: null, isNew: false }];
+    // Carregar variantes
+    const { data: vars } = await sb.from('variantes_produto').select('*').eq('produto_id', id);
+    variantesForm = (vars || []).map(v => ({ ...v, isNew: false }));
+  } else {
+    ['mp-nome','mp-slug','mp-preco','mp-preco-promo','mp-desc','mp-desc-curta'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('mp-cat').value = ''; document.getElementById('mp-marca').value = '';
+    document.getElementById('mp-genero').value = 'unissex';
+    document.getElementById('mp-ativo').checked = true;
+    ['mp-destaque','mp-novo','mp-oferta'].forEach(i => document.getElementById(i).checked = false);
+  }
+  renderFotos(); renderVariantes();
+  abrirModal('modal-produto');
+  // auto slug
+  document.getElementById('mp-nome').oninput = function() {
+    if (!editandoId) document.getElementById('mp-slug').value = slugify(this.value);
+  };
+}
+
+async function salvarProduto() {
+  const nome = document.getElementById('mp-nome').value.trim();
+  if (!nome) { toast('Nome é obrigatório', 'error'); return; }
+  const btn = document.getElementById('mp-save');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Salvando...';
+  try {
+    const id   = editandoId || crypto.randomUUID();
+    const urls = await uploadFotos(id);
+    const dados = {
+      nome,
+      slug:          document.getElementById('mp-slug').value.trim() || slugify(nome),
+      preco:         parseFloat(document.getElementById('mp-preco').value) || 0,
+      preco_promo:   parseFloat(document.getElementById('mp-preco-promo').value) || null,
+      descricao:     document.getElementById('mp-desc').value.trim(),
+      descricao_curta: document.getElementById('mp-desc-curta').value.trim(),
+      categoria_id:  document.getElementById('mp-cat').value || null,
+      marca_nome:    document.getElementById('mp-marca').value.trim() || null,
+      genero:        document.getElementById('mp-genero').value,
+      ativo:         document.getElementById('mp-ativo').checked,
+      destaque:      document.getElementById('mp-destaque').checked,
+      novidade:      document.getElementById('mp-novo').checked,
+      oferta:        document.getElementById('mp-oferta').checked,
+      foto_principal: urls[0] || '',
+    };
+    const { error } = editandoId
+      ? await sb.from('produtos').update(dados).eq('id', editandoId)
+      : await sb.from('produtos').insert({ id, ...dados });
+    if (error) throw error;
+    // Salvar variantes
+    if (variantesForm.length) {
+      const varsDados = variantesForm.map(v => ({
+        produto_id: id, tamanho: v.tamanho || '', cor: v.cor || '',
+        cor_hex: v.cor_hex || '', estoque: parseInt(v.estoque) || 0, sku: v.sku || '', ativo: true,
+      }));
+      if (editandoId) await sb.from('variantes_produto').delete().eq('produto_id', id);
+      await sb.from('variantes_produto').insert(varsDados);
+    }
+    toast(editandoId ? 'Produto atualizado!' : 'Produto cadastrado!', 'ok');
+    fecharModal('modal-produto'); await carregarProdutos();
+  } catch (e) { toast('Erro: ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Salvar produto'; }
+}
+
+async function deletarProduto() {
+  if (!editandoId || !confirm('Deletar este produto?')) return;
+  await sb.from('produtos').delete().eq('id', editandoId);
+  toast('Produto removido', 'warn'); fecharModal('modal-produto'); await carregarProdutos();
+}
+
+async function toggleProduto(id, ativo) {
+  await sb.from('produtos').update({ ativo: !ativo }).eq('id', id);
+  toast(!ativo ? 'Produto ativado' : 'Produto pausado', 'ok'); await carregarProdutos();
+}
+
+// ===== FOTOS =====
+function handleFotos(files) {
+  Array.from(files).forEach(f => fotos.push({ url: URL.createObjectURL(f), file: f, isNew: true }));
+  renderFotos(); document.getElementById('mp-fotos').value = '';
+}
+function remFoto(i) { fotos.splice(i, 1); renderFotos(); }
+function renderFotos() {
+  document.getElementById('mp-fotos-prev').innerHTML = fotos.map((f,i) => `
+    <div class="foto-prev-item ${i===0?'principal':''}">
+      <img src="${f.url}" alt="foto ${i+1}">
+      <button class="foto-prev-del" onclick="remFoto(${i})">×</button>
+      ${i===0?'<span class="foto-principal-lbl">PRINCIPAL</span>':''}
+    </div>`).join('');
+}
+async function uploadFotos(prodId) {
+  const urls = [];
+  for (let i = 0; i < fotos.length; i++) {
+    const f = fotos[i];
+    if (f.isNew && f.file) {
+      const ext  = (f.file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${prodId}/${Date.now()}_${i}.${ext}`;
+      const { error } = await sb.storage.from('produtos-fotos').upload(path, f.file, { upsert: true });
+      if (!error) {
+        const { data: { publicUrl } } = sb.storage.from('produtos-fotos').getPublicUrl(path);
+        urls.push(publicUrl);
+      }
+    } else { urls.push(f.url); }
+  }
+  return urls;
+}
+
+// ===== VARIANTES =====
+function adicionarVariante() {
+  variantesForm.push({ tamanho: '', cor: '', cor_hex: '', estoque: 0, sku: '' });
+  renderVariantes();
+}
+function remVariante(i) { variantesForm.splice(i, 1); renderVariantes(); }
+function renderVariantes() {
+  document.getElementById('variantes-lista').innerHTML = variantesForm.map((v,i) => `
+    <div class="variante-row">
+      <div><label>Tamanho</label><input type="text" value="${v.tamanho}" onchange="variantesForm[${i}].tamanho=this.value" placeholder="P, M, G, 38..."></div>
+      <div><label>Cor</label><input type="text" value="${v.cor}" onchange="variantesForm[${i}].cor=this.value" placeholder="Azul, Vermelho..."></div>
+      <div><label>Estoque</label><input type="number" value="${v.estoque}" onchange="variantesForm[${i}].estoque=this.value" min="0"></div>
+      <div><label>SKU</label><input type="text" value="${v.sku||''}" onchange="variantesForm[${i}].sku=this.value" placeholder="SKU-001"></div>
+      <div style="display:flex;align-items:flex-end;padding-bottom:14px;">
+        <button class="btn btn-danger btn-xs" onclick="remVariante(${i})">×</button>
+      </div>
+    </div>`).join('');
+}
+
+// ===== MODAL CATEGORIA =====
+function abrirModalCategoria(id) {
+  editandoId = id;
+  document.getElementById('mcat-titulo').textContent = id ? 'Editar categoria' : 'Nova categoria';
+  document.getElementById('mcat-del').style.display = id ? 'inline-flex' : 'none';
+  if (id) {
+    const c = categorias.find(x => x.id === id);
+    document.getElementById('mcat-nome').value  = c.nome  || '';
+    document.getElementById('mcat-slug').value  = c.slug  || '';
+    document.getElementById('mcat-ico').value   = c.icone || '';
+    document.getElementById('mcat-desc').value  = c.descricao || '';
+    document.getElementById('mcat-ordem').value = c.ordem || 0;
+    document.getElementById('mcat-ativo').checked = c.ativo !== false;
+    document.getElementById('mcat-dest').checked  = c.destaque || false;
+  } else {
+    ['mcat-nome','mcat-slug','mcat-ico','mcat-desc'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('mcat-ordem').value = 0;
+    document.getElementById('mcat-ativo').checked = true;
+    document.getElementById('mcat-dest').checked  = false;
+  }
+  abrirModal('modal-cat');
+  document.getElementById('mcat-nome').oninput = function() {
+    if (!editandoId) document.getElementById('mcat-slug').value = slugify(this.value);
+  };
+}
+async function salvarCategoria() {
+  const nome = document.getElementById('mcat-nome').value.trim();
+  if (!nome) { toast('Nome é obrigatório', 'error'); return; }
+  const dados = {
+    nome, slug: document.getElementById('mcat-slug').value.trim() || slugify(nome),
+    icone: document.getElementById('mcat-ico').value.trim(),
+    descricao: document.getElementById('mcat-desc').value.trim(),
+    ordem: parseInt(document.getElementById('mcat-ordem').value) || 0,
+    ativo: document.getElementById('mcat-ativo').checked,
+    destaque: document.getElementById('mcat-dest').checked,
+  };
+  const { error } = editandoId
+    ? await sb.from('categorias_loja').update(dados).eq('id', editandoId)
+    : await sb.from('categorias_loja').insert(dados);
+  if (error) { toast('Erro: ' + error.message, 'error'); return; }
+  toast('Categoria salva!', 'ok'); fecharModal('modal-cat'); await carregarCategorias(); popularSelects();
+}
+async function deletarCategoria() {
+  if (!editandoId || !confirm('Deletar esta categoria?')) return;
+  await sb.from('categorias_loja').delete().eq('id', editandoId);
+  toast('Categoria removida', 'warn'); fecharModal('modal-cat'); await carregarCategorias();
+}
+
+// ===== MODAL PEDIDO =====
+async function abrirModalPedido(id) {
+  editandoId = id;
+  const p = pedidos.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('mped-numero').textContent = `Pedido #${p.numero || p.id.slice(0,8)}`;
+  const { data: itens } = await sb.from('itens_pedido').select('*').eq('pedido_id', id);
+  document.getElementById('mped-body').innerHTML = `
+    <div class="sec-title">Cliente</div>
+    <p><strong>${p.cliente_nome}</strong> · ${p.cliente_email}</p>
+    ${p.endereco_entrega ? `<p style="margin-top:8px;color:var(--text2);font-size:13px;">
+      ${p.endereco_entrega.logradouro||''}, ${p.endereco_entrega.numero||''} — ${p.endereco_entrega.cidade||''}/${p.endereco_entrega.estado||''}
+    </p>` : ''}
+    <div class="sec-title" style="margin-top:16px;">Itens do pedido</div>
+    ${(itens || []).map(i => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+        ${i.produto_foto ? `<img src="${i.produto_foto}" style="width:44px;height:44px;border-radius:4px;object-fit:cover;">` : ''}
+        <div style="flex:1;">
+          <div style="font-weight:600">${i.produto_nome}</div>
+          <div style="font-size:12px;color:var(--text2)">${i.variante_tamanho||''} ${i.variante_cor||''} · Qtd: ${i.quantidade}</div>
+        </div>
+        <div><strong>${formatPreco(i.preco_total)}</strong></div>
+      </div>`).join('')}
+    <div class="sec-title" style="margin-top:16px;">Totais</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Subtotal</span><span>${formatPreco(p.subtotal)}</span></div>
+    ${p.frete > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Frete</span><span>${formatPreco(p.frete)}</span></div>` : ''}
+    ${p.desconto_cupom > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:6px;color:var(--green)"><span>Desconto (${p.cupom_codigo})</span><span>-${formatPreco(p.desconto_cupom)}</span></div>` : ''}
+    <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-top:8px;"><span>Total</span><span>${formatPreco(p.total)}</span></div>
+    <div class="sec-title" style="margin-top:16px;">Atualizar pedido</div>
+    <div class="form-grp"><label>Status</label>
+      <select id="mped-status">
+        <option value="aguardando_pagamento" ${p.status==='aguardando_pagamento'?'selected':''}>Aguardando pagamento</option>
+        <option value="pagamento_aprovado" ${p.status==='pagamento_aprovado'?'selected':''}>Pagamento aprovado</option>
+        <option value="em_separacao" ${p.status==='em_separacao'?'selected':''}>Em separação</option>
+        <option value="enviado" ${p.status==='enviado'?'selected':''}>Enviado</option>
+        <option value="entregue" ${p.status==='entregue'?'selected':''}>Entregue</option>
+        <option value="cancelado" ${p.status==='cancelado'?'selected':''}>Cancelado</option>
+      </select>
+    </div>
+    <div class="form-grp"><label>Código de rastreamento</label><input type="text" id="mped-rastreio" value="${p.codigo_rastreamento||''}" placeholder="BR123456789BR"></div>
+    <div class="form-grp"><label>Observações internas</label><textarea id="mped-obs" rows="2">${p.observacoes_internas||''}</textarea></div>
+  `;
+  abrirModal('modal-pedido');
+}
+async function salvarPedido() {
+  if (!editandoId) return;
+  await sb.from('pedidos').update({
+    status: document.getElementById('mped-status').value,
+    codigo_rastreamento: document.getElementById('mped-rastreio').value.trim(),
+    observacoes_internas: document.getElementById('mped-obs').value.trim(),
+  }).eq('id', editandoId);
+  toast('Pedido atualizado!', 'ok'); fecharModal('modal-pedido'); await carregarPedidos();
+}
+
+// ===== MODAL CUPOM =====
+function abrirModalCupom(id) {
+  editandoId = id;
+  document.getElementById('mcup-titulo').textContent = id ? 'Editar cupom' : 'Novo cupom';
+  document.getElementById('mcup-del').style.display = id ? 'inline-flex' : 'none';
+  if (id) {
+    const c = cupons.find(x => x.id === id);
+    document.getElementById('mcup-codigo').value = c.codigo || '';
+    document.getElementById('mcup-tipo').value   = c.tipo   || 'percentual';
+    document.getElementById('mcup-valor').value  = c.valor  || '';
+    document.getElementById('mcup-min').value    = c.valor_minimo || 0;
+    document.getElementById('mcup-max').value    = c.usos_maximo || '';
+    document.getElementById('mcup-desc').value   = c.descricao || '';
+    document.getElementById('mcup-ativo').checked    = c.ativo !== false;
+    document.getElementById('mcup-primeira').checked = c.primeira_compra || false;
+  } else {
+    ['mcup-codigo','mcup-valor','mcup-min','mcup-max','mcup-val','mcup-desc'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('mcup-tipo').value = 'percentual';
+    document.getElementById('mcup-ativo').checked = true;
+    document.getElementById('mcup-primeira').checked = false;
+  }
+  abrirModal('modal-cupom');
+}
+async function salvarCupom() {
+  const codigo = document.getElementById('mcup-codigo').value.trim().toUpperCase();
+  if (!codigo) { toast('Código é obrigatório', 'error'); return; }
+  const dados = {
+    codigo, tipo: document.getElementById('mcup-tipo').value,
+    valor: parseFloat(document.getElementById('mcup-valor').value) || 0,
+    valor_minimo: parseFloat(document.getElementById('mcup-min').value) || 0,
+    usos_maximo: parseInt(document.getElementById('mcup-max').value) || null,
+    validade: document.getElementById('mcup-val').value || null,
+    descricao: document.getElementById('mcup-desc').value.trim(),
+    ativo: document.getElementById('mcup-ativo').checked,
+    primeira_compra: document.getElementById('mcup-primeira').checked,
+  };
+  const { error } = editandoId
+    ? await sb.from('cupons').update(dados).eq('id', editandoId)
+    : await sb.from('cupons').insert(dados);
+  if (error) { toast('Erro: ' + error.message, 'error'); return; }
+  toast('Cupom salvo!', 'ok'); fecharModal('modal-cupom'); await carregarCupons();
+}
+async function deletarCupom() {
+  if (!editandoId || !confirm('Deletar cupom?')) return;
+  await sb.from('cupons').delete().eq('id', editandoId);
+  toast('Cupom removido', 'warn'); fecharModal('modal-cupom'); await carregarCupons();
+}
+
+// ===== MODAL BANNER =====
+function abrirModalBanner(id) {
+  editandoId = id;
+  document.getElementById('mban-titulo').textContent = id ? 'Editar banner' : 'Novo banner';
+  document.getElementById('mban-del').style.display = id ? 'inline-flex' : 'none';
+  if (id) {
+    const b = banners.find(x => x.id === id);
+    document.getElementById('mban-titulo-f').value = b.titulo   || '';
+    document.getElementById('mban-sub').value      = b.subtitulo|| '';
+    document.getElementById('mban-chamada').value  = b.chamada  || '';
+    document.getElementById('mban-img').value      = b.imagem_url|| '';
+    document.getElementById('mban-link').value     = b.link     || '';
+    document.getElementById('mban-btntxt').value   = b.link_texto|| '';
+    document.getElementById('mban-pos').value      = b.posicao  || 'hero';
+    document.getElementById('mban-plat').value     = b.plataforma|| 'loja';
+    document.getElementById('mban-ordem').value    = b.ordem    || 0;
+    document.getElementById('mban-ativo').checked  = b.ativo !== false;
+  } else {
+    ['mban-titulo-f','mban-sub','mban-chamada','mban-img','mban-link','mban-btntxt'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('mban-pos').value  = 'hero';
+    document.getElementById('mban-plat').value = 'loja';
+    document.getElementById('mban-ordem').value = 0;
+    document.getElementById('mban-ativo').checked = true;
+  }
+  abrirModal('modal-banner');
+}
+async function salvarBanner() {
+  const titulo = document.getElementById('mban-titulo-f').value.trim();
+  if (!titulo) { toast('Título é obrigatório', 'error'); return; }
+  const dados = {
+    titulo, subtitulo: document.getElementById('mban-sub').value.trim(),
+    chamada: document.getElementById('mban-chamada').value.trim(),
+    imagem_url: document.getElementById('mban-img').value.trim(),
+    link: document.getElementById('mban-link').value.trim(),
+    link_texto: document.getElementById('mban-btntxt').value.trim(),
+    posicao: document.getElementById('mban-pos').value,
+    plataforma: document.getElementById('mban-plat').value,
+    ordem: parseInt(document.getElementById('mban-ordem').value) || 0,
+    ativo: document.getElementById('mban-ativo').checked,
+  };
+  const { error } = editandoId
+    ? await sb.from('banners_loja').update(dados).eq('id', editandoId)
+    : await sb.from('banners_loja').insert(dados);
+  if (error) { toast('Erro: ' + error.message, 'error'); return; }
+  toast('Banner salvo!', 'ok'); fecharModal('modal-banner'); await carregarBanners();
+}
+async function deletarBanner() {
+  if (!editandoId || !confirm('Deletar banner?')) return;
+  await sb.from('banners_loja').delete().eq('id', editandoId);
+  toast('Banner removido', 'warn'); fecharModal('modal-banner'); await carregarBanners();
+}
+
+// ===== UTILS MODAL =====
+function abrirModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+function fecharOverlay(e, id) { if (e.target === document.getElementById(id)) fecharModal(id); }
+
+function slugify(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+function formatPreco(v) {
+  return 'R$ ' + Number(v||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+let toastT;
+function toast(msg, tipo='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `toast visible ${tipo}`;
+  clearTimeout(toastT); toastT = setTimeout(() => el.className = 'toast', 3500);
+}
+
+// Drag & drop nas fotos
+window.addEventListener('DOMContentLoaded', () => {
+  const drop = document.getElementById('mp-drop');
+  if (drop) {
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+    drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag'); handleFotos(e.dataTransfer.files); });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Produto — NewLounge Sport</title>
+  <meta id="og-title"       property="og:title"       content="NewLounge Sport">
+  <meta id="og-desc"        property="og:description" content="">
+  <meta id="og-image"       property="og:image"       content="">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+      --border:#2a2a2a;--cyan:#00E5FF;--cyan2:#80F0FF;
+      --red:#FF3B30;--green:#34C759;--gold:#c9a96e;
+      --text:#F5F5F5;--text2:#999;--text3:#555;
+      --ff:'Inter',-apple-system,sans-serif;--r:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--ff);font-size:15px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{display:block;max-width:100%;}
+
+    /* HEADER */
+    .header{
+      position:sticky;top:0;z-index:300;
+      background:rgba(10,10,10,.97);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+    }
+    .header-main{
+      padding:0 24px;height:60px;
+      display:flex;align-items:center;gap:16px;
+    }
+    .logo{font-size:20px;font-weight:800;}
+    .logo span{color:var(--cyan);}
+    .h-back{
+      font-size:13px;color:var(--text2);
+      border:1px solid var(--border);padding:7px 16px;border-radius:6px;
+      transition:all .2s;margin-left:auto;
+    }
+    .h-back:hover{border-color:var(--cyan);color:var(--cyan);}
+    .h-cart{
+      background:none;border:none;cursor:pointer;
+      font-size:22px;color:var(--text2);position:relative;
+      transition:color .2s;padding:4px;
+    }
+    .h-cart:hover{color:var(--cyan);}
+    .cart-badge{
+      position:absolute;top:0;right:0;
+      background:var(--red);color:#fff;
+      font-size:9px;font-weight:700;
+      width:16px;height:16px;border-radius:50%;
+      display:none;align-items:center;justify-content:center;
+    }
+
+    /* BREADCRUMB */
+    .breadcrumb{
+      padding:14px 24px;
+      display:flex;align-items:center;gap:6px;
+      font-size:12px;color:var(--text3);
+      border-bottom:1px solid var(--border);
+      overflow-x:auto;white-space:nowrap;
+    }
+    .breadcrumb a{color:var(--text3);transition:color .2s;}
+    .breadcrumb a:hover{color:var(--cyan);}
+    .breadcrumb span{color:var(--text3);}
+
+    /* PRODUTO LAYOUT */
+    .produto-layout{
+      max-width:1200px;margin:0 auto;
+      padding:40px 24px;
+      display:grid;grid-template-columns:1fr 1fr;gap:60px;
+    }
+
+    /* GALERIA */
+    .galeria{position:sticky;top:80px;}
+    .galeria-principal{
+      aspect-ratio:1;background:var(--bg2);border:1px solid var(--border);
+      border-radius:12px;overflow:hidden;position:relative;margin-bottom:12px;
+    }
+    .galeria-principal img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+    .galeria-principal img:hover{transform:scale(1.05);}
+    .galeria-placeholder{
+      width:100%;height:100%;display:flex;align-items:center;
+      justify-content:center;font-size:80px;color:var(--text3);
+    }
+    .galeria-prev,.galeria-next{
+      position:absolute;top:50%;transform:translateY(-50%);
+      background:rgba(0,0,0,.6);border:1px solid var(--border);
+      color:var(--text);width:40px;height:40px;border-radius:50%;
+      cursor:pointer;font-size:18px;
+      display:none;align-items:center;justify-content:center;
+      transition:background .2s;z-index:2;
+    }
+    .galeria-prev{left:12px;}
+    .galeria-next{right:12px;}
+    .galeria-prev:hover,.galeria-next:hover{background:rgba(0,229,255,.2);}
+    .galeria-thumbs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+    .galeria-thumbs::-webkit-scrollbar{display:none;}
+    .galeria-thumb{
+      flex-shrink:0;width:68px;height:68px;
+      border-radius:8px;overflow:hidden;
+      border:2px solid transparent;cursor:pointer;transition:border-color .2s;
+      background:var(--bg2);
+    }
+    .galeria-thumb.active{border-color:var(--cyan);}
+    .galeria-thumb img{width:100%;height:100%;object-fit:cover;}
+
+    /* INFO */
+    .produto-info{}
+    .info-marca{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);font-weight:600;margin-bottom:6px;}
+    .info-nome{font-size:clamp(22px,3vw,30px);font-weight:800;line-height:1.2;margin-bottom:12px;}
+    .info-cat{font-size:12px;color:var(--text3);margin-bottom:20px;}
+
+    /* PREÇO */
+    .info-preco-box{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--r);padding:20px;margin-bottom:24px;
+    }
+    .info-preco-atual{font-size:32px;font-weight:800;line-height:1;}
+    .info-preco-original{font-size:16px;color:var(--text3);text-decoration:line-through;margin-top:4px;}
+    .info-preco-desc{
+      display:inline-block;font-size:12px;font-weight:700;
+      background:rgba(52,199,89,.15);color:var(--green);
+      padding:3px 10px;border-radius:4px;margin-top:6px;
+    }
+    .info-parcelamento{font-size:13px;color:var(--text2);margin-top:8px;}
+    .info-parcelamento strong{color:var(--text);}
+
+    /* VARIAÇÕES */
+    .variacao-section{margin-bottom:20px;}
+    .variacao-label{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+    .variacao-label .sel{color:var(--text);font-weight:700;}
+    .cores-grid{display:flex;gap:8px;flex-wrap:wrap;}
+    .cor-btn{
+      width:36px;height:36px;border-radius:50%;
+      cursor:pointer;border:3px solid transparent;
+      transition:border-color .2s;position:relative;
+    }
+    .cor-btn.active{border-color:var(--cyan);}
+    .cor-btn::after{
+      content:'';position:absolute;inset:-5px;
+      border-radius:50%;border:1px solid transparent;transition:border-color .2s;
+    }
+    .cor-btn.active::after{border-color:var(--cyan);}
+    .tamanhos-grid{display:flex;gap:8px;flex-wrap:wrap;}
+    .tam-btn{
+      min-width:44px;height:44px;padding:0 12px;
+      border-radius:6px;border:1px solid var(--border);
+      background:var(--bg3);color:var(--text2);
+      font-family:var(--ff);font-size:13px;font-weight:600;
+      cursor:pointer;transition:all .2s;
+    }
+    .tam-btn:hover:not(.esgotado){border-color:var(--cyan);color:var(--cyan);}
+    .tam-btn.active{background:var(--cyan);border-color:var(--cyan);color:#000;}
+    .tam-btn.esgotado{opacity:.3;cursor:not-allowed;text-decoration:line-through;}
+
+    /* ESTOQUE */
+    .estoque-info{
+      font-size:12px;margin-bottom:8px;
+    }
+    .estoque-ok{color:var(--green);}
+    .estoque-baixo{color:#FF9500;}
+    .estoque-out{color:var(--red);}
+
+    /* AÇÕES */
+    .acoes{display:flex;gap:10px;margin-bottom:24px;}
+    .btn-comprar{
+      flex:1;background:var(--cyan);color:#000;
+      border:none;font-family:var(--ff);font-size:15px;font-weight:700;
+      padding:16px;border-radius:var(--r);cursor:pointer;transition:all .2s;
+    }
+    .btn-comprar:hover{background:var(--cyan2);}
+    .btn-comprar:disabled{opacity:.5;cursor:not-allowed;}
+    .btn-fav{
+      width:52px;background:var(--bg3);border:1px solid var(--border);
+      border-radius:var(--r);cursor:pointer;font-size:22px;
+      display:flex;align-items:center;justify-content:center;transition:all .2s;
+    }
+    .btn-fav:hover,.btn-fav.ativo{border-color:var(--red);}
+    .btn-adicionar{
+      flex:1;background:var(--bg3);border:1px solid var(--border);
+      color:var(--text);font-family:var(--ff);font-size:14px;font-weight:600;
+      padding:15px;border-radius:var(--r);cursor:pointer;transition:all .2s;
+    }
+    .btn-adicionar:hover{border-color:var(--cyan);color:var(--cyan);}
+
+    /* FRETE */
+    .frete-box{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--r);padding:16px;margin-bottom:20px;
+    }
+    .frete-title{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
+    .frete-input{display:flex;gap:8px;}
+    .frete-input input{
+      flex:1;background:var(--bg3);border:1px solid var(--border);
+      border-radius:6px;color:var(--text);font-family:var(--ff);
+      font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s;
+    }
+    .frete-input input:focus{border-color:var(--cyan);}
+    .frete-input button{
+      background:var(--cyan);color:#000;border:none;font-family:var(--ff);
+      font-size:13px;font-weight:700;padding:10px 18px;border-radius:6px;cursor:pointer;
+    }
+    .frete-result{margin-top:10px;font-size:13px;color:var(--text2);}
+    .frete-result .ok{color:var(--green);}
+
+    /* GARANTIAS */
+    .garantias{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+    .garantia{
+      display:flex;align-items:center;gap:8px;
+      font-size:12px;color:var(--text2);
+    }
+    .garantia span{font-size:18px;}
+
+    /* DESCRICAO */
+    .desc-section{margin-bottom:24px;}
+    .desc-title{font-size:14px;font-weight:700;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+    .desc-text{font-size:14px;color:var(--text2);line-height:1.75;}
+
+    /* COMPARTILHAR */
+    .share-row{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+      padding-top:16px;border-top:1px solid var(--border);
+    }
+    .share-label{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+    .share-btn{
+      padding:6px 14px;border-radius:999px;font-size:12px;
+      border:1px solid var(--border);background:transparent;
+      color:var(--text2);cursor:pointer;font-family:var(--ff);transition:all .2s;
+    }
+    .share-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+
+    /* RELACIONADOS */
+    .relacionados{
+      max-width:1200px;margin:0 auto;
+      padding:0 24px 60px;
+    }
+    .rel-header{margin-bottom:24px;}
+    .rel-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;font-weight:600;}
+    .rel-title{font-size:22px;font-weight:800;}
+    .rel-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;
+    }
+    .rel-card{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s;
+    }
+    .rel-card:hover{border-color:rgba(0,229,255,.3);transform:translateY(-2px);}
+    .rel-foto{aspect-ratio:1;background:var(--bg3);overflow:hidden;}
+    .rel-foto img{width:100%;height:100%;object-fit:cover;}
+    .rel-body{padding:12px;}
+    .rel-nome{font-size:13px;font-weight:600;margin-bottom:4px;}
+    .rel-preco{font-size:15px;font-weight:700;color:var(--cyan);}
+
+    /* TOAST */
+    .toast{
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--bg3);border:1px solid var(--border);
+      border-radius:8px;padding:12px 24px;font-size:14px;font-weight:500;
+      z-index:999;opacity:0;transition:all .3s;white-space:nowrap;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .toast.ok{border-color:var(--green);color:var(--green);}
+    .toast.info{border-color:var(--cyan);color:var(--cyan);}
+
+    /* SPINNER */
+    .spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading-page{min-height:60vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:var(--text2);}
+
+    @media(max-width:768px){
+      .produto-layout{grid-template-columns:1fr;gap:24px;padding:20px 14px;}
+      .galeria{position:static;}
+      .acoes{flex-wrap:wrap;}
+      .btn-comprar,.btn-adicionar{flex:1 0 100%;}
+      .relacionados{padding:0 14px 40px;}
+    }
+      .logo img{height:38px;width:auto;display:block;}
+    .logo{display:flex;align-items:center;}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-main">
+    <a href="loja.html" class="logo">NEWLOUNGE<span> SPORT</span></a>
+    <a href="loja.html" class="h-back">← Voltar à loja</a>
+    <button class="h-cart" onclick="window.location.href='loja.html#catalogo'" title="Carrinho">
+      🛒
+      <span class="cart-badge" id="cart-badge"></span>
+    </button>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="loja.html">Loja</a>
+  <span>›</span>
+  <span id="bc-categoria">Produtos</span>
+  <span>›</span>
+  <span id="bc-nome" style="color:var(--text2);">Carregando...</span>
+</div>
+
+<!-- CONTEÚDO DINÂMICO -->
+<div id="app">
+  <div class="loading-page">
+    <div class="spinner"></div>
+    <p>Carregando produto...</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Logo da loja — cole a URL pública do Supabase Storage aqui:
+const LOGO_URL = 'COLE_URL_DA_LOGO_AQUI';
+window.addEventListener('DOMContentLoaded',()=>{if(LOGO_URL&&!LOGO_URL.includes('COLE_URL')){document.querySelectorAll('.logo').forEach(el=>{el.innerHTML='<img src=\"'+LOGO_URL+'\" alt=\"NewLounge Sport\">';});}});
+
+let produto   = null;
+let variantes = [];
+let imagens   = [];
+let fotoIdx   = 0;
+let corSel    = '';
+let tamSel    = '';
+let favs      = JSON.parse(localStorage.getItem('vs_favs') || '[]');
+let carrinho  = JSON.parse(localStorage.getItem('vs_cart') || '[]');
+
+async function init() {
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) { renderErro('Produto não encontrado.'); return; }
+
+  const [{ data: prod }, { data: vars }, { data: imgs }] = await Promise.all([
+    sb.from('produtos').select('*,categorias_loja(nome,slug)').eq('id', id).single(),
+    sb.from('variantes_produto').select('*').eq('produto_id', id).eq('ativo', true),
+    sb.from('imagens_produto').select('*').eq('produto_id', id).order('ordem'),
+  ]);
+
+  if (!prod) { renderErro('Produto não encontrado.'); return; }
+  produto = prod; variantes = vars || []; imagens = imgs || [];
+
+  // SEO
+  document.getElementById('page-title').textContent = `${prod.nome} — NewLounge Sport`;
+  document.getElementById('og-title').content = prod.nome;
+  document.getElementById('og-desc').content  = prod.descricao_curta || prod.descricao || '';
+  document.getElementById('og-image').content = prod.foto_principal || '';
+  document.getElementById('bc-categoria').textContent = prod.categorias_loja?.nome || 'Produtos';
+  document.getElementById('bc-nome').textContent = prod.nome;
+
+  renderProduto();
+  carregarRelacionados(prod.categoria_id, prod.id);
+}
+
+function renderProduto() {
+  const im   = produto;
+  const preco = formatPreco(im.preco_promo || im.preco);
+  const precoOrig = im.preco_promo && im.preco_promo < im.preco ? formatPreco(im.preco) : '';
+  const desc  = pDesc(im);
+  const marca = im.marca_nome || '';
+  const cat   = im.categorias_loja?.nome || '';
+  const isFav = favs.includes(im.id);
+
+  // Fotos
+  let todasFotos = [];
+  if (im.foto_principal) todasFotos.push(im.foto_principal);
+  imagens.forEach(f => { if (f.url && !todasFotos.includes(f.url)) todasFotos.push(f.url); });
+
+  // Cores e tamanhos únicos
+  const cores = [...new Set(variantes.filter(v => v.cor).map(v => `${v.cor}|${v.cor_hex||'#888'}`))];
+  const tamanhos = [...new Set(variantes.filter(v => v.tamanho).map(v => v.tamanho))];
+
+  // Parcelamento
+  const precoFinal = im.preco_promo || im.preco;
+  const parcs = precoFinal > 50 ? Math.min(12, Math.floor(precoFinal / 30)) : 1;
+  const parc  = formatPreco(precoFinal / parcs);
+
+  // Estoque da variante ou geral
+  const estoqueTotal = variantes.reduce((s, v) => s + v.estoque, 0) ||
+    (variantes.length === 0 ? 99 : 0);
+
+  document.getElementById('app').innerHTML = `
+    <div class="produto-layout">
+
+      <!-- GALERIA -->
+      <div class="galeria">
+        <div class="galeria-principal">
+          ${todasFotos.length
+            ? `<img id="foto-main" src="${todasFotos[0]}" alt="${im.nome}">`
+            : `<div class="galeria-placeholder">👕</div>`
+          }
+          ${todasFotos.length > 1 ? `
+            <button class="galeria-prev" id="gprev" onclick="navFoto(-1)" style="display:flex;">‹</button>
+            <button class="galeria-next" id="gnext" onclick="navFoto(+1)" style="display:flex;">›</button>
+          ` : ''}
+        </div>
+        ${todasFotos.length > 1 ? `
+          <div class="galeria-thumbs">
+            ${todasFotos.map((f,i) => `
+              <div class="galeria-thumb ${i===0?'active':''}" onclick="irFoto(${i})">
+                <img src="${f}" alt="foto ${i+1}" loading="lazy">
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- INFO -->
+      <div class="produto-info">
+        ${marca ? `<div class="info-marca">${marca}</div>` : ''}
+        <h1 class="info-nome">${im.nome}</h1>
+        ${cat ? `<div class="info-cat">Categoria: ${cat}</div>` : ''}
+
+        <!-- PREÇO -->
+        <div class="info-preco-box">
+          <div class="info-preco-atual">${preco}</div>
+          ${precoOrig ? `<div class="info-preco-original">${precoOrig}</div>` : ''}
+          ${desc > 0 ? `<div class="info-preco-desc">-${desc}% de desconto</div>` : ''}
+          ${parcs > 1 ? `<div class="info-parcelamento">ou <strong>${parcs}x de ${parc}</strong> sem juros</div>` : ''}
+          <div style="margin-top:10px;font-size:12px;color:var(--green);">
+            💳 À vista no PIX: <strong>${formatPreco(precoFinal * 0.95)}</strong> (-5%)
+          </div>
+        </div>
+
+        <!-- CORES -->
+        ${cores.length ? `
+          <div class="variacao-section">
+            <div class="variacao-label">
+              Cor <span class="sel" id="cor-sel-label"></span>
+            </div>
+            <div class="cores-grid">
+              ${cores.map(c => {
+                const [nome, hex] = c.split('|');
+                return `<button class="cor-btn" title="${nome}" style="background:${hex};"
+                  onclick="selecionarCor('${nome}',this)"></button>`;
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- TAMANHOS -->
+        ${tamanhos.length ? `
+          <div class="variacao-section">
+            <div class="variacao-label">
+              Tamanho <span class="sel" id="tam-sel-label"></span>
+            </div>
+            <div class="tamanhos-grid">
+              ${tamanhos.map(t => {
+                const v = variantes.find(x => x.tamanho === t);
+                const sem = v && v.estoque === 0;
+                const clickAttr = sem ? '' : `onclick="selecionarTam('${t}',this)"`;
+                return `<button class="tam-btn ${sem?'esgotado':''}" ${clickAttr} title="${sem?'Esgotado':t}">${t}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- ESTOQUE -->
+        <div class="estoque-info" id="estoque-info">
+          ${estoqueTotal > 10
+            ? `<span class="estoque-ok">✅ Em estoque</span>`
+            : estoqueTotal > 0
+            ? `<span class="estoque-baixo">⚠️ Últimas ${estoqueTotal} unidades!</span>`
+            : `<span class="estoque-out">❌ Produto esgotado</span>`}
+        </div>
+
+        <!-- AÇÕES -->
+        <div class="acoes">
+          <button class="btn-comprar" id="btn-comprar"
+            onclick="comprarAgora()"
+            ${estoqueTotal === 0 ? 'disabled' : ''}>
+            ${estoqueTotal === 0 ? 'Esgotado' : '⚡ Comprar agora'}
+          </button>
+          <button class="btn-fav ${isFav?'ativo':''}" onclick="toggleFav('${im.id}',this)" title="Favoritar">
+            ${isFav?'❤️':'🤍'}
+          </button>
+        </div>
+        <button class="btn-adicionar" onclick="adicionarCarrinho('${im.id}')">
+          + Adicionar ao carrinho
+        </button>
+
+        <!-- FRETE -->
+        <div class="frete-box" style="margin-top:16px;">
+          <div class="frete-title">Calcular frete</div>
+          <div class="frete-input">
+            <input type="text" id="cep-input" placeholder="00000-000" maxlength="9"
+              oninput="this.value=this.value.replace(/\D/g,'').replace(/(\d{5})(\d)/,'$1-$2')">
+            <button onclick="calcularFrete()">Calcular</button>
+          </div>
+          <div class="frete-result" id="frete-result"></div>
+        </div>
+
+        <!-- GARANTIAS -->
+        <div class="garantias">
+          <div class="garantia"><span>🔒</span> Compra segura</div>
+          <div class="garantia"><span>🔄</span> 30 dias para trocar</div>
+          <div class="garantia"><span>🚚</span> Frete grátis acima R$ 299</div>
+          <div class="garantia"><span>📦</span> Embalagem reforçada</div>
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        ${im.descricao ? `
+          <div class="desc-section">
+            <div class="desc-title">Sobre o produto</div>
+            <div class="desc-text">${im.descricao}</div>
+          </div>
+        ` : ''}
+
+        <!-- COMPARTILHAR -->
+        <div class="share-row">
+          <span class="share-label">Compartilhar:</span>
+          <button class="share-btn" onclick="compartilharZap()">💬 WhatsApp</button>
+          <button class="share-btn" onclick="copiarLink()">🔗 Copiar link</button>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  // Swipe galeria mobile
+  let tx = 0;
+  const galEl = document.querySelector('.galeria-principal');
+  if (galEl) {
+    galEl.addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
+    galEl.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50 && todasFotos.length > 1) navFoto(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
+
+  // Atualizar badge carrinho
+  atualizarBadge();
+  window._todasFotos = todasFotos;
+}
+
+function navFoto(dir) {
+  const f = window._todasFotos || [];
+  fotoIdx = (fotoIdx + dir + f.length) % f.length;
+  irFoto(fotoIdx);
+}
+
+function irFoto(idx) {
+  fotoIdx = idx;
+  const f = window._todasFotos || [];
+  const img = document.getElementById('foto-main');
+  if (img) img.src = f[idx];
+  document.querySelectorAll('.galeria-thumb').forEach((t,i) => t.classList.toggle('active', i===idx));
+}
+
+function selecionarCor(nome, el) {
+  corSel = nome;
+  document.querySelectorAll('.cor-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const lbl = document.getElementById('cor-sel-label');
+  if (lbl) lbl.textContent = `— ${nome}`;
+  atualizarEstoque();
+}
+
+function selecionarTam(tam, el) {
+  tamSel = tam;
+  document.querySelectorAll('.tam-btn:not(.esgotado)').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const lbl = document.getElementById('tam-sel-label');
+  if (lbl) lbl.textContent = `— ${tam}`;
+  atualizarEstoque();
+}
+
+function atualizarEstoque() {
+  const el = document.getElementById('estoque-info');
+  if (!el) return;
+  const v = variantes.find(x =>
+    (!corSel || x.cor === corSel) && (!tamSel || x.tamanho === tamSel)
+  );
+  const qtd = v ? v.estoque : 99;
+  el.innerHTML = qtd > 10
+    ? `<span class="estoque-ok">✅ Em estoque</span>`
+    : qtd > 0
+    ? `<span class="estoque-baixo">⚠️ Últimas ${qtd} unidades!</span>`
+    : `<span class="estoque-out">❌ Esta variação está esgotada</span>`;
+}
+
+function adicionarCarrinho(id) {
+  if (!produto) return;
+  const item = carrinho.find(i => i.id === id && i.tamanho === tamSel && i.cor === corSel);
+  if (item) { item.qty += 1; }
+  else {
+    carrinho.push({
+      id, nome: produto.nome,
+      preco: produto.preco_promo || produto.preco,
+      foto: produto.foto_principal || '',
+      tamanho: tamSel, cor: corSel, qty: 1,
+    });
+  }
+  localStorage.setItem('vs_cart', JSON.stringify(carrinho));
+  atualizarBadge();
+  toast(`${produto.nome} adicionado ao carrinho!`, 'ok');
+}
+
+function comprarAgora() {
+  adicionarCarrinho(produto.id);
+  window.location.href = 'checkout.html';
+}
+
+function toggleFav(id, btn) {
+  const idx = favs.indexOf(id);
+  if (idx >= 0) { favs.splice(idx, 1); btn.textContent = '🤍'; btn.classList.remove('ativo'); toast('Removido dos favoritos', 'info'); }
+  else           { favs.push(id);     btn.textContent = '❤️'; btn.classList.add('ativo');    toast('Adicionado aos favoritos ❤️', 'ok'); }
+  localStorage.setItem('vs_favs', JSON.stringify(favs));
+}
+
+function calcularFrete() {
+  const cep = document.getElementById('cep-input').value.replace('-','');
+  const el  = document.getElementById('frete-result');
+  if (cep.length !== 8) { el.innerHTML = '<span style="color:var(--red)">CEP inválido</span>'; return; }
+  el.innerHTML = 'Calculando...';
+  // Simulação — integração futura com Correios/Melhor Envio
+  setTimeout(() => {
+    el.innerHTML = `
+      <div class="ok" style="margin-bottom:6px;">🚚 PAC — <strong>R$ 18,90</strong> — Até 10 dias úteis</div>
+      <div class="ok">⚡ SEDEX — <strong>R$ 34,50</strong> — Até 3 dias úteis</div>
+    `;
+  }, 1200);
+}
+
+function compartilharZap() {
+  if (!produto) return;
+  const url = window.location.href;
+  const msg = encodeURIComponent(`Olha esse produto na NewLounge Sport:\n\n*${produto.nome}*\n${formatPreco(produto.preco_promo || produto.preco)}\n\n${url}`);
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+function copiarLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => toast('Link copiado!', 'info'));
+}
+
+async function carregarRelacionados(catId, excluirId) {
+  if (!catId) return;
+  const { data } = await sb.from('produtos').select('*')
+    .eq('ativo', true).eq('categoria_id', catId)
+    .neq('id', excluirId).limit(4);
+  if (!data || !data.length) return;
+  document.getElementById('app').insertAdjacentHTML('afterend', `
+    <div class="relacionados">
+      <div class="rel-header">
+        <div class="rel-tag">Você também pode gostar</div>
+        <h2 class="rel-title">Produtos relacionados</h2>
+      </div>
+      <div class="rel-grid">
+        ${data.map(p => `
+          <div class="rel-card" onclick="window.location.href='produto?id=${p.id}'">
+            <div class="rel-foto">
+              ${p.foto_principal ? `<img src="${p.foto_principal}" alt="${p.nome}" loading="lazy">` : '<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;background:var(--bg3);">👕</div>'}
+            </div>
+            <div class="rel-body">
+              <div class="rel-nome">${p.nome}</div>
+              <div class="rel-preco">${formatPreco(p.preco_promo || p.preco)}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function renderErro(msg) {
+  document.getElementById('app').innerHTML = `
+    <div class="loading-page">
+      <div style="font-size:48px">😕</div>
+      <h2 style="font-size:22px;margin-bottom:8px;">Produto não encontrado</h2>
+      <p style="color:var(--text2);margin-bottom:20px;">${msg}</p>
+      <a href="loja.html" style="background:var(--cyan);color:#000;font-weight:700;padding:12px 24px;border-radius:8px;">← Voltar à loja</a>
+    </div>`;
+}
+
+function atualizarBadge() {
+  const total = carrinho.reduce((s,i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+}
+
+function formatPreco(val) {
+  return 'R$ ' + Number(val).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function pDesc(p) {
+  if (!p.preco_promo || p.preco_promo >= p.preco) return 0;
+  return Math.round((1 - p.preco_promo / p.preco) * 100);
+}
+let toastT;
+function toast(msg, tipo='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `toast show ${tipo}`;
+  clearTimeout(toastT); toastT = setTimeout(() => el.className = 'toast', 3000);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') navFoto(1);
+  if (e.key === 'ArrowLeft')  navFoto(-1);
+});
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

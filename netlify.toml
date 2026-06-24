@@ -1,0 +1,37 @@
+# ============================================================
+# NETLIFY — Configuração
+# ============================================================
+
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+# Redirect amigável para as functions (opcional)
+[[redirects]]
+  from = "/api/criar-pagamento"
+  to = "/.netlify/functions/criar-pagamento"
+  status = 200
+
+[[redirects]]
+  from = "/api/webhook-mp"
+  to = "/.netlify/functions/webhook-mp"
+  status = 200
+
+# URLs amigáveis para as páginas (sem .html)
+[[redirects]]
+  from = "/imovel"
+  to = "/imovel.html"
+  status = 200
+
+[[redirects]]
+  from = "/produto"
+  to = "/produto.html"
+  status = 200
+
+[[redirects]]
+  from = "/loja"
+  to = "/loja.html"
+  status = 200

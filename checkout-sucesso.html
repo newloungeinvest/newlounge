@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido confirmado — NewLounge Sport</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;
+      --cyan:#00E5FF;--cyan2:#80F0FF;--green:#34C759;--warn:#FF9500;--red:#FF3B30;
+      --text:#F5F5F5;--text2:#999;--text3:#555;--ff:'Inter',-apple-system,sans-serif;--r:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:var(--ff);min-height:100vh;display:flex;flex-direction:column;}
+    a{color:inherit;text-decoration:none;}
+    .header{
+      background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);
+      padding:0 24px;height:58px;display:flex;align-items:center;
+    }
+    .logo{font-size:18px;font-weight:800;}
+    .logo span{color:var(--cyan);}
+    .wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+    .card{
+      background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+      padding:48px 40px;max-width:520px;width:100%;text-align:center;
+    }
+    .ico{font-size:80px;margin-bottom:20px;}
+    h1{font-size:28px;font-weight:800;margin-bottom:12px;}
+    .sub{font-size:15px;color:var(--text2);line-height:1.65;margin-bottom:28px;}
+    .pedido-box{
+      background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+      padding:20px;margin-bottom:28px;
+    }
+    .pedido-box .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+    .pedido-box .num{font-size:24px;font-weight:800;font-family:monospace;color:var(--cyan);}
+    .status-badge{
+      display:inline-block;font-size:12px;font-weight:700;
+      padding:6px 16px;border-radius:999px;margin-bottom:8px;
+    }
+    .s-aprovado{background:rgba(52,199,89,.15);color:var(--green);}
+    .s-pendente{background:rgba(255,149,0,.15);color:var(--warn);}
+    .s-recusado{background:rgba(255,59,48,.15);color:var(--red);}
+    .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:var(--r);
+      font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;
+    }
+    .btn-cyan{background:var(--cyan);color:#000;}
+    .btn-cyan:hover{background:var(--cyan2);}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2);}
+    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+    .spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+      .logo img{height:38px;width:auto;display:block;}
+    .logo{display:flex;align-items:center;}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="loja.html" class="logo">NEWLOUNGE<span> SPORT</span></a>
+  </header>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="spinner"></div>
+      <p style="margin-top:16px;color:var(--text2);">Confirmando seu pedido...</p>
+    </div>
+  </div>
+
+<script>
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Logo da loja — cole a URL pública do Supabase Storage aqui:
+const LOGO_URL = 'COLE_URL_DA_LOGO_AQUI';
+window.addEventListener('DOMContentLoaded',()=>{if(LOGO_URL&&!LOGO_URL.includes('COLE_URL')){document.querySelectorAll('.logo').forEach(el=>{el.innerHTML='<img src=\"'+LOGO_URL+'\" alt=\"NewLounge Sport\">';});}});
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const pedidoId = params.get('pedido');
+  const statusUrl = params.get('status'); // pode vir 'pendente' ou 'recusado' das back_urls
+  const mpStatus = params.get('collection_status') || params.get('status');
+
+  // Limpa o carrinho — compra finalizada
+  localStorage.removeItem('vs_cart');
+
+  let status = 'aprovado';
+  let numero = pedidoId ? pedidoId.slice(0,8) : '';
+
+  // Tenta buscar o pedido real no banco
+  if (pedidoId) {
+    try {
+      const { data } = await sb.from('pedidos').select('numero,status').eq('id', pedidoId).single();
+      if (data) {
+        numero = data.numero || numero;
+        if (data.status === 'pagamento_aprovado') status = 'aprovado';
+        else if (data.status === 'pagamento_recusado' || data.status === 'cancelado') status = 'recusado';
+        else status = 'pendente';
+      }
+    } catch(e) {}
+  }
+
+  // Status vindo da URL tem prioridade se o banco ainda não atualizou
+  if (statusUrl === 'recusado' || mpStatus === 'rejected' || mpStatus === 'failure') status = 'recusado';
+  else if (statusUrl === 'pendente' || mpStatus === 'pending' || mpStatus === 'in_process') status = 'pendente';
+  else if (mpStatus === 'approved' || mpStatus === 'success') status = 'aprovado';
+
+  render(status, numero);
+}
+
+function render(status, numero) {
+  const card = document.getElementById('card');
+  const configs = {
+    aprovado: {
+      ico: '🎉', titulo: 'Pagamento aprovado!',
+      badge: '<span class="status-badge s-aprovado">✓ Pagamento confirmado</span>',
+      sub: 'Seu pedido foi confirmado e já está sendo preparado. Você receberá atualizações por e-mail e poderá acompanhar o envio na sua conta.',
+    },
+    pendente: {
+      ico: '⏳', titulo: 'Pagamento em processamento',
+      badge: '<span class="status-badge s-pendente">⏳ Aguardando confirmação</span>',
+      sub: 'Seu pagamento está sendo processado. Assim que for confirmado, seu pedido entrará em preparação. Isso pode levar alguns minutos (Pix) ou até 2 dias úteis (boleto).',
+    },
+    recusado: {
+      ico: '😕', titulo: 'Pagamento não aprovado',
+      badge: '<span class="status-badge s-recusado">✕ Pagamento recusado</span>',
+      sub: 'Não conseguimos processar seu pagamento. Nenhum valor foi cobrado. Você pode tentar novamente com outro método ou cartão.',
+    },
+  };
+  const c = configs[status] || configs.pendente;
+  card.innerHTML = `
+    <div class="ico">${c.ico}</div>
+    ${c.badge}
+    <h1>${c.titulo}</h1>
+    <p class="sub">${c.sub}</p>
+    ${numero ? `<div class="pedido-box"><div class="lbl">Número do pedido</div><div class="num">#${numero}</div></div>` : ''}
+    <div class="btns">
+      ${status === 'recusado'
+        ? `<a href="checkout.html" class="btn btn-cyan">Tentar novamente</a>`
+        : `<a href="conta.html" class="btn btn-cyan">📦 Acompanhar pedido</a>`}
+      <a href="loja.html" class="btn btn-ghost">🛍️ Continuar comprando</a>
+    </div>`;
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

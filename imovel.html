@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Imóvel — New Lounge Invest</title>
+  <meta id="og-title"       property="og:title"       content="Imóvel — New Lounge Invest">
+  <meta id="og-desc"        property="og:description" content="Boutique de investimentos imobiliários.">
+  <meta id="og-image"       property="og:image"       content="">
+  <meta property="og:type"  content="website">
+  <meta id="og-url"         property="og:url"         content="">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg:#080808; --bg2:#0f0f0f; --bg3:#161616; --bg4:#1e1e1e;
+      --border:#1c1c1c; --border2:#282828;
+      --gold:#c9a96e; --gold2:#e8d5b0;
+      --text:#f0ede6; --text2:#9a9080; --text3:#5a5248;
+      --serif:'Playfair Display',Georgia,serif;
+      --sans:'Inter',-apple-system,Helvetica Neue,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{display:block;max-width:100%;}
+
+    /* NAV */
+    .nav{
+      position:fixed;top:0;left:0;right:0;z-index:300;
+      padding:0 48px;height:68px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:rgba(8,8,8,0.95);backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-brand .sub{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);}
+    .nav-brand .name{font-size:14px;letter-spacing:3px;text-transform:uppercase;font-weight:600;}
+    .nav-back{
+      font-size:12px;letter-spacing:1px;color:var(--text2);
+      border:1px solid var(--border2);padding:8px 18px;border-radius:2px;
+      transition:all .2s;
+    }
+    .nav-back:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* HERO */
+    .hero{position:relative;height:65vh;min-height:400px;overflow:hidden;margin-top:68px;}
+    .hero-img{width:100%;height:100%;object-fit:cover;}
+    .hero-placeholder{
+      width:100%;height:100%;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--bg3);font-size:80px;color:var(--text3);
+    }
+    .hero-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to bottom, rgba(8,8,8,0) 30%, rgba(8,8,8,0.7) 70%, #080808 100%);
+    }
+    .hero-badge{
+      position:absolute;top:28px;left:48px;
+      font-size:10px;letter-spacing:2px;text-transform:uppercase;
+      background:rgba(8,8,8,0.88);border:1px solid var(--gold);
+      color:var(--gold);padding:5px 14px;border-radius:2px;
+    }
+
+    /* GALERIA THUMBS */
+    .thumbs-bar{
+      display:flex;gap:6px;padding:10px 14px;
+      background:var(--bg3);overflow-x:auto;
+      border-bottom:1px solid var(--border);
+      scrollbar-width:thin;scrollbar-color:var(--border2) transparent;
+    }
+    .thumb{
+      flex-shrink:0;width:72px;height:50px;
+      border-radius:3px;overflow:hidden;
+      border:2px solid transparent;cursor:pointer;transition:border-color .2s;
+    }
+    .thumb.active{border-color:var(--gold);}
+    .thumb img{width:100%;height:100%;object-fit:cover;}
+
+    /* NAV ARROWS */
+    .hero-prev,.hero-next{
+      position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+      background:rgba(0,0,0,0.6);border:1px solid var(--border2);
+      color:var(--text);width:48px;height:48px;border-radius:50%;
+      cursor:pointer;font-size:20px;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .2s;
+    }
+    .hero-prev{left:20px;}
+    .hero-next{right:20px;}
+    .hero-prev:hover,.hero-next:hover{background:rgba(201,169,110,.2);}
+    .foto-count{
+      position:absolute;bottom:16px;right:16px;
+      font-size:11px;color:var(--text2);
+      background:rgba(0,0,0,.7);padding:4px 10px;border-radius:999px;
+    }
+
+    /* CONTEÚDO */
+    .container{max-width:960px;margin:0 auto;padding:0 32px;}
+    .content{padding:48px 0 80px;}
+
+    /* HEADER INFO */
+    .info-header{
+      display:flex;justify-content:space-between;
+      align-items:flex-start;gap:24px;flex-wrap:wrap;
+      margin-bottom:32px;
+    }
+    .info-left{flex:1;}
+    .loc{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+    .nome{font-family:var(--serif);font-size:clamp(26px,4vw,40px);font-weight:700;line-height:1.2;}
+    .info-right{text-align:right;}
+    .preco{font-size:clamp(22px,3vw,32px);font-weight:700;line-height:1;}
+    .yield-box{margin-top:8px;}
+    .yield-num{font-size:20px;color:var(--gold);font-weight:600;}
+    .yield-lbl{font-size:11px;color:var(--text3);margin-top:3px;}
+
+    /* SPECS */
+    .specs-grid{
+      display:grid;grid-template-columns:repeat(4,1fr);
+      gap:1px;background:var(--border);
+      border:1px solid var(--border);border-radius:4px;
+      overflow:hidden;margin:28px 0;
+    }
+    .spec{background:var(--bg3);padding:18px;text-align:center;}
+    .spec-val{font-size:24px;font-weight:700;color:var(--text);line-height:1;}
+    .spec-key{font-size:10px;letter-spacing:1px;color:var(--text3);margin-top:5px;text-transform:uppercase;}
+
+    /* DESC */
+    .desc-section{margin:28px 0;}
+    .desc-section h3{
+      font-family:var(--serif);font-size:20px;font-weight:600;
+      margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);
+    }
+    .desc-text{font-size:15px;color:var(--text2);line-height:1.8;}
+
+    /* CTA */
+    .cta-section{
+      background:var(--bg2);border:1px solid var(--border2);
+      border-radius:6px;padding:32px;margin:32px 0;
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:20px;
+    }
+    .cta-txt h3{font-family:var(--serif);font-size:20px;font-weight:600;margin-bottom:4px;}
+    .cta-txt p{font-size:14px;color:var(--text2);}
+    .cta-btns{display:flex;gap:12px;flex-wrap:wrap;}
+    .btn-wpp{
+      display:inline-flex;align-items:center;gap:10px;
+      background:#25D366;color:#fff;
+      font-size:13px;font-weight:600;padding:14px 24px;border-radius:4px;
+      transition:background .2s,transform .2s;
+    }
+    .btn-wpp:hover{background:#1fb558;transform:translateY(-1px);}
+    .btn-share{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid var(--border2);color:var(--text2);
+      font-size:13px;padding:13px 20px;border-radius:4px;
+      cursor:pointer;background:transparent;font-family:var(--sans);
+      transition:all .2s;
+    }
+    .btn-share:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* SHARE BAR */
+    .share-bar{
+      background:var(--bg3);border-top:1px solid var(--border);
+      padding:16px 0;margin-top:0;
+    }
+    .share-inner{
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    }
+    .share-lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
+    .share-btn{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:12px;padding:7px 16px;border-radius:999px;
+      cursor:pointer;border:1px solid var(--border2);
+      background:transparent;color:var(--text2);font-family:var(--sans);
+      transition:all .2s;
+    }
+    .share-btn:hover{border-color:var(--gold);color:var(--gold);}
+    .share-btn.copied{border-color:#52c07a;color:#52c07a;}
+
+    /* TOAST */
+    .toast{
+      position:fixed;bottom:24px;right:24px;
+      background:var(--bg3);border:1px solid var(--border2);
+      border-radius:6px;padding:12px 20px;font-size:13px;
+      z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;
+    }
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.ok{border-color:#52c07a;color:#52c07a;}
+
+    /* WPP FLOAT */
+    .wpp-float{
+      position:fixed;bottom:28px;right:28px;z-index:200;
+      display:flex;align-items:center;gap:10px;
+      background:#25D366;color:#fff;
+      padding:13px 20px;border-radius:50px;
+      font-size:13px;font-weight:600;
+      box-shadow:0 8px 32px rgba(37,211,102,.35);
+      transition:transform .2s;
+    }
+    .wpp-float:hover{transform:translateY(-2px);}
+
+    /* FOOTER */
+    .footer{
+      border-top:1px solid var(--border);padding:28px 0;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    }
+    .footer-copy{font-size:12px;color:var(--text3);}
+
+    /* ERROR */
+    .error-state{
+      min-height:70vh;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;text-align:center;padding:40px;
+    }
+    .error-state h2{font-family:var(--serif);font-size:28px;margin-bottom:12px;}
+    .error-state p{color:var(--text2);margin-bottom:24px;}
+    .spinner{
+      display:inline-block;width:28px;height:28px;
+      border:2px solid var(--border2);border-top-color:var(--gold);
+      border-radius:50%;animation:spin .7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    @media(max-width:768px){
+      .nav{padding:0 16px;}
+      .container{padding:0 16px;}
+      .hero-badge{left:16px;top:16px;}
+      .hero-prev,.hero-next{width:36px;height:36px;font-size:16px;}
+      .specs-grid{grid-template-columns:repeat(2,1fr);}
+      .info-header{flex-direction:column;}
+      .info-right{text-align:left;}
+      .cta-section{flex-direction:column;}
+      .wpp-float span{display:none;}
+      .wpp-float{padding:13px;}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="sub">Private Real Estate</div>
+    <div class="name">New Lounge Invest</div>
+  </div>
+  <a class="nav-back" href="/">← Portfólio</a>
+</nav>
+
+<!-- CONTEÚDO DINÂMICO -->
+<div id="app">
+  <div class="error-state" style="margin-top:68px;">
+    <div class="spinner"></div>
+    <p style="margin-top:16px;color:var(--text3);">Carregando imóvel...</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let fotos = [];
+let fotoIdx = 0;
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) { renderErro('ID de imóvel não informado.'); return; }
+
+  const { data, error } = await sb.from('imoveis').select('*').eq('id', id).single();
+  if (error || !data) { renderErro('Imóvel não encontrado.'); return; }
+
+  renderImovel(data);
+}
+
+function renderImovel(im) {
+  // SEO meta
+  document.getElementById('page-title').textContent = `${im.titulo} — New Lounge Invest`;
+  document.getElementById('og-title').content = im.titulo;
+  document.getElementById('og-desc').content  = im.descricao || `${im.localizacao} · ${im.preco_display || ''}`;
+  document.getElementById('og-image').content = im.foto_principal || '';
+  document.getElementById('og-url').content   = window.location.href;
+
+  // Fotos
+  fotos = [];
+  if (im.foto_principal) fotos.push(im.foto_principal);
+  if (im.fotos) im.fotos.forEach(f => { if (f && !fotos.includes(f)) fotos.push(f); });
+
+  // Preço
+  const preco = im.preco_display || (im.preco ? 'R$ ' + Number(im.preco).toLocaleString('pt-BR') : '');
+
+  // Specs
+  const specs = [];
+  if (im.area_m2) specs.push({ val: im.area_m2 + ' m²', key: 'Área total' });
+  if (im.suites)  specs.push({ val: im.suites, key: 'Suítes' });
+  else if (im.quartos) specs.push({ val: im.quartos, key: 'Quartos' });
+  if (im.vagas)   specs.push({ val: im.vagas, key: 'Vagas' });
+
+  // WhatsApp
+  const wpp = im.whatsapp || '5582999570442';
+  const msg = encodeURIComponent(`Olá! Tenho interesse no imóvel:\n\n*${im.titulo}*\n${im.localizacao || ''}\n${preco}\n\n${window.location.href}`);
+  const wppLink = `https://wa.me/${wpp}?text=${msg}`;
+
+  // URL da página
+  const paginaUrl = window.location.href;
+
+  document.getElementById('app').innerHTML = `
+    <!-- HERO -->
+    <div class="hero">
+      ${fotos.length
+        ? `<img id="hero-img" class="hero-img" src="${fotos[0]}" alt="${im.titulo}">`
+        : `<div class="hero-placeholder">🏠</div>`
+      }
+      <div class="hero-overlay"></div>
+      ${im.badge ? `<span class="hero-badge">${im.badge}</span>` : ''}
+      ${fotos.length > 1 ? `
+        <button class="hero-prev" onclick="navFoto(-1)">‹</button>
+        <button class="hero-next" onclick="navFoto(+1)">›</button>
+        <span class="foto-count" id="foto-count">1 / ${fotos.length}</span>
+      ` : ''}
+    </div>
+
+    <!-- THUMBNAILS -->
+    ${fotos.length > 1 ? `
+      <div class="thumbs-bar">
+        ${fotos.map((f,i) => `
+          <div class="thumb ${i===0?'active':''}" onclick="irFoto(${i})">
+            <img src="${f}" alt="foto ${i+1}" loading="lazy">
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    <!-- SHARE BAR -->
+    <div class="share-bar">
+      <div class="container">
+        <div class="share-inner">
+          <span class="share-lbl">Compartilhar:</span>
+          <button class="share-btn" onclick="abrirZap('${wppLink}')">
+            💬 WhatsApp
+          </button>
+          <button class="share-btn" id="btn-copiar" onclick="copiarLink('${paginaUrl}')">
+            🔗 Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO -->
+    <div class="container">
+      <div class="content">
+
+        <!-- Header -->
+        <div class="info-header">
+          <div class="info-left">
+            ${im.localizacao ? `<div class="loc">${im.localizacao}</div>` : ''}
+            <h1 class="nome">${im.titulo}</h1>
+          </div>
+          ${preco ? `
+            <div class="info-right">
+              <div class="preco">${preco}</div>
+              ${im.yield_texto ? `
+                <div class="yield-box">
+                  <div class="yield-num">${im.yield_texto}</div>
+                  <div class="yield-lbl">${im.yield_label || 'Yield'}</div>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Specs -->
+        ${specs.length ? `
+          <div class="specs-grid">
+            ${specs.map(s => `
+              <div class="spec">
+                <div class="spec-val">${s.val}</div>
+                <div class="spec-key">${s.key}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        <!-- Descrição -->
+        ${im.descricao ? `
+          <div class="desc-section">
+            <h3>Sobre este imóvel</h3>
+            <p class="desc-text">${im.descricao}</p>
+          </div>
+        ` : ''}
+
+        <!-- CTA -->
+        <div class="cta-section">
+          <div class="cta-txt">
+            <h3>Tenho interesse neste imóvel</h3>
+            <p>Fale diretamente com nosso curador patrimonial</p>
+          </div>
+          <div class="cta-btns">
+            <a class="btn-wpp" href="${wppLink}" target="_blank">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+              </svg>
+              Falar com curador
+            </a>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <span class="footer-copy">© MMXXVI NEW LOUNGE INVEST</span>
+          <a href="/" style="font-size:13px;color:var(--gold);">← Ver todo o portfólio</a>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  // WPP float
+  document.body.insertAdjacentHTML('beforeend', `
+    <a class="wpp-float" href="${wppLink}" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+      </svg>
+      <span>(82) 99957-0442</span>
+    </a>
+  `);
+
+  // Swipe galeria
+  let tx = 0;
+  const heroEl = document.querySelector('.hero');
+  if (heroEl) {
+    heroEl.addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
+    heroEl.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50 && fotos.length > 1) navFoto(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
+}
+
+function navFoto(dir) {
+  fotoIdx = (fotoIdx + dir + fotos.length) % fotos.length;
+  irFoto(fotoIdx);
+}
+
+function irFoto(idx) {
+  fotoIdx = idx;
+  const img = document.getElementById('hero-img');
+  if (img) img.src = fotos[idx];
+  const count = document.getElementById('foto-count');
+  if (count) count.textContent = `${idx+1} / ${fotos.length}`;
+  document.querySelectorAll('.thumb').forEach((t,i) => t.classList.toggle('active', i===idx));
+}
+
+function abrirZap(link) { window.open(link, '_blank'); }
+
+function copiarLink(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('btn-copiar');
+    if (btn) { btn.textContent = '✓ Link copiado!'; btn.classList.add('copied'); }
+    toast('Link copiado!', 'ok');
+    setTimeout(() => {
+      if (btn) { btn.textContent = '🔗 Copiar link'; btn.classList.remove('copied'); }
+    }, 2500);
+  });
+}
+
+function renderErro(msg) {
+  document.getElementById('app').innerHTML = `
+    <div class="error-state" style="margin-top:68px;">
+      <h2>Imóvel não encontrado</h2>
+      <p>${msg}</p>
+      <a href="/" style="display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#080808;font-size:13px;font-weight:600;padding:12px 24px;border-radius:2px;">← Ver portfólio</a>
+    </div>`;
+}
+
+let toastT;
+function toast(msg, tipo='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `toast show ${tipo}`;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.className = 'toast', 3000);
+}
+
+window.addEventListener('load', init);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' && fotos.length > 1) navFoto(1);
+  if (e.key === 'ArrowLeft'  && fotos.length > 1) navFoto(-1);
+});
+</script>
+</body>
+</html>

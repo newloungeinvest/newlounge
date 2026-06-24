@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEW LOUNGE INVEST — Onde imóveis viram investimentos inteligentes</title>
+  <meta name="description" content="Boutique de investimentos imobiliários. Curadoria de imóveis de alto padrão, oportunidades patrimoniais e estruturação de investimentos para investidores que buscam discrição e retorno consistente.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ============================================================
+       BASE
+    ============================================================ */
+    :root {
+      --bg:        #080808;
+      --bg2:       #0f0f0f;
+      --bg3:       #161616;
+      --bg4:       #1e1e1e;
+      --border:    #1c1c1c;
+      --border2:   #282828;
+      --gold:      #c9a96e;
+      --gold2:     #e8d5b0;
+      --gold-dim:  rgba(201,169,110,0.12);
+      --text:      #f0ede6;
+      --text2:     #9a9080;
+      --text3:     #5a5248;
+      --serif:     'Playfair Display', Georgia, serif;
+      --sans:      'Inter', -apple-system, Helvetica Neue, sans-serif;
+      --easing:    cubic-bezier(0.25,0.1,0.25,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(201,169,110,0.25); }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ============================================================
+       NAVEGAÇÃO
+    ============================================================ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 400;
+      padding: 0 48px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      background: rgba(8,8,8,0.96);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom-color: var(--border);
+    }
+    .nav-brand {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .nav-brand .sub {
+      font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); font-weight: 400;
+    }
+    .nav-brand .name {
+      font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+      font-weight: 600; color: var(--text); line-height: 1;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 36px; list-style: none;
+    }
+    .nav-links a {
+      font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text2); transition: color 0.2s; font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      border: 1px solid var(--border2); padding: 9px 20px;
+      border-radius: 2px; color: var(--text2); font-weight: 500;
+      transition: all 0.2s;
+    }
+    .nav-cta:hover { border-color: var(--gold); color: var(--gold); }
+    .nav-menu-btn {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      padding: 4px; color: var(--text2);
+      font-size: 22px; line-height: 1;
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 48px 80px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 70% at 50% 0%, #1a120600 0%, transparent 60%),
+                  linear-gradient(160deg, #0a0905 0%, #080808 50%, #060a10 100%);
+    }
+    .hero-grid-line {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(201,169,110,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,169,110,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+    }
+    .hero-accent {
+      position: absolute; top: 0; right: 0;
+      width: 50vw; height: 100%;
+      background: radial-gradient(ellipse at top right, rgba(201,169,110,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      max-width: 760px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 28px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 32px; height: 1px;
+      background: var(--gold);
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 74px);
+      font-weight: 700; line-height: 1.08;
+      letter-spacing: -1px;
+      margin-bottom: 28px;
+    }
+    .hero-title em { font-style: italic; color: var(--gold); font-weight: 400; }
+    .hero-sub {
+      font-size: 17px; color: var(--text2); font-weight: 300;
+      line-height: 1.7; max-width: 540px; margin-bottom: 40px;
+    }
+    .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold); color: #080808;
+      font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      font-weight: 600; padding: 14px 28px; border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--gold2); transform: translateY(-1px); }
+    .btn-secondary {
+      font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text2); border-bottom: 1px solid var(--text3);
+      padding-bottom: 2px; transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-secondary:hover { color: var(--gold); border-color: var(--gold); }
+
+    /* ============================================================
+       STATS
+    ============================================================ */
+    .stats-section {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item {
+      padding: 36px 40px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: var(--serif);
+      font-size: 40px; font-weight: 700;
+      color: var(--text); line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-num span { color: var(--gold); }
+    .stat-label { font-size: 11px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; }
+
+    /* ============================================================
+       SEÇÕES GENÉRICAS
+    ============================================================ */
+    .section {
+      padding: 100px 48px;
+    }
+    .section-alt { background: var(--bg2); }
+    .section-inner { max-width: 1280px; margin: 0 auto; }
+    .section-tag {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px; font-weight: 500;
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.15; font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .section-title em { font-style: italic; color: var(--gold); font-weight: 400; }
+    .section-sub {
+      font-size: 16px; color: var(--text2); max-width: 520px; line-height: 1.7;
+    }
+    .divider { width: 48px; height: 1px; background: var(--gold); margin: 28px 0; }
+
+    /* ============================================================
+       PORTFÓLIO — FILTROS
+    ============================================================ */
+    .portfolio-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; flex-wrap: wrap;
+      gap: 20px; margin-bottom: 36px;
+    }
+    .portfolio-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-pill {
+      padding: 7px 18px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer; border: 1px solid var(--border2);
+      background: transparent; color: var(--text2);
+      font-family: var(--sans); transition: all 0.2s;
+    }
+    .filter-pill.active {
+      background: var(--gold); border-color: var(--gold);
+      color: #080808; font-weight: 600;
+    }
+    .filter-pill:hover:not(.active) { border-color: var(--text3); color: var(--text); }
+    .portfolio-count {
+      font-size: 13px; color: var(--text3); align-self: center;
+      white-space: nowrap;
+    }
+    .portfolio-count strong { color: var(--gold); }
+
+    /* ============================================================
+       CARDS
+    ============================================================ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s var(--easing), border-color 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(201,169,110,0.25);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .card-destaque { border-color: rgba(201,169,110,0.15); }
+    .card-foto {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: var(--bg3);
+    }
+    .card-foto img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s var(--easing);
+    }
+    .card:hover .card-foto img { transform: scale(1.06); }
+    .card-foto-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; color: var(--text3);
+    }
+    .card-badge {
+      position: absolute; top: 14px; left: 14px;
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      background: rgba(8,8,8,0.88); border: 1px solid var(--gold);
+      color: var(--gold); padding: 4px 10px; border-radius: 2px; font-weight: 500;
+    }
+    .card-tipo {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+      background: rgba(8,8,8,0.7); color: var(--text2);
+      padding: 4px 10px; border-radius: 2px;
+    }
+    .card-body { padding: 24px; }
+    .card-loc {
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 8px; font-weight: 500;
+    }
+    .card-title {
+      font-family: var(--serif);
+      font-size: 19px; font-weight: 600; line-height: 1.3;
+      margin-bottom: 12px; color: var(--text);
+    }
+    .card-specs {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text2); margin-bottom: 18px;
+    }
+    .card-spec::before {
+      content: '◆ '; font-size: 7px; color: var(--gold); vertical-align: middle;
+    }
+    .card-footer {
+      display: flex; align-items: flex-end;
+      justify-content: space-between; gap: 8px;
+      padding-top: 18px; border-top: 1px solid var(--border);
+    }
+    .card-preco {
+      font-size: 20px; font-weight: 700;
+      color: var(--text); letter-spacing: -0.5px; line-height: 1;
+    }
+    .card-yield { text-align: right; }
+    .yield-num  {
+      font-size: 17px; color: var(--gold); font-weight: 600; display: block; line-height: 1;
+    }
+    .yield-lbl  { font-size: 10px; color: var(--text3); letter-spacing: 0.5px; margin-top: 3px; }
+
+    /* ============================================================
+       EMPTY / LOADING
+    ============================================================ */
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center; padding: 80px 20px;
+      color: var(--text2);
+    }
+    .empty-state p { margin-top: 12px; font-size: 15px; }
+    .spinner {
+      display: inline-block; width: 22px; height: 22px;
+      border: 2px solid var(--border2); border-top-color: var(--gold);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================================
+       MODAL IMÓVEL
+    ============================================================ */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      z-index: 800;
+      background: rgba(0,0,0,0.94);
+      display: none; align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      width: 100%; max-width: 1020px;
+      margin: auto; overflow: hidden;
+    }
+    /* Galeria */
+    .modal-galeria {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: var(--bg3);
+      overflow: hidden;
+    }
+    .modal-galeria img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: opacity 0.3s;
+    }
+    .galeria-empty {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text3); font-size: 64px;
+    }
+    .galeria-prev, .galeria-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.6); border: 1px solid var(--border2);
+      color: var(--text); width: 44px; height: 44px;
+      border-radius: 50%; cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; z-index: 2;
+    }
+    .galeria-prev { left: 16px; }
+    .galeria-next { right: 16px; }
+    .galeria-prev:hover, .galeria-next:hover { background: rgba(201,169,110,0.2); }
+    .galeria-count {
+      position: absolute; bottom: 14px; right: 14px;
+      font-size: 11px; color: var(--text2);
+      background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 999px;
+    }
+    .galeria-badge {
+      position: absolute; top: 16px; left: 16px;
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      background: rgba(8,8,8,0.88); border: 1px solid var(--gold);
+      color: var(--gold); padding: 4px 12px; border-radius: 2px;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(0,0,0,0.7); border: 1px solid var(--border2);
+      color: var(--text); width: 36px; height: 36px;
+      border-radius: 50%; cursor: pointer; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 3; transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(201,169,110,0.2); }
+    /* Thumbnails */
+    .galeria-thumbs {
+      display: flex; gap: 6px; padding: 10px 14px;
+      background: var(--bg3); overflow-x: auto;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+    }
+    .galeria-thumb {
+      flex-shrink: 0; width: 64px; height: 44px;
+      border-radius: 3px; overflow: hidden;
+      border: 2px solid transparent; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .galeria-thumb.active { border-color: var(--gold); }
+    .galeria-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    /* Info */
+    .modal-info { padding: 32px; }
+    .modal-header-row {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 20px;
+      margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .modal-left { flex: 1; }
+    .modal-loc {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 8px; font-weight: 500;
+    }
+    .modal-nome {
+      font-family: var(--serif);
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 700; line-height: 1.2;
+    }
+    .modal-preco-box { text-align: right; }
+    .modal-preco {
+      font-size: 28px; font-weight: 700; color: var(--text); line-height: 1;
+    }
+    .modal-yield { margin-top: 6px; }
+    .modal-yield .num { font-size: 18px; color: var(--gold); font-weight: 600; }
+    .modal-yield .lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    /* Specs grid */
+    .modal-specs {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 4px;
+      overflow: hidden; margin: 24px 0;
+    }
+    .spec-box {
+      background: var(--bg3); padding: 16px;
+      text-align: center;
+    }
+    .spec-val { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+    .spec-key { font-size: 10px; letter-spacing: 1px; color: var(--text3); margin-top: 5px; text-transform: uppercase; }
+    /* Desc */
+    .modal-desc {
+      font-size: 15px; color: var(--text2); line-height: 1.75;
+      border-top: 1px solid var(--border); padding-top: 20px; margin-bottom: 28px;
+    }
+    /* CTA */
+    .modal-cta {
+      display: flex; gap: 14px; flex-wrap: wrap;
+    }
+    .btn-wpp {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #25D366; color: #fff;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+      padding: 14px 26px; border-radius: 4px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-wpp:hover { background: #1fb558; transform: translateY(-1px); }
+    .btn-ghost-sm {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border2); color: var(--text2);
+      font-size: 13px; padding: 13px 22px; border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .btn-ghost-sm:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ============================================================
+       SERVIÇOS
+    ============================================================ */
+    .servicos-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 24px;
+    }
+    .servico-item { padding: 28px 0; border-top: 1px solid var(--border); }
+    .servico-num  { font-size: 11px; color: var(--gold); letter-spacing: 2px; margin-bottom: 12px; font-weight: 500; }
+    .servico-nome {
+      font-family: var(--serif); font-size: 18px;
+      margin-bottom: 10px; font-weight: 600;
+    }
+    .servico-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+    /* ============================================================
+       CONTATO
+    ============================================================ */
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px;
+    }
+    .contact-info p { color: var(--text2); font-size: 15px; line-height: 1.7; margin-bottom: 32px; }
+    .contact-detail { margin-bottom: 20px; }
+    .contact-detail .lbl { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+    .contact-detail .val { font-size: 16px; color: var(--text); }
+    .contact-detail .val a { color: var(--gold); }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    input, textarea, select {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      margin-bottom: 14px;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+    input::placeholder, textarea::placeholder { color: var(--text3); }
+    textarea { resize: vertical; min-height: 120px; }
+    .form-submit {
+      background: var(--gold); color: #080808;
+      border: none; font-family: var(--sans);
+      font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      font-weight: 600; padding: 14px 32px; border-radius: 2px;
+      cursor: pointer; transition: background 0.2s;
+      width: 100%;
+    }
+    .form-submit:hover { background: var(--gold2); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .footer {
+      background: var(--bg); border-top: 1px solid var(--border);
+      padding: 60px 48px 32px;
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand-sub { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
+    .footer-brand-name { font-size: 16px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin: 4px 0 14px; }
+    .footer-tagline { font-size: 13px; color: var(--text3); line-height: 1.6; }
+    .footer-col h4 { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 13px; color: var(--text2); transition: color 0.2s; }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-size: 12px; color: var(--text3); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 12px; color: var(--text3); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ============================================================
+       WHATSAPP FLOAT
+    ============================================================ */
+    .wpp-float {
+      position: fixed; bottom: 28px; right: 28px;
+      z-index: 300;
+      display: flex; align-items: center; gap: 12px;
+      background: #25D366; color: #fff;
+      padding: 14px 20px; border-radius: 50px;
+      font-size: 13px; font-weight: 600;
+      box-shadow: 0 8px 32px rgba(37,211,102,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+    }
+    .wpp-float:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(37,211,102,0.45); }
+    .wpp-float svg { flex-shrink: 0; }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .cards-grid    { grid-template-columns: repeat(2,1fr); }
+      .servicos-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-top    { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .nav-links, .nav-cta { display: none; }
+      .nav-menu-btn { display: block; }
+      .hero { padding: 100px 20px 60px; }
+      .stats-section { grid-template-columns: repeat(2,1fr); }
+      .stat-item { padding: 28px 24px; border-right: none; border-bottom: 1px solid var(--border); }
+      .section { padding: 64px 20px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .portfolio-top { flex-direction: column; }
+      .contact-grid  { grid-template-columns: 1fr; gap: 40px; }
+      .footer { padding: 48px 20px 28px; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .modal-info { padding: 20px; }
+      .modal-specs { grid-template-columns: repeat(2,1fr); }
+      .modal-header-row { flex-direction: column; }
+      .modal-preco-box { text-align: left; }
+      .wpp-float { padding: 12px 16px; }
+      .form-row-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 32px; }
+      .stats-section { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVEGAÇÃO
+============================================================ -->
+<nav class="nav" id="nav">
+  <div class="nav-brand">
+    <div class="sub">Private Real Estate</div>
+    <div class="name">New Lounge Invest</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#portfolio">Imóveis</a></li>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+  <a class="nav-cta" href="https://wa.me/5582999570442?text=Olá%2C%20gostaria%20de%20falar%20com%20um%20curador%20da%20New%20Lounge%20Invest." target="_blank">Falar com curador</a>
+  <button class="nav-menu-btn" id="menu-btn">☰</button>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-line"></div>
+  <div class="hero-accent"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Boutique Imobiliária</div>
+    <h1 class="hero-title">
+      Onde imóveis viram<br>
+      investimentos <em>inteligentes</em>
+    </h1>
+    <p class="hero-sub">Curadoria de imóveis de alto padrão com análise técnica, inteligência financeira e visão patrimonial de longo prazo.</p>
+    <div class="hero-ctas">
+      <a class="btn-primary" href="#portfolio">
+        Explorar portfólio →
+      </a>
+      <a class="btn-secondary" href="https://wa.me/5582999570442?text=Olá%2C%20quero%20conhecer%20o%20portfólio%20da%20New%20Lounge%20Invest." target="_blank">
+        Falar com curador
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STATS
+============================================================ -->
+<div class="stats-section">
+  <div class="stat-item">
+    <div class="stat-num"><span id="count-imoveis">—</span></div>
+    <div class="stat-label">Imóveis em curadoria</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">18<span style="font-size:24px;color:var(--gold2)">,4%</span></div>
+    <div class="stat-label">TIR média dos projetos</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">340<span style="font-size:24px;color:var(--gold2)">+</span></div>
+    <div class="stat-label">Clientes patrimoniais</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">12<span style="font-size:24px;color:var(--gold2)">anos</span></div>
+    <div class="stat-label">De atuação no mercado</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PORTFÓLIO DINÂMICO
+============================================================ -->
+<section class="section" id="portfolio">
+  <div class="section-inner">
+
+    <div class="section-tag">02 — PORTFÓLIO</div>
+    <h2 class="section-title">Imóveis em <em>curadoria ativa.</em></h2>
+    <p class="section-sub">Cada imóvel é avaliado sob critérios técnicos, jurídicos e patrimoniais. Apresentamos apenas oportunidades validadas pela nossa equipe.</p>
+    <div class="divider"></div>
+
+    <div class="portfolio-top">
+      <div class="portfolio-filters" id="portfolio-filters">
+        <button class="filter-pill active" data-tipo="todos" onclick="setFiltro('todos',this)">Todos</button>
+        <button class="filter-pill" data-tipo="alto-padrao" onclick="setFiltro('alto-padrao',this)">Alto padrão</button>
+        <button class="filter-pill" data-tipo="beira-mar" onclick="setFiltro('beira-mar',this)">Beira-mar</button>
+        <button class="filter-pill" data-tipo="compacto" onclick="setFiltro('compacto',this)">Compactos rentáveis</button>
+        <button class="filter-pill" data-tipo="comercial" onclick="setFiltro('comercial',this)">Comerciais</button>
+        <button class="filter-pill" data-tipo="terreno" onclick="setFiltro('terreno',this)">Terrenos</button>
+        <button class="filter-pill" data-tipo="lancamento" onclick="setFiltro('lancamento',this)">Lançamentos</button>
+        <button class="filter-pill" data-tipo="off-market" onclick="setFiltro('off-market',this)">Off-market</button>
+      </div>
+      <div class="portfolio-count" id="portfolio-count"></div>
+    </div>
+
+    <!-- FILTRO DE PREÇO -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
+      <span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);">Faixa de valor:</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="preco-filters">
+        <button class="filter-pill active" data-preco="0" onclick="setPreco(0,0,this)">Qualquer</button>
+        <button class="filter-pill" data-preco="1" onclick="setPreco(0,1000000,this)">Até R$ 1M</button>
+        <button class="filter-pill" data-preco="2" onclick="setPreco(1000000,5000000,this)">R$ 1M – R$ 5M</button>
+        <button class="filter-pill" data-preco="3" onclick="setPreco(5000000,15000000,this)">R$ 5M – R$ 15M</button>
+        <button class="filter-pill" data-preco="4" onclick="setPreco(15000000,0,this)">Acima de R$ 15M</button>
+      </div>
+      <a href="investidor.html" style="margin-left:auto;font-size:11px;letter-spacing:1px;border:1px solid rgba(201,169,110,.3);color:var(--gold);padding:6px 14px;border-radius:2px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,169,110,.3)'">✦ Área do Investidor</a>
+    </div>
+
+    <div class="cards-grid" id="cards-grid">
+      <div class="empty-state" style="grid-column:1/-1;padding:60px 0;">
+        <div class="spinner"></div>
+        <p style="margin-top:16px;color:var(--text3);">Carregando portfólio...</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     NewLounge Sport — CROSS PROMOTION
+============================================================ -->
+<section style="padding:0 48px 20px;">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="
+      background:linear-gradient(135deg,#0a0a12 0%,#080b14 60%,#0a0a0a 100%);
+      border:1px solid rgba(0,229,255,.15);border-radius:8px;
+      padding:32px 48px;display:flex;align-items:center;gap:40px;flex-wrap:wrap;
+    ">
+      <div style="font-size:52px;flex-shrink:0;">⚡</div>
+      <div style="flex:1;">
+        <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#00E5FF;font-weight:600;margin-bottom:8px;">NewLounge Sport</div>
+        <h3 style="font-family:var(--serif);font-size:clamp(18px,2.5vw,24px);font-weight:700;line-height:1.3;margin-bottom:6px;">Monte sua casa. Equipe sua rotina.</h3>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Tênis, roupas e equipamentos esportivos. Beach tennis, academia, corrida e muito mais.</p>
+        <a href="loja.html?utm_source=imoveis&utm_medium=cross_promotion&utm_campaign=imoveis_para_loja"
+           style="display:inline-flex;align-items:center;gap:8px;background:#00E5FF;color:#000;font-size:12px;font-weight:700;letter-spacing:.5px;padding:11px 22px;border-radius:6px;transition:background .2s;"
+           onmouseover="this.style.background='#80F0FF'" onmouseout="this.style.background='#00E5FF'">
+          Ir para a loja →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SERVIÇOS
+============================================================ -->
+<section class="section section-alt" id="servicos">
+  <div class="section-inner">
+    <div class="section-tag">04 — SERVIÇOS</div>
+    <h2 class="section-title">Consultoria <em>especializada.</em></h2>
+    <p class="section-sub">Atuação técnica em todas as etapas do ciclo do investimento imobiliário — da análise de viabilidade à estruturação jurídica e patrimonial.</p>
+    <div class="divider"></div>
+    <div class="servicos-grid">
+      <div class="servico-item">
+        <div class="servico-num">/ 01</div>
+        <div class="servico-nome">Consultoria imobiliária</div>
+        <p class="servico-desc">Assessoria estratégica para aquisição, venda e gestão de imóveis premium com inteligência de mercado.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 02</div>
+        <div class="servico-nome">Análise de viabilidade</div>
+        <p class="servico-desc">Estudos financeiros, fluxo de caixa, sensibilidade e cenários para decisões de investimento embasadas.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 03</div>
+        <div class="servico-nome">Avaliação imobiliária</div>
+        <p class="servico-desc">Laudos técnicos NBR 14.653 para due diligence, garantias, sucessão patrimonial e operações financeiras.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 04</div>
+        <div class="servico-nome">Due diligence</div>
+        <p class="servico-desc">Auditoria documental, jurídica, fiscal e técnica completa antes de qualquer aquisição relevante.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 05</div>
+        <div class="servico-nome">Estruturação de SPE</div>
+        <p class="servico-desc">Constituição e administração de Sociedades de Propósito Específico para projetos de incorporação e investimento.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 06</div>
+        <div class="servico-nome">Consultoria patrimonial</div>
+        <p class="servico-desc">Planejamento patrimonial, holdings imobiliárias, sucessão familiar e otimização tributária estruturada.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 07</div>
+        <div class="servico-nome">Estudos de massa</div>
+        <p class="servico-desc">Análise de potencial construtivo, melhor uso e ocupação de terrenos com foco em rentabilidade máxima.</p>
+      </div>
+      <div class="servico-item">
+        <div class="servico-num">/ 08</div>
+        <div class="servico-nome">Assessoria jurídica</div>
+        <p class="servico-desc">Direito imobiliário, contratual, regulatório e fiscal aplicado a operações de alta complexidade.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CONTATO
+============================================================ -->
+<section class="section" id="contato">
+  <div class="section-inner">
+    <div class="section-tag">06 — CONTATO</div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h2 class="section-title">Conversemos sobre seu <em>próximo investimento.</em></h2>
+        <p>Para investidores, family offices, incorporadores e gestoras que buscam curadoria e inteligência patrimonial real.</p>
+        <div class="contact-detail">
+          <div class="lbl">Atendimento patrimonial</div>
+          <div class="val"><a href="tel:+5582999570442">+55 (82) 99957-0442</a></div>
+        </div>
+        <div class="contact-detail">
+          <div class="lbl">Email</div>
+          <div class="val"><a href="mailto:privado@newloungeinvest.com.br">privado@newloungeinvest.com.br</a></div>
+        </div>
+        <div class="contact-detail">
+          <div class="lbl">Operações</div>
+          <div class="val">Maceió · São Paulo · Florianópolis · Salvador</div>
+        </div>
+        <div style="margin-top:32px;">
+          <a class="btn-primary" href="https://wa.me/5582999570442?text=Olá%2C%20gostaria%20de%20agendar%20uma%20consulta." target="_blank">
+            Solicitar consulta privada →
+          </a>
+        </div>
+      </div>
+      <div class="contact-form">
+        <div class="form-row-2">
+          <input type="text" placeholder="Nome completo">
+          <input type="tel"  placeholder="WhatsApp">
+        </div>
+        <input type="email" placeholder="E-mail">
+        <select>
+          <option value="">Perfil de investidor</option>
+          <option>Pessoa física</option>
+          <option>Family office</option>
+          <option>Incorporadora</option>
+          <option>Gestora / Fundo</option>
+        </select>
+        <select>
+          <option value="">Faixa de investimento</option>
+          <option>R$ 500 mil – R$ 2 mi</option>
+          <option>R$ 2 mi – R$ 10 mi</option>
+          <option>R$ 10 mi – R$ 50 mi</option>
+          <option>Acima de R$ 50 mi</option>
+        </select>
+        <textarea placeholder="Descreva o que procura — tipo de imóvel, localização, objetivo patrimonial..."></textarea>
+        <button class="form-submit" onclick="enviarFormulario(this)">Enviar solicitação →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="footer">
+  <div class="section-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-sub">Private Real Estate</div>
+        <div class="footer-brand-name">New Lounge Invest</div>
+        <p class="footer-tagline">Boutique de investimentos imobiliários.<br>Curadoria patrimonial, inteligência financeira e visão de longo prazo.</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:16px;font-style:italic;">"Onde imóveis viram investimentos inteligentes."</p>
+      </div>
+      <div class="footer-col">
+        <h4>Imóveis</h4>
+        <ul>
+          <li><a href="#portfolio" onclick="setFiltro('alto-padrao')">Alto padrão</a></li>
+          <li><a href="#portfolio" onclick="setFiltro('beira-mar')">Beira-mar</a></li>
+          <li><a href="#portfolio" onclick="setFiltro('compacto')">Compactos rentáveis</a></li>
+          <li><a href="#portfolio" onclick="setFiltro('comercial')">Comerciais</a></li>
+          <li><a href="#portfolio" onclick="setFiltro('off-market')">Off-market</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Serviços</h4>
+        <ul>
+          <li><a href="#servicos">Consultoria</a></li>
+          <li><a href="#servicos">Avaliação</a></li>
+          <li><a href="#servicos">Due diligence</a></li>
+          <li><a href="#servicos">Estruturação</a></li>
+          <li><a href="#servicos">Jurídico</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Institucional</h4>
+        <ul>
+          <li><a href="#contato">Contato</a></li>
+          <li><a href="https://wa.me/5582999570442" target="_blank">WhatsApp</a></li>
+          <li><a href="admin.html">Área restrita</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">
+        © MMXXVI NEW LOUNGE INVEST · CNPJ 36.737.905/0001-96
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacidade</a>
+        <a href="#">Instagram</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp flutuante -->
+<a class="wpp-float" href="https://wa.me/5582999570442?text=Olá%2C%20gostaria%20de%20conhecer%20as%20oportunidades%20da%20New%20Lounge%20Invest." target="_blank">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+  </svg>
+  (82) 99957-0442
+</a>
+
+<!-- ============================================================
+     MODAL IMÓVEL
+============================================================ -->
+<div class="modal-overlay" id="modal-overlay" onclick="fecharModalOverlay(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+
+    <!-- Galeria -->
+    <div class="modal-galeria" id="modal-galeria">
+      <img id="modal-foto-main" src="" alt="Foto do imóvel" style="display:none;">
+      <div class="galeria-empty" id="modal-foto-empty">🏠</div>
+      <span class="galeria-badge" id="modal-badge" style="display:none;"></span>
+      <button class="galeria-prev" id="galeria-prev" onclick="galeriaNav(-1)" style="display:none;">‹</button>
+      <button class="galeria-next" id="galeria-next" onclick="galeriaNav(+1)" style="display:none;">›</button>
+      <span class="galeria-count" id="galeria-count" style="display:none;"></span>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
+
+    <!-- Thumbnails -->
+    <div class="galeria-thumbs" id="galeria-thumbs" style="display:none;"></div>
+
+    <!-- Info -->
+    <div class="modal-info">
+      <div class="modal-header-row">
+        <div class="modal-left">
+          <div class="modal-loc" id="modal-loc"></div>
+          <h2 class="modal-nome" id="modal-nome"></h2>
+        </div>
+        <div class="modal-preco-box" id="modal-preco-box" style="display:none;">
+          <div class="modal-preco" id="modal-preco"></div>
+          <div class="modal-yield" id="modal-yield" style="display:none;">
+            <div class="num" id="modal-yield-num"></div>
+            <div class="lbl" id="modal-yield-lbl"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specs -->
+      <div class="modal-specs" id="modal-specs" style="display:none;">
+        <div class="spec-box" id="spec-area" style="display:none;">
+          <div class="spec-val" id="modal-area"></div>
+          <div class="spec-key">Área total</div>
+        </div>
+        <div class="spec-box" id="spec-suites" style="display:none;">
+          <div class="spec-val" id="modal-suites"></div>
+          <div class="spec-key">Suítes</div>
+        </div>
+        <div class="spec-box" id="spec-quartos" style="display:none;">
+          <div class="spec-val" id="modal-quartos"></div>
+          <div class="spec-key">Quartos</div>
+        </div>
+        <div class="spec-box" id="spec-vagas" style="display:none;">
+          <div class="spec-val" id="modal-vagas"></div>
+          <div class="spec-key">Vagas</div>
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div class="modal-desc" id="modal-desc" style="display:none;"></div>
+
+      <!-- CTAs -->
+      <div class="modal-cta">
+        <a class="btn-wpp" id="modal-wpp" href="#" target="_blank">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+          </svg>
+          Tenho interesse neste imóvel
+        </a>
+        <a class="btn-ghost-sm" id="modal-pg-link" href="#" target="_blank">🔗 Ver página completa</a>
+        <button class="btn-ghost-sm" onclick="fecharModal()">← Voltar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// =============================================================
+// ⚙️  CONFIGURE AQUI — Cole suas credenciais do Supabase
+// =============================================================
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+// =============================================================
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let imoveis    = [];
+let filtroAtual = 'todos';
+let precoMin   = 0;
+let precoMax   = 0; // 0 = sem limite
+let modalFotos  = [];
+let modalFotoIdx = 0;
+
+// ---- NAV scroll effect ----
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ---- CARREGAR DADOS ----
+async function init() {
+  const { data, error } = await sb
+    .from('imoveis')
+    .select('*')
+    .eq('ativo', true)
+    .order('destaque', { ascending: false })
+    .order('ordem',    { ascending: true })
+    .order('criado_em', { ascending: false });
+
+  if (error) {
+    document.getElementById('cards-grid').innerHTML =
+      '<div class="empty-state"><p>Erro ao carregar portfólio. Tente novamente.</p></div>';
+    return;
+  }
+
+  imoveis = data || [];
+
+  // Atualiza contador no stats
+  const totalEl = document.getElementById('count-imoveis');
+  if (totalEl) totalEl.textContent = imoveis.length || '—';
+
+  renderGrid();
+}
+
+// ---- FILTRO TIPO ----
+function setFiltro(tipo, el) {
+  filtroAtual = tipo;
+  if (el) {
+    document.querySelectorAll('#portfolio-filters .filter-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  }
+  renderGrid();
+}
+
+// ---- FILTRO PREÇO ----
+function setPreco(min, max, el) {
+  precoMin = min; precoMax = max;
+  document.querySelectorAll('#preco-filters .filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderGrid();
+}
+
+// ---- RENDER GRID ----
+function renderGrid() {
+  const grid = document.getElementById('cards-grid');
+  const countEl = document.getElementById('portfolio-count');
+  let lista = filtroAtual === 'todos'
+    ? imoveis
+    : imoveis.filter(i => i.tipo === filtroAtual);
+
+  // Filtro de preço
+  if (precoMin > 0 || precoMax > 0) {
+    lista = lista.filter(i => {
+      const p = i.preco || 0;
+      if (precoMin > 0 && p < precoMin) return false;
+      if (precoMax > 0 && p > precoMax) return false;
+      return true;
+    });
+  }
+
+  if (countEl) countEl.innerHTML = `<strong>${lista.length}</strong> imóvel${lista.length !== 1 ? 'is' : ''}`;
+
+  if (!lista.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <p style="font-size:36px;margin-bottom:12px;">🏠</p>
+        <p>Nenhum imóvel encontrado com esses filtros.<br>
+        <a href="#contato" style="color:var(--gold);">Entre em contato</a> para acesso ao portfólio off-market.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = lista.map(im => cardHTML(im)).join('');
+}
+
+function cardHTML(im) {
+  const foto  = im.foto_principal || (im.fotos && im.fotos[0]) || '';
+  const preco = im.preco_display  || (im.preco ? 'R$ ' + Number(im.preco).toLocaleString('pt-BR') : '');
+  const specs = [];
+  if (im.area_m2) specs.push(`${im.area_m2} m²`);
+  if (im.suites)  specs.push(`${im.suites} suítes`);
+  else if (im.quartos) specs.push(`${im.quartos} quartos`);
+  if (im.vagas)   specs.push(`${im.vagas} vagas`);
+  const paginaUrl = `imovel?id=${im.id}`;
+
+  return `
+    <article class="card ${im.destaque ? 'card-destaque' : ''}" onclick="abrirModal('${im.id}')">
+      <div class="card-foto">
+        ${foto
+          ? `<img src="${foto}" alt="${escHtml(im.titulo)}" loading="lazy">`
+          : `<div class="card-foto-placeholder">🏠</div>`
+        }
+        ${im.badge ? `<span class="card-badge">${escHtml(im.badge)}</span>` : ''}
+        ${im.tipo  ? `<span class="card-tipo">${escHtml(tipoLabel(im.tipo))}</span>` : ''}
+      </div>
+      <div class="card-body">
+        ${im.localizacao ? `<div class="card-loc">${escHtml(im.localizacao)}</div>` : ''}
+        <h3 class="card-title">${escHtml(im.titulo)}</h3>
+        ${specs.length ? `
+          <div class="card-specs">
+            ${specs.map(s => `<span class="card-spec">${s}</span>`).join('')}
+          </div>` : ''
+        }
+        <div class="card-footer">
+          ${preco ? `<span class="card-preco">${escHtml(preco)}</span>` : '<span></span>'}
+          ${im.yield_texto ? `
+            <div class="card-yield">
+              <span class="yield-num">${escHtml(im.yield_texto)}</span>
+              ${im.yield_label ? `<span class="yield-lbl">${escHtml(im.yield_label)}</span>` : ''}
+            </div>` : ''
+          }
+        </div>
+        <a href="${paginaUrl}" onclick="event.stopPropagation()" target="_blank"
+           style="display:block;margin-top:14px;font-size:11px;letter-spacing:1px;color:var(--gold);border-top:1px solid var(--border);padding-top:12px;transition:opacity .2s;"
+           onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+          Ver página completa →
+        </a>
+      </div>
+    </article>
+  `;
+}
+
+// ---- MODAL ----
+function abrirModal(id) {
+  const im = imoveis.find(i => i.id === id);
+  if (!im) return;
+
+  // Galeria
+  modalFotos  = [];
+  modalFotoIdx = 0;
+  if (im.foto_principal) modalFotos.push(im.foto_principal);
+  if (im.fotos) im.fotos.forEach(f => { if (f && !modalFotos.includes(f)) modalFotos.push(f); });
+
+  const fotoMain  = document.getElementById('modal-foto-main');
+  const fotoEmpty = document.getElementById('modal-foto-empty');
+  const badge     = document.getElementById('modal-badge');
+  const count     = document.getElementById('galeria-count');
+  const prev      = document.getElementById('galeria-prev');
+  const next      = document.getElementById('galeria-next');
+  const thumbs    = document.getElementById('galeria-thumbs');
+
+  if (modalFotos.length) {
+    fotoMain.src          = modalFotos[0];
+    fotoMain.style.display = 'block';
+    fotoEmpty.style.display = 'none';
+    count.style.display    = 'block';
+    count.textContent      = `1 / ${modalFotos.length}`;
+    if (modalFotos.length > 1) {
+      prev.style.display = next.style.display = 'block';
+    } else {
+      prev.style.display = next.style.display = 'none';
+    }
+    // Thumbs
+    if (modalFotos.length > 1) {
+      thumbs.style.display = 'flex';
+      thumbs.innerHTML = modalFotos.map((f, i) =>
+        `<div class="galeria-thumb ${i === 0 ? 'active' : ''}" onclick="galeriaIr(${i})">
+           <img src="${f}" alt="foto ${i+1}" loading="lazy">
+         </div>`
+      ).join('');
+    } else {
+      thumbs.style.display = 'none';
+    }
+  } else {
+    fotoMain.style.display  = 'none';
+    fotoEmpty.style.display = 'flex';
+    count.style.display = prev.style.display = next.style.display = 'none';
+    thumbs.style.display = 'none';
+  }
+
+  if (im.badge) { badge.textContent = im.badge; badge.style.display = 'block'; }
+  else            badge.style.display = 'none';
+
+  // Info
+  document.getElementById('modal-loc').textContent  = im.localizacao || '';
+  document.getElementById('modal-nome').textContent = im.titulo;
+
+  // Preço
+  const precoDisplay = im.preco_display || (im.preco ? 'R$ ' + Number(im.preco).toLocaleString('pt-BR') : '');
+  const precoBox = document.getElementById('modal-preco-box');
+  if (precoDisplay) {
+    precoBox.style.display = 'block';
+    document.getElementById('modal-preco').textContent = precoDisplay;
+  } else {
+    precoBox.style.display = 'none';
+  }
+
+  // Yield
+  const yieldBox = document.getElementById('modal-yield');
+  if (im.yield_texto) {
+    yieldBox.style.display = 'block';
+    document.getElementById('modal-yield-num').textContent = im.yield_texto;
+    document.getElementById('modal-yield-lbl').textContent = im.yield_label || 'Yield';
+  } else {
+    yieldBox.style.display = 'none';
+  }
+
+  // Specs
+  const specs = document.getElementById('modal-specs');
+  let hasSpec = false;
+  if (im.area_m2) { document.getElementById('modal-area').textContent = im.area_m2 + ' m²'; document.getElementById('spec-area').style.display='block'; hasSpec=true; }
+  else document.getElementById('spec-area').style.display = 'none';
+  if (im.suites)  { document.getElementById('modal-suites').textContent = im.suites; document.getElementById('spec-suites').style.display='block'; hasSpec=true; }
+  else document.getElementById('spec-suites').style.display = 'none';
+  if (im.quartos) { document.getElementById('modal-quartos').textContent = im.quartos; document.getElementById('spec-quartos').style.display='block'; hasSpec=true; }
+  else document.getElementById('spec-quartos').style.display = 'none';
+  if (im.vagas)   { document.getElementById('modal-vagas').textContent = im.vagas; document.getElementById('spec-vagas').style.display='block'; hasSpec=true; }
+  else document.getElementById('spec-vagas').style.display = 'none';
+  specs.style.display = hasSpec ? 'grid' : 'none';
+
+  // Descrição
+  const descEl = document.getElementById('modal-desc');
+  if (im.descricao) {
+    descEl.textContent = im.descricao;
+    descEl.style.display = 'block';
+  } else {
+    descEl.style.display = 'none';
+  }
+
+  // WhatsApp
+  const wpp = im.whatsapp || '5582999570442';
+  const msg = encodeURIComponent(`Olá! Tenho interesse no imóvel: ${im.titulo}${im.localizacao ? ' — ' + im.localizacao : ''}. Podemos conversar?`);
+  document.getElementById('modal-wpp').href = `https://wa.me/${wpp}?text=${msg}`;
+  document.getElementById('modal-pg-link').href = `imovel?id=${im.id}`;
+
+  // Abrir
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function fecharModalOverlay(e) {
+  if (e.target === document.getElementById('modal-overlay')) fecharModal();
+}
+
+// ---- GALERIA ----
+function galeriaNav(dir) {
+  modalFotoIdx = (modalFotoIdx + dir + modalFotos.length) % modalFotos.length;
+  galeriaIr(modalFotoIdx);
+}
+
+function galeriaIr(idx) {
+  modalFotoIdx = idx;
+  document.getElementById('modal-foto-main').src = modalFotos[idx];
+  document.getElementById('galeria-count').textContent = `${idx+1} / ${modalFotos.length}`;
+  document.querySelectorAll('.galeria-thumb').forEach((t,i) => t.classList.toggle('active', i === idx));
+}
+
+// Swipe em mobile
+let touchX = 0;
+document.getElementById('modal-galeria').addEventListener('touchstart', e => touchX = e.touches[0].clientX, { passive: true });
+document.getElementById('modal-galeria').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50 && modalFotos.length > 1) galeriaNav(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+// Fechar modal com ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('modal-overlay').classList.contains('open')) fecharModal();
+  if (e.key === 'ArrowRight' && modalFotos.length > 1) galeriaNav(1);
+  if (e.key === 'ArrowLeft'  && modalFotos.length > 1) galeriaNav(-1);
+});
+
+// ---- FORMULÁRIO ----
+function enviarFormulario(btn) {
+  btn.disabled    = true;
+  btn.textContent = 'Enviando...';
+  setTimeout(() => {
+    btn.textContent = 'Solicitação enviada! Em breve entraremos em contato.';
+    btn.style.background = '#52c07a';
+  }, 1200);
+}
+
+// ---- UTILS ----
+const TIPOS = {
+  'alto-padrao':'Alto padrão','beira-mar':'Beira-mar','compacto':'Compacto rentável',
+  'comercial':'Comercial','terreno':'Terreno','lancamento':'Lançamento',
+  'off-market':'Off-market','investimento':'Investimento',
+};
+function tipoLabel(t) { return TIPOS[t] || t; }
+function escHtml(s)   { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ---- START ----
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
