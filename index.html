@@ -618,6 +618,64 @@
       .hero-title { font-size: 32px; }
       .stats-section { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ===== CARROSSEL DE PUBLICIDADE (tema escuro) ===== */
+    .carrossel-section-im{padding:0 24px 60px;}
+    .carrossel-wrap-im{
+      max-width:1280px;margin:0 auto;position:relative;
+      border-radius:14px;overflow:hidden;border:1px solid rgba(212,175,110,.2);
+    }
+    .carrossel-track-im{display:flex;transition:transform .5s ease;}
+    .carrossel-slide-im{
+      min-width:100%;position:relative;aspect-ratio:3.6/1;
+      background:#12100E;display:flex;align-items:center;overflow:hidden;
+    }
+    .carrossel-slide-im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .carrossel-slide-im .slide-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(90deg, rgba(10,9,8,.85) 0%, rgba(10,9,8,.4) 55%, rgba(10,9,8,.15) 100%);
+    }
+    .carrossel-slide-im .slide-content{position:relative;z-index:2;padding:0 7%;max-width:620px;}
+    .carrossel-slide-im h3{
+      font-family:var(--serif);font-size:clamp(22px,3.5vw,38px);font-weight:700;
+      color:#fff;margin-bottom:10px;line-height:1.2;text-shadow:0 2px 16px rgba(0,0,0,.6);
+    }
+    .carrossel-slide-im p{
+      font-size:clamp(13px,2vw,17px);color:rgba(255,255,255,.9);margin-bottom:18px;
+      text-shadow:0 1px 10px rgba(0,0,0,.6);
+    }
+    .carrossel-slide-im .slide-btn{
+      display:inline-block;background:var(--gold,#D4AF6E);color:#12100E;font-weight:600;
+      padding:11px 26px;border-radius:4px;font-size:14px;letter-spacing:.5px;transition:all .2s;
+    }
+    .carrossel-slide-im .slide-btn:hover{background:#E0Bd80;transform:translateY(-2px);}
+    .carrossel-slide-im .slide-ad-tag{
+      position:absolute;top:14px;right:14px;z-index:3;
+      background:rgba(0,0,0,.5);color:rgba(255,255,255,.8);font-size:9px;font-weight:600;
+      padding:3px 9px;border-radius:3px;letter-spacing:1px;backdrop-filter:blur(4px);
+      border:1px solid rgba(212,175,110,.3);
+    }
+    .carrossel-btn-im{
+      position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+      width:44px;height:44px;border-radius:50%;border:1px solid rgba(212,175,110,.4);cursor:pointer;
+      background:rgba(18,16,14,.7);color:var(--gold,#D4AF6E);font-size:24px;font-weight:300;
+      display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:all .2s;
+    }
+    .carrossel-btn-im:hover{background:rgba(18,16,14,.95);border-color:var(--gold,#D4AF6E);}
+    .carrossel-btn-im.prev{left:18px;}
+    .carrossel-btn-im.next{right:18px;}
+    .carrossel-dots-im{
+      position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:8px;
+    }
+    .carrossel-dots-im .dot{
+      width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);
+      cursor:pointer;transition:all .2s;border:none;padding:0;
+    }
+    .carrossel-dots-im .dot.active{background:var(--gold,#D4AF6E);width:22px;border-radius:4px;}
+    @media(max-width:768px){
+      .carrossel-slide-im{aspect-ratio:2/1;}
+      .carrossel-btn-im{width:36px;height:36px;font-size:20px;}
+    }
   </style>
 </head>
 <body>
@@ -690,6 +748,16 @@
 <!-- ============================================================
      PORTFÓLIO DINÂMICO
 ============================================================ -->
+<!-- ============ CARROSSEL DE PUBLICIDADE ============ -->
+<section class="carrossel-section-im" id="carrossel-pub" style="display:none;">
+  <div class="carrossel-wrap-im">
+    <div class="carrossel-track-im" id="carrossel-track"></div>
+    <button class="carrossel-btn-im prev" onclick="moverCarrossel(-1)" aria-label="Anterior">‹</button>
+    <button class="carrossel-btn-im next" onclick="moverCarrossel(1)" aria-label="Próximo">›</button>
+    <div class="carrossel-dots-im" id="carrossel-dots"></div>
+  </div>
+</section>
+
 <section class="section" id="portfolio">
   <div class="section-inner">
 
@@ -1051,6 +1119,80 @@ async function init() {
   if (totalEl) totalEl.textContent = imoveis.length || '—';
 
   renderGrid();
+  carregarCarrossel();
+}
+
+// ========== CARROSSEL DE PUBLICIDADE ==========
+let carrosselSlides = [];
+let carrosselIdx = 0;
+let carrosselTimer = null;
+
+async function carregarCarrossel() {
+  const hoje = new Date().toISOString().split('T')[0];
+  const { data } = await sb.from('banners_loja')
+    .select('*')
+    .eq('posicao', 'carrossel')
+    .eq('ativo', true)
+    .in('plataforma', ['imoveis','ambos'])
+    .order('ordem');
+
+  if (!data || !data.length) return;
+
+  carrosselSlides = data.filter(b => {
+    if (b.inicio && b.inicio > hoje) return false;
+    if (b.fim && b.fim < hoje) return false;
+    return true;
+  });
+  if (!carrosselSlides.length) return;
+
+  const track = document.getElementById('carrossel-track');
+  const dots = document.getElementById('carrossel-dots');
+
+  track.innerHTML = carrosselSlides.map(b => {
+    const temLink = b.link && b.link.trim();
+    const conteudo = `
+      ${b.imagem_url ? `<img src="${b.imagem_url}" alt="${b.titulo||''}">` : ''}
+      <div class="slide-overlay"></div>
+      <span class="slide-ad-tag">PUBLICIDADE</span>
+      <div class="slide-content">
+        ${b.titulo ? `<h3>${b.titulo}</h3>` : ''}
+        ${b.subtitulo ? `<p>${b.subtitulo}</p>` : ''}
+        ${temLink ? `<span class="slide-btn">${b.link_texto || 'Saiba mais'}</span>` : ''}
+      </div>`;
+    if (temLink) {
+      return `<a href="${b.link}" target="_blank" rel="noopener" class="carrossel-slide-im">${conteudo}</a>`;
+    }
+    return `<div class="carrossel-slide-im">${conteudo}</div>`;
+  }).join('');
+
+  if (carrosselSlides.length > 1) {
+    dots.innerHTML = carrosselSlides.map((_, i) =>
+      `<button class="dot ${i===0?'active':''}" onclick="irParaSlide(${i})"></button>`).join('');
+  }
+
+  document.getElementById('carrossel-pub').style.display = 'block';
+
+  if (carrosselSlides.length > 1) {
+    iniciarAutoplay();
+  } else {
+    document.querySelectorAll('.carrossel-btn-im').forEach(b => b.style.display = 'none');
+  }
+}
+
+function atualizarCarrossel() {
+  document.getElementById('carrossel-track').style.transform = `translateX(-${carrosselIdx * 100}%)`;
+  document.querySelectorAll('.carrossel-dots-im .dot').forEach((d, i) =>
+    d.classList.toggle('active', i === carrosselIdx));
+}
+function moverCarrossel(dir) {
+  carrosselIdx = (carrosselIdx + dir + carrosselSlides.length) % carrosselSlides.length;
+  atualizarCarrossel(); reiniciarAutoplay();
+}
+function irParaSlide(i) { carrosselIdx = i; atualizarCarrossel(); reiniciarAutoplay(); }
+function iniciarAutoplay() { carrosselTimer = setInterval(() => moverCarrossel(1), 5000); }
+function reiniciarAutoplay() {
+  if (carrosselTimer) clearInterval(carrosselTimer);
+  if (carrosselSlides.length > 1) iniciarAutoplay();
 }
 
 // ---- FILTRO TIPO ----

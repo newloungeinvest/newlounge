@@ -57,7 +57,7 @@
     }
     .hero::after{
       content:'';position:absolute;inset:0;
-      background:linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.45) 55%, rgba(0,0,0,.82) 100%);
+      background:linear-gradient(180deg, rgba(10,20,40,.35) 0%, rgba(10,20,40,.55) 50%, rgba(10,20,40,.88) 100%);
     }
     .hero-content{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;padding:40px 20px;}
     .hero-emoji{font-size:42px;margin-bottom:8px;}
@@ -618,7 +618,11 @@ const ESPORTES_ALL = Object.assign({}, ESPORTES_DATA, ESPORTES_DATA_2);
 
 
 // ====== CONFIG ======
-const STORAGE_BASE = 'https://cdobspwhlvspoxblorfx.supabase.co/storage/v1/object/public/produtos-fotos/esportes';
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const STORAGE_BASE = 'https://cdobspwhlvspoxblorfx.supabase.co/storage/v1/object/public/produtos-fotos/cards';
 const LOGO_URL = 'COLE_URL_DA_LOGO_AQUI';
 
 // Aplica logo se configurada
@@ -634,11 +638,59 @@ function getSlug() {
   return params.get('s') || params.get('esporte') || '';
 }
 
+// ====== NORMALIZAR DADOS DO BANCO ======
+// O banco usa como_escolher (snake_case); a página usa comoEscolher (camelCase).
+function normalizar(row) {
+  if (!row) return null;
+  return {
+    nome: row.nome,
+    emoji: row.emoji,
+    tagline: row.tagline,
+    cor: row.cor,
+    imagem_hero: row.imagem_hero,
+    historia: row.historia,
+    quadras: row.quadras || [],
+    medidas: row.medidas || [],
+    equipamentos: row.equipamentos || [],
+    comoEscolher: row.como_escolher || [],
+    curiosidades: row.curiosidades || [],
+  };
+}
+
+// Lista de esportes para a seção "outros" (vem do banco ou fallback)
+let listaEsportes = [];
+
+// ====== BUSCAR DO BANCO (com fallback ao conteúdo embutido) ======
+async function carregarEsporte(slug) {
+  try {
+    // Busca o esporte específico e a lista de todos (para "outros esportes")
+    const [umResp, todosResp] = await Promise.all([
+      sb.from('esportes_conteudo').select('*').eq('slug', slug).eq('ativo', true).single(),
+      sb.from('esportes_conteudo').select('slug,nome,emoji').eq('ativo', true).order('ordem'),
+    ]);
+    if (todosResp.data && todosResp.data.length) {
+      listaEsportes = todosResp.data;
+    }
+    if (umResp.data) {
+      return normalizar(umResp.data);
+    }
+  } catch(e) {
+    // Banco indisponível — usa fallback
+  }
+  // Fallback: conteúdo embutido
+  if (!listaEsportes.length) {
+    listaEsportes = Object.keys(ESPORTES_ALL).map(s => ({ slug:s, nome:ESPORTES_ALL[s].nome, emoji:ESPORTES_ALL[s].emoji }));
+  }
+  return ESPORTES_ALL[slug] || null;
+}
+
 // ====== RENDERIZAR ======
-function render() {
+async function render() {
   const slug = getSlug();
   const app = document.getElementById('app');
-  const dados = ESPORTES_ALL[slug];
+  app.innerHTML = '<div class="loading">Carregando...</div>';
+
+  const dados = await carregarEsporte(slug);
 
   if (!dados) {
     app.innerHTML = `
@@ -654,7 +706,8 @@ function render() {
   // Atualiza título da página
   document.title = dados.nome + ' — Guia Completo | NewLounge Sport';
 
-  const imgHero = STORAGE_BASE + '/' + slug + '.jpg';
+  // Imagem do hero: usa a do banco se existir, senão a da pasta cards
+  const imgHero = dados.imagem_hero || (STORAGE_BASE + '/' + slug + '.jpg');
 
   // HERO
   let html = `
@@ -771,7 +824,7 @@ function render() {
     </div>`;
 
   // OUTROS ESPORTES
-  const outros = Object.keys(ESPORTES_ALL).filter(s => s !== slug);
+  const outros = listaEsportes.filter(s => s.slug !== slug);
   html += `
     <div class="outros">
       <div class="wrap" style="padding:0 20px;">
@@ -779,14 +832,11 @@ function render() {
         <h2 style="text-align:center;font-size:26px;font-weight:800;">Outros esportes</h2>
       </div>
       <div class="outros-grid">
-        ${outros.map(s => {
-          const d = ESPORTES_ALL[s];
-          return `
-            <a href="esporte.html?s=${s}" class="outro-card">
-              <div class="e">${d.emoji || '🏅'}</div>
-              <div class="n">${d.nome}</div>
-            </a>`;
-        }).join('')}
+        ${outros.map(s => `
+            <a href="esporte.html?s=${s.slug}" class="outro-card">
+              <div class="e">${s.emoji || '🏅'}</div>
+              <div class="n">${s.nome}</div>
+            </a>`).join('')}
       </div>
     </div>`;
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Loja — NewLounge Sport</title>
+  <title>Admin Loja — VITRINE SPORT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -184,6 +184,23 @@
       margin:20px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);
     }
     .sec-title:first-child{margin-top:0;}
+    .btn-mini{
+      float:right;background:var(--cyan);color:#fff;border:none;border-radius:5px;
+      font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;letter-spacing:0;text-transform:none;
+    }
+    .btn-mini:hover{opacity:.85;}
+    .linha-lista{
+      display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;
+      background:var(--bg3);padding:8px;border-radius:8px;
+    }
+    .linha-lista input,.linha-lista textarea{margin-bottom:0;font-size:13px;}
+    .linha-lista .col{flex:1;}
+    .linha-lista textarea{width:100%;resize:vertical;min-height:38px;}
+    .linha-del{
+      background:var(--danger,#ef4444);color:#fff;border:none;border-radius:5px;
+      width:28px;height:28px;flex-shrink:0;cursor:pointer;font-size:14px;line-height:1;
+    }
+    .linha-del:hover{opacity:.85;}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
     .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
     .grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
@@ -250,8 +267,14 @@
       .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
       .variante-row{grid-template-columns:1fr 1fr;gap:6px;}
     }
-      .logo img{height:38px;width:auto;display:block;}
-    .logo{display:flex;align-items:center;}
+  
+    .tam-rapido{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;}
+    .tam-rapido-label{font-size:12px;color:var(--text2);display:block;margin-bottom:10px;font-weight:600;}
+    .tam-rapido-grupos{display:flex;flex-direction:column;gap:10px;}
+    .tam-grupo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .tam-grupo-nome{font-size:11px;color:var(--text3);min-width:64px;text-transform:uppercase;letter-spacing:1px;}
+    .tam-chip{background:var(--cyan);color:#000;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--ff);transition:all .2s;}
+    .tam-chip:hover{background:var(--cyan2);transform:translateY(-1px);}
   </style>
 </head>
 <body>
@@ -260,7 +283,7 @@
 <div id="login" class="login-screen">
   <div class="login-box">
     <div class="login-brand">
-      <div class="login-logo">NEWLOUNGE<span> SPORT</span></div>
+      <div class="login-logo">VITRINE<span> SPORT</span></div>
       <h2>Painel Administrativo</h2>
     </div>
     <div class="form-grp"><label>Email</label><input type="email" id="l-email" placeholder="admin@email.com" autocomplete="email"></div>
@@ -275,7 +298,7 @@
 <div id="dash">
   <header class="dash-header">
     <div>
-      <span class="dash-logo">NEWLOUNGE<span> SPORT</span><small>Admin</small></span>
+      <span class="dash-logo">VITRINE<span> SPORT</span><small>Admin</small></span>
     </div>
     <div class="dash-actions">
       <a href="loja.html" class="btn btn-ghost btn-sm" target="_blank">← Ver loja</a>
@@ -301,6 +324,7 @@
       <button class="tab" onclick="setTab('pedidos',this)">📋 Pedidos</button>
       <button class="tab" onclick="setTab('cupons',this)">🎫 Cupons</button>
       <button class="tab" onclick="setTab('banners',this)">🖼️ Banners</button>
+      <button class="tab" onclick="setTab('esportes',this)">🏆 Esportes</button>
     </div>
 
     <!-- TAB: PRODUTOS -->
@@ -401,6 +425,21 @@
       </div>
     </div>
 
+    <div class="tab-content" id="tab-esportes">
+      <div class="toolbar">
+        <h2>Guias dos esportes</h2>
+        <span style="font-size:13px;color:var(--text2);">Edite o conteúdo das páginas de cada esporte</span>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Esporte</th><th>Tagline</th><th>Conteúdo</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-esportes">
+            <tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -452,8 +491,31 @@
       <div class="fotos-prev" id="mp-fotos-prev"></div>
 
       <div class="sec-title">Variações (tamanho × cor × estoque)</div>
+      <div class="tam-rapido">
+        <span class="tam-rapido-label">Adicionar tamanhos rápido:</span>
+        <div class="tam-rapido-grupos">
+          <div class="tam-grupo">
+            <span class="tam-grupo-nome">Roupa:</span>
+            <button type="button" class="tam-chip" onclick="addTamanhosRapido(['PP','P','M','G','GG','XG'])">PP a XG</button>
+            <button type="button" class="tam-chip" onclick="addTamanhosRapido(['P','M','G','GG'])">P-M-G-GG</button>
+          </div>
+          <div class="tam-grupo">
+            <span class="tam-grupo-nome">Calçado:</span>
+            <button type="button" class="tam-chip" onclick="addTamanhosRapido(['37','38','39','40','41','42','43','44'])">37 a 44</button>
+          </div>
+          <div class="tam-grupo">
+            <span class="tam-grupo-nome">Raquete:</span>
+            <button type="button" class="tam-chip" onclick="addTamanhosRapido(['L0','L1','L2','L3','L4','L5'])">L0 a L5</button>
+            <button type="button" class="tam-chip" onclick="addTamanhosRapido(['L2','L3','L4'])">L2-L3-L4</button>
+          </div>
+          <div class="tam-grupo">
+            <span class="tam-grupo-nome">Único:</span>
+            <button type="button" class="tam-chip" onclick="addTamanhosRapido(['Único'])">Tam. Único</button>
+          </div>
+        </div>
+      </div>
       <div id="variantes-lista"></div>
-      <button class="btn-add-var" onclick="adicionarVariante()">+ Adicionar variação (tamanho/cor/estoque)</button>
+      <button class="btn-add-var" onclick="adicionarVariante()">+ Adicionar variação manual</button>
 
       <div class="sec-title">Configurações</div>
       <div class="grid-2">
@@ -549,26 +611,21 @@
 
 <!-- MODAL BANNER -->
 <div id="modal-banner" class="modal-overlay" onclick="fecharOverlay(event,'modal-banner')">
-  <div class="modal-box" style="max-width:520px;" onclick="event.stopPropagation()">
+  <div class="modal-box" style="max-width:540px;" onclick="event.stopPropagation()">
     <div class="modal-header"><h3 id="mban-titulo">Novo banner</h3><button class="modal-close" onclick="fecharModal('modal-banner')">×</button></div>
     <div class="modal-body">
-      <div class="form-grp"><label>Título *</label><input type="text" id="mban-titulo-f" placeholder="Ex: Monte sua casa, equipe sua rotina."></div>
-      <div class="form-grp"><label>Subtítulo</label><input type="text" id="mban-sub" placeholder="Subtítulo ou descrição"></div>
-      <div class="form-grp"><label>Chamada (texto auxiliar)</label><input type="text" id="mban-chamada"></div>
-      <div class="form-grp"><label>URL da imagem</label><input type="text" id="mban-img" placeholder="https://..."></div>
-      <div class="form-grp"><label>Link do botão</label><input type="text" id="mban-link" placeholder="https://..."></div>
-      <div class="form-grp"><label>Texto do botão</label><input type="text" id="mban-btntxt" placeholder="Ver produtos"></div>
       <div class="grid-2">
         <div class="form-grp"><label>Posição</label>
-          <select id="mban-pos">
+          <select id="mban-pos" onchange="toggleCamposPub()">
             <option value="hero">Hero (principal)</option>
             <option value="secundario">Secundário</option>
             <option value="categoria">Categoria</option>
             <option value="cross_promo">Cross promo</option>
             <option value="rodape">Rodapé</option>
+            <option value="carrossel">🎯 Carrossel (publicidade paga)</option>
           </select>
         </div>
-        <div class="form-grp"><label>Plataforma</label>
+        <div class="form-grp"><label>Plataforma (onde aparece)</label>
           <select id="mban-plat">
             <option value="loja">Loja</option>
             <option value="imoveis">Imóveis</option>
@@ -576,14 +633,110 @@
           </select>
         </div>
       </div>
-      <div class="form-grp"><label>Ordem</label><input type="number" id="mban-ordem" value="0"></div>
-      <div class="inline-chk"><input type="checkbox" id="mban-ativo" checked><label for="mban-ativo">Ativo</label></div>
+
+      <div class="form-grp"><label>Título *</label><input type="text" id="mban-titulo-f" placeholder="Ex: Loja do Anunciante / Promoção"></div>
+      <div class="form-grp"><label>Subtítulo</label><input type="text" id="mban-sub" placeholder="Texto que aparece no banner"></div>
+      <div class="form-grp"><label>Chamada (texto auxiliar)</label><input type="text" id="mban-chamada" placeholder="Opcional"></div>
+
+      <div class="form-grp">
+        <label>Imagem do banner</label>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <img id="mban-img-preview" src="" alt="" style="width:120px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);display:none;">
+          <input type="file" id="mban-img-file" accept="image/*" onchange="uploadBannerImg(this)" style="font-size:12px;">
+          <span id="mban-img-status" style="font-size:12px;color:var(--text2);"></span>
+        </div>
+        <input type="text" id="mban-img" placeholder="ou cole a URL da imagem aqui" style="margin-top:8px;font-size:12px;">
+      </div>
+
+      <div class="grid-2">
+        <div class="form-grp"><label>Link (para onde leva)</label><input type="text" id="mban-link" placeholder="https://site-do-anunciante.com"></div>
+        <div class="form-grp"><label>Texto do botão</label><input type="text" id="mban-btntxt" placeholder="Saiba mais"></div>
+      </div>
+
+      <!-- Campos de publicidade paga (só aparecem quando posição = carrossel) -->
+      <div id="campos-publicidade" style="display:none;background:rgba(0,102,255,.05);border:1px solid rgba(0,102,255,.2);border-radius:8px;padding:14px;margin-bottom:14px;">
+        <div class="sec-title" style="margin-top:0;">📋 Dados do anunciante (controle interno)</div>
+        <div class="grid-2">
+          <div class="form-grp"><label>Nome do anunciante</label><input type="text" id="mban-anunciante" placeholder="Ex: Academia FitMax"></div>
+          <div class="form-grp"><label>Contato</label><input type="text" id="mban-contato" placeholder="WhatsApp / e-mail"></div>
+        </div>
+        <div class="grid-3">
+          <div class="form-grp"><label>Início</label><input type="date" id="mban-inicio"></div>
+          <div class="form-grp"><label>Fim</label><input type="date" id="mban-fim"></div>
+          <div class="form-grp"><label>Valor/mês (R$)</label><input type="number" id="mban-valor" placeholder="0" step="0.01"></div>
+        </div>
+        <p style="font-size:11px;color:var(--text2);margin:0;">💡 O banner some sozinho quando passar da data de fim.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-grp"><label>Ordem (menor aparece antes)</label><input type="number" id="mban-ordem" value="0"></div>
+        <div class="inline-chk" style="margin-top:24px;"><input type="checkbox" id="mban-ativo" checked><label for="mban-ativo">Ativo</label></div>
+      </div>
     </div>
     <div class="modal-footer">
       <div><button class="btn btn-danger btn-sm" id="mban-del" style="display:none" onclick="deletarBanner()">🗑 Deletar</button></div>
       <div style="display:flex;gap:10px;">
         <button class="btn btn-ghost" onclick="fecharModal('modal-banner')">Cancelar</button>
         <button class="btn btn-cyan" onclick="salvarBanner()">Salvar banner</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ESPORTE -->
+<div id="modal-esporte" class="modal-overlay" onclick="fecharOverlay(event,'modal-esporte')">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:720px;">
+    <div class="modal-header">
+      <h3 id="mesp-titulo">Editar esporte</h3>
+      <button class="modal-close" onclick="fecharModal('modal-esporte')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mesp-id">
+      <input type="hidden" id="mesp-slug">
+
+      <div class="sec-title">Informações básicas</div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Nome *</label><input type="text" id="mesp-nome" placeholder="Ex: Tênis"></div>
+        <div class="form-grp"><label>Emoji</label><input type="text" id="mesp-emoji" placeholder="🎾" maxlength="4"></div>
+      </div>
+      <div class="form-grp"><label>Tagline (frase do topo)</label><input type="text" id="mesp-tagline" placeholder="O esporte da precisão..."></div>
+
+      <div class="form-grp">
+        <label>Imagem de fundo do hero</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <img id="mesp-hero-preview" src="" alt="" style="width:80px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border);display:none;">
+          <input type="file" id="mesp-hero-file" accept="image/*" onchange="uploadHeroEsporte(this)" style="font-size:12px;">
+          <span id="mesp-hero-status" style="font-size:12px;color:var(--text2);"></span>
+        </div>
+        <input type="hidden" id="mesp-hero-url">
+      </div>
+
+      <div class="sec-title">História</div>
+      <div class="form-grp">
+        <label>Texto da história <span style="color:var(--text3);font-weight:400;">(separe parágrafos com linha em branco)</span></label>
+        <textarea id="mesp-historia" rows="6" placeholder="Conte a história do esporte..."></textarea>
+      </div>
+
+      <div class="sec-title">Tipos de quadra <button class="btn-mini" onclick="addLinha('quadras')">+ adicionar</button></div>
+      <div id="lista-quadras"></div>
+
+      <div class="sec-title">Medidas oficiais <button class="btn-mini" onclick="addLinha('medidas')">+ adicionar</button></div>
+      <div id="lista-medidas"></div>
+
+      <div class="sec-title">Equipamentos <button class="btn-mini" onclick="addLinha('equipamentos')">+ adicionar</button></div>
+      <div id="lista-equipamentos"></div>
+
+      <div class="sec-title">Como escolher <button class="btn-mini" onclick="addLinha('comoEscolher')">+ adicionar</button></div>
+      <div id="lista-comoEscolher"></div>
+
+      <div class="sec-title">Curiosidades <button class="btn-mini" onclick="addLinha('curiosidades')">+ adicionar</button></div>
+      <div id="lista-curiosidades"></div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="fecharModal('modal-esporte')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="salvarEsporte()">Salvar esporte</button>
       </div>
     </div>
   </div>
@@ -630,6 +783,8 @@ function setTab(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   el.classList.add('active');
+  // Carrega dados sob demanda
+  if (id === 'esportes') carregarEsportes();
 }
 
 // ===== CARREGAR DADOS =====
@@ -902,6 +1057,18 @@ async function uploadFotos(prodId) {
 }
 
 // ===== VARIANTES =====
+function addTamanhosRapido(tamanhos) {
+  // Adiciona vários tamanhos de uma vez, cada um como uma variação
+  tamanhos.forEach(t => {
+    // Evita duplicar tamanho já existente
+    if (!variantesForm.some(v => v.tamanho === t)) {
+      variantesForm.push({ tamanho: t, cor: '', cor_hex: '', estoque: 0, sku: '' });
+    }
+  });
+  renderVariantes();
+  toast(tamanhos.length + ' tamanhos adicionados — defina o estoque de cada um', 'ok');
+}
+
 function adicionarVariante() {
   variantesForm.push({ tamanho: '', cor: '', cor_hex: '', estoque: 0, sku: '' });
   renderVariantes();
@@ -1071,10 +1238,38 @@ async function deletarCupom() {
 }
 
 // ===== MODAL BANNER =====
+function toggleCamposPub() {
+  const pos = document.getElementById('mban-pos').value;
+  document.getElementById('campos-publicidade').style.display = (pos === 'carrossel') ? 'block' : 'none';
+}
+
+async function uploadBannerImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('mban-img-status');
+  status.textContent = 'Enviando...';
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `banners/banner-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('produtos-fotos').upload(path, file, { upsert: true });
+    if (error) throw error;
+    const { data } = sb.storage.from('produtos-fotos').getPublicUrl(path);
+    const url = data.publicUrl;
+    document.getElementById('mban-img').value = url;
+    const prev = document.getElementById('mban-img-preview');
+    prev.src = url; prev.style.display = 'block';
+    status.textContent = '✓ Imagem enviada';
+  } catch(err) {
+    status.textContent = 'Erro: ' + err.message;
+  }
+}
+
 function abrirModalBanner(id) {
   editandoId = id;
   document.getElementById('mban-titulo').textContent = id ? 'Editar banner' : 'Novo banner';
   document.getElementById('mban-del').style.display = id ? 'inline-flex' : 'none';
+  const prev = document.getElementById('mban-img-preview');
+  document.getElementById('mban-img-status').textContent = '';
   if (id) {
     const b = banners.find(x => x.id === id);
     document.getElementById('mban-titulo-f').value = b.titulo   || '';
@@ -1087,13 +1282,24 @@ function abrirModalBanner(id) {
     document.getElementById('mban-plat').value     = b.plataforma|| 'loja';
     document.getElementById('mban-ordem').value    = b.ordem    || 0;
     document.getElementById('mban-ativo').checked  = b.ativo !== false;
+    // Campos de publicidade
+    document.getElementById('mban-anunciante').value = b.anunciante || '';
+    document.getElementById('mban-contato').value    = b.contato || '';
+    document.getElementById('mban-inicio').value     = b.inicio || '';
+    document.getElementById('mban-fim').value        = b.fim || '';
+    document.getElementById('mban-valor').value      = b.valor_mensal || '';
+    if (b.imagem_url) { prev.src = b.imagem_url; prev.style.display = 'block'; }
+    else { prev.style.display = 'none'; }
   } else {
-    ['mban-titulo-f','mban-sub','mban-chamada','mban-img','mban-link','mban-btntxt'].forEach(i => document.getElementById(i).value = '');
+    ['mban-titulo-f','mban-sub','mban-chamada','mban-img','mban-link','mban-btntxt',
+     'mban-anunciante','mban-contato','mban-inicio','mban-fim','mban-valor'].forEach(i => document.getElementById(i).value = '');
     document.getElementById('mban-pos').value  = 'hero';
     document.getElementById('mban-plat').value = 'loja';
     document.getElementById('mban-ordem').value = 0;
     document.getElementById('mban-ativo').checked = true;
+    prev.style.display = 'none';
   }
+  toggleCamposPub();
   abrirModal('modal-banner');
 }
 async function salvarBanner() {
@@ -1110,6 +1316,14 @@ async function salvarBanner() {
     ordem: parseInt(document.getElementById('mban-ordem').value) || 0,
     ativo: document.getElementById('mban-ativo').checked,
   };
+  // Campos de publicidade (só se for carrossel)
+  if (dados.posicao === 'carrossel') {
+    dados.anunciante = document.getElementById('mban-anunciante').value.trim();
+    dados.contato = document.getElementById('mban-contato').value.trim();
+    dados.inicio = document.getElementById('mban-inicio').value || null;
+    dados.fim = document.getElementById('mban-fim').value || null;
+    dados.valor_mensal = parseFloat(document.getElementById('mban-valor').value) || 0;
+  }
   const { error } = editandoId
     ? await sb.from('banners_loja').update(dados).eq('id', editandoId)
     : await sb.from('banners_loja').insert(dados);
@@ -1150,6 +1364,159 @@ window.addEventListener('DOMContentLoaded', () => {
     drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag'); handleFotos(e.dataTransfer.files); });
   }
 });
+// ============================================================
+// GESTÃO DE ESPORTES (guias)
+// ============================================================
+let esportesData = [];
+
+async function carregarEsportes() {
+  const tbody = document.getElementById('tbody-esportes');
+  tbody.innerHTML = '<tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr>';
+  const { data, error } = await sb.from('esportes_conteudo').select('*').order('ordem');
+  if (error) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:20px;">Tabela não encontrada. Rode o SQL setup-esportes.sql primeiro.</td></tr>';
+    return;
+  }
+  esportesData = data || [];
+  if (!esportesData.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:20px;">Nenhum esporte. Rode o insert-esportes.sql para carregar os 10 esportes.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = esportesData.map(e => {
+    const numItens = (e.quadras?.length||0)+(e.medidas?.length||0)+(e.equipamentos?.length||0)+(e.como_escolher?.length||0)+(e.curiosidades?.length||0);
+    return `
+      <tr>
+        <td><strong>${e.emoji||''} ${e.nome}</strong></td>
+        <td style="font-size:13px;color:var(--text2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.tagline||'—'}</td>
+        <td style="font-size:12px;color:var(--text2);">${e.historia?'✓ história':'sem história'} · ${numItens} itens</td>
+        <td>${e.ativo?'<span style="color:var(--ok,#10b981);font-size:12px;">● ativo</span>':'<span style="color:var(--text3);font-size:12px;">○ oculto</span>'}</td>
+        <td><button class="btn btn-ghost btn-xs" onclick="abrirModalEsporte('${e.slug}')">✏️ Editar</button></td>
+      </tr>`;
+  }).join('');
+}
+
+// Itens temporários sendo editados
+let editItens = { quadras:[], medidas:[], equipamentos:[], comoEscolher:[], curiosidades:[] };
+
+// Configuração dos campos de cada lista
+const LISTA_CONFIG = {
+  quadras:      [{k:'nome',ph:'Nome (ex: Saibro)',w:'140px'},{k:'desc',ph:'Descrição',area:true}],
+  medidas:      [{k:'item',ph:'O que (ex: Comprimento)'},{k:'valor',ph:'Valor (ex: 23,77 m)',w:'140px'}],
+  equipamentos: [{k:'nome',ph:'Nome (ex: Raquete)',w:'140px'},{k:'desc',ph:'Descrição',area:true}],
+  comoEscolher: [{k:'titulo',ph:'Título (ex: Peso)',w:'140px'},{k:'desc',ph:'Explicação',area:true}],
+  curiosidades: [{k:'texto',ph:'Curiosidade',area:true}],
+};
+
+function renderLista(tipo) {
+  const cont = document.getElementById('lista-' + tipo);
+  const cfg = LISTA_CONFIG[tipo];
+  const itens = editItens[tipo];
+  cont.innerHTML = itens.map((item, idx) => {
+    const campos = cfg.map(c => {
+      const val = (item[c.k] || '').replace(/"/g,'&quot;');
+      if (c.area) {
+        return `<div class="col"><textarea placeholder="${c.ph}" oninput="updItem('${tipo}',${idx},'${c.k}',this.value)">${item[c.k]||''}</textarea></div>`;
+      }
+      const wStyle = c.w ? `style="width:${c.w};flex:none;"` : '';
+      return `<div class="col" ${wStyle}><input type="text" placeholder="${c.ph}" value="${val}" oninput="updItem('${tipo}',${idx},'${c.k}',this.value)"></div>`;
+    }).join('');
+    return `<div class="linha-lista">${campos}<button class="linha-del" onclick="delItem('${tipo}',${idx})">×</button></div>`;
+  }).join('') || '<p style="font-size:12px;color:var(--text3);margin-bottom:8px;">Nenhum item. Clique em "+ adicionar".</p>';
+}
+
+function addLinha(tipo) {
+  const cfg = LISTA_CONFIG[tipo];
+  const novo = {};
+  cfg.forEach(c => novo[c.k] = '');
+  editItens[tipo].push(novo);
+  renderLista(tipo);
+}
+function updItem(tipo, idx, campo, val) {
+  if (editItens[tipo][idx]) editItens[tipo][idx][campo] = val;
+}
+function delItem(tipo, idx) {
+  editItens[tipo].splice(idx, 1);
+  renderLista(tipo);
+}
+
+function abrirModalEsporte(slug) {
+  const e = esportesData.find(x => x.slug === slug);
+  if (!e) return;
+  document.getElementById('mesp-id').value = e.id;
+  document.getElementById('mesp-slug').value = e.slug;
+  document.getElementById('mesp-titulo').textContent = 'Editar: ' + e.nome;
+  document.getElementById('mesp-nome').value = e.nome || '';
+  document.getElementById('mesp-emoji').value = e.emoji || '';
+  document.getElementById('mesp-tagline').value = e.tagline || '';
+  document.getElementById('mesp-historia').value = e.historia || '';
+  document.getElementById('mesp-hero-url').value = e.imagem_hero || '';
+
+  const prev = document.getElementById('mesp-hero-preview');
+  if (e.imagem_hero) { prev.src = e.imagem_hero; prev.style.display = 'block'; }
+  else { prev.style.display = 'none'; }
+  document.getElementById('mesp-hero-status').textContent = '';
+
+  // Carregar listas (converte curiosidades de string[] para {texto})
+  editItens.quadras = JSON.parse(JSON.stringify(e.quadras || []));
+  editItens.medidas = JSON.parse(JSON.stringify(e.medidas || []));
+  editItens.equipamentos = JSON.parse(JSON.stringify(e.equipamentos || []));
+  editItens.comoEscolher = JSON.parse(JSON.stringify(e.como_escolher || []));
+  editItens.curiosidades = (e.curiosidades || []).map(c => typeof c === 'string' ? {texto:c} : c);
+
+  ['quadras','medidas','equipamentos','comoEscolher','curiosidades'].forEach(renderLista);
+  abrirModal('modal-esporte');
+}
+
+async function uploadHeroEsporte(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const slug = document.getElementById('mesp-slug').value;
+  const status = document.getElementById('mesp-hero-status');
+  status.textContent = 'Enviando...';
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `esportes/${slug}-hero.${ext}`;
+    const { error } = await sb.storage.from('produtos-fotos').upload(path, file, { upsert: true });
+    if (error) throw error;
+    const { data } = sb.storage.from('produtos-fotos').getPublicUrl(path);
+    const url = data.publicUrl + '?t=' + Date.now();
+    document.getElementById('mesp-hero-url').value = url;
+    const prev = document.getElementById('mesp-hero-preview');
+    prev.src = url; prev.style.display = 'block';
+    status.textContent = '✓ Imagem enviada';
+  } catch(err) {
+    status.textContent = 'Erro: ' + err.message;
+  }
+}
+
+async function salvarEsporte() {
+  const id = document.getElementById('mesp-id').value;
+  const nome = document.getElementById('mesp-nome').value.trim();
+  if (!nome) { toast('Nome é obrigatório', 'warn'); return; }
+
+  // Converter curiosidades de volta para string[]
+  const curiosidades = editItens.curiosidades.map(c => c.texto || '').filter(t => t.trim());
+
+  const payload = {
+    nome,
+    emoji: document.getElementById('mesp-emoji').value.trim() || '🏅',
+    tagline: document.getElementById('mesp-tagline').value.trim(),
+    historia: document.getElementById('mesp-historia').value.trim(),
+    imagem_hero: document.getElementById('mesp-hero-url').value.trim(),
+    quadras: editItens.quadras.filter(q => q.nome || q.desc),
+    medidas: editItens.medidas.filter(m => m.item || m.valor),
+    equipamentos: editItens.equipamentos.filter(e => e.nome || e.desc),
+    como_escolher: editItens.comoEscolher.filter(c => c.titulo || c.desc),
+    curiosidades,
+    atualizado_em: new Date().toISOString(),
+  };
+
+  const { error } = await sb.from('esportes_conteudo').update(payload).eq('id', id);
+  if (error) { toast('Erro ao salvar: ' + error.message, 'warn'); return; }
+  toast('Esporte salvo!', 'ok');
+  fecharModal('modal-esporte');
+  await carregarEsportes();
+}
+
 </script>
-</body>
 </html>
