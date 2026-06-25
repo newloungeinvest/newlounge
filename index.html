@@ -1189,11 +1189,21 @@ function moverCarrossel(dir) {
   atualizarCarrossel(); reiniciarAutoplay();
 }
 function irParaSlide(i) { carrosselIdx = i; atualizarCarrossel(); reiniciarAutoplay(); }
-function iniciarAutoplay() { carrosselTimer = setInterval(() => moverCarrossel(1), 5000); }
-function reiniciarAutoplay() {
+function iniciarAutoplay() {
   if (carrosselTimer) clearInterval(carrosselTimer);
-  if (carrosselSlides.length > 1) iniciarAutoplay();
+  if (carrosselSlides.length > 1) {
+    carrosselTimer = setInterval(() => {
+      carrosselIdx = (carrosselIdx + 1) % carrosselSlides.length;
+      atualizarCarrossel();
+    }, 5000);
+  }
 }
+function reiniciarAutoplay() {
+  iniciarAutoplay();
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && carrosselSlides.length > 1) iniciarAutoplay();
+});
 
 // ---- FILTRO TIPO ----
 function setFiltro(tipo, el) {

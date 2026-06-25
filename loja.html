@@ -660,6 +660,7 @@
     <button class="nav-cat" onclick="filtrarCategoria('futebol',this)">⚽ Futebol</button>
     <button class="nav-cat" onclick="filtrarCategoria('corrida',this)">🏃 Corrida</button>
     <button class="nav-cat" onclick="filtrarCategoria('ciclismo',this)">🚴 Ciclismo</button>
+    <button class="nav-cat" onclick="filtrarCategoria('mergulho',this)">🤿 Mergulho</button>
     <span class="nav-sep">|</span>
     <button class="nav-cat" onclick="filtrarCategoria('_vestuario',this)">👕 Vestuário</button>
     <button class="nav-cat" onclick="filtrarCategoria('acessorios',this)">🎽 Acessórios</button>
@@ -887,7 +888,7 @@ async function carregarCategorias() {
 }
 
 // Esportes que têm página de guia (esporte.html)
-const ESPORTES_COM_GUIA = ['tenis','beach-tennis','volei','handball','futsal','tenis-de-mesa','basquete','futebol','corrida','ciclismo'];
+const ESPORTES_COM_GUIA = ['tenis','beach-tennis','volei','handball','futsal','tenis-de-mesa','basquete','futebol','corrida','ciclismo','mergulho'];
 
 function renderCategorias() {
   const grid = document.getElementById('cats-grid');
@@ -1301,12 +1302,21 @@ function irParaSlide(i) {
 }
 
 function iniciarAutoplay() {
-  carrosselTimer = setInterval(() => moverCarrossel(1), 5000);
+  if (carrosselTimer) clearInterval(carrosselTimer);
+  if (carrosselSlides.length > 1) {
+    carrosselTimer = setInterval(() => {
+      carrosselIdx = (carrosselIdx + 1) % carrosselSlides.length;
+      atualizarCarrossel();
+    }, 5000);
+  }
 }
 function reiniciarAutoplay() {
-  if (carrosselTimer) clearInterval(carrosselTimer);
-  if (carrosselSlides.length > 1) iniciarAutoplay();
+  iniciarAutoplay();
 }
+// Garante que o autoplay volta quando a aba é reaberta
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && carrosselSlides.length > 1) iniciarAutoplay();
+});
 
 window.addEventListener('load', () => { init(); atualizarBadge(); });
 </script>
