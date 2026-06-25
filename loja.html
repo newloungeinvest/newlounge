@@ -534,6 +534,12 @@
     }
     .cat-card-foto:hover{border-color:#0066FF;box-shadow:0 4px 16px rgba(0,102,255,.12);transform:translateY(-2px);}
     .cat-card-foto:hover .nome{color:#0066FF;}
+    .cat-foto-wrap{position:relative;}
+    .card-badge{
+      position:absolute;top:8px;right:8px;background:rgba(0,102,255,.92);color:#fff;
+      font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;
+      backdrop-filter:blur(4px);box-shadow:0 2px 6px rgba(0,0,0,.15);
+    }
   </style>
 </head>
 <body>
@@ -812,6 +818,9 @@ async function carregarCategorias() {
   renderCategorias();
 }
 
+// Esportes que têm página de guia (esporte.html)
+const ESPORTES_COM_GUIA = ['tenis','beach-tennis','volei','handball','futsal','tenis-de-mesa','basquete','futebol','corrida','ciclismo'];
+
 function renderCategorias() {
   const grid = document.getElementById('cats-grid');
   if (!categorias.length) {
@@ -821,17 +830,24 @@ function renderCategorias() {
   const dest = categorias.filter(c => c.destaque);
   // Card com imagem (se houver) ou emoji como fallback
   grid.innerHTML = dest.map(c => {
+    const temGuia = ESPORTES_COM_GUIA.includes(c.slug);
+    // Esportes com guia: card abre a página do esporte. Outros: filtram produtos.
+    const acaoClique = temGuia
+      ? `window.location.href='esporte.html?s=${c.slug}'`
+      : `filtrarCategoria('${c.slug}',null)`;
+
     if (c.imagem_card) {
       return `
-        <div class="cat-card cat-card-foto" onclick="filtrarCategoria('${c.slug}',null)">
+        <div class="cat-card cat-card-foto" onclick="${acaoClique}">
           <div class="cat-foto-wrap">
             <img src="${c.imagem_card}" alt="${c.nome}" loading="lazy">
+            ${temGuia ? '<span class="card-badge">Conheça</span>' : ''}
           </div>
           <div class="nome">${c.nome}</div>
         </div>`;
     }
     return `
-      <div class="cat-card cat-card-noimg" onclick="filtrarCategoria('${c.slug}',null)">
+      <div class="cat-card cat-card-noimg" onclick="${acaoClique}">
         <div class="ico">${c.icone || '🏷️'}</div>
         <div class="nome">${c.nome}</div>
       </div>`;

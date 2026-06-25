@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia do Esporte — NewLounge Sport</title>
+  <meta name="description" content="Conheça a história, regras, medidas e equipamentos de cada esporte. Guia completo da NewLounge Sport.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg:    #F5F7FA;
+      --bg2:   #FFFFFF;
+      --bg3:   #EEF2F7;
+      --bg4:   #E5EAF0;
+      --border:#DDE3ED;
+      --cyan:  #0066FF;
+      --cyan2: #3385FF;
+      --red:   #FF3B30;
+      --green: #28A745;
+      --gold:  #FFB700;
+      --text:  #111827;
+      --text2: #6B7280;
+      --text3: #9CA3AF;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+      --shadow2:0 8px 32px rgba(0,0,0,.12);
+      --ff:    'Inter', -apple-system, sans-serif;
+      --r:     10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--ff);font-size:15px;line-height:1.6;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}
+    img{max-width:100%;display:block;}
+
+    /* ===== TOPBAR ===== */
+    .topbar{background:var(--cyan);color:#fff;text-align:center;padding:8px 16px;font-size:12.5px;font-weight:500;}
+
+    /* ===== HEADER ===== */
+    header.site-header{
+      background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+      box-shadow:0 1px 8px rgba(0,0,0,.04);
+    }
+    .header-in{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:20px;justify-content:space-between;}
+    .logo{font-size:21px;font-weight:800;letter-spacing:-.5px;color:var(--text);}
+    .logo span{color:var(--cyan);}
+    .logo img{height:38px;width:auto;}
+    .header-actions{display:flex;align-items:center;gap:18px;}
+    .h-link{font-size:13.5px;font-weight:500;color:#374151;transition:color .18s;}
+    .h-link:hover{color:var(--cyan);}
+
+    /* ===== HERO ===== */
+    .hero{
+      position:relative;min-height:340px;display:flex;align-items:flex-end;
+      background-size:cover;background-position:center;color:#fff;overflow:hidden;
+    }
+    .hero::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.45) 55%, rgba(0,0,0,.82) 100%);
+    }
+    .hero-content{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;padding:40px 20px;}
+    .hero-emoji{font-size:42px;margin-bottom:8px;}
+    .hero h1{font-size:clamp(32px,6vw,56px);font-weight:800;letter-spacing:-1px;line-height:1.05;margin-bottom:10px;text-shadow:0 2px 20px rgba(0,0,0,.4);}
+    .hero-tagline{font-size:clamp(15px,2.5vw,20px);font-weight:400;opacity:.95;max-width:640px;text-shadow:0 1px 8px rgba(0,0,0,.5);}
+    .hero-back{
+      position:relative;z-index:2;display:inline-flex;align-items:center;gap:6px;
+      color:#fff;font-size:13px;font-weight:600;margin-bottom:auto;
+      background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
+      padding:8px 16px;border-radius:30px;border:1px solid rgba(255,255,255,.25);
+      transition:all .2s;
+    }
+    .hero-back:hover{background:rgba(255,255,255,.28);}
+    .hero-top{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;padding:20px 20px 0;}
+
+    /* ===== CONTAINER ===== */
+    .wrap{max-width:1000px;margin:0 auto;padding:0 20px;}
+    section.block{padding:48px 0;border-bottom:1px solid var(--border);}
+    section.block:last-of-type{border-bottom:none;}
+    .block-label{
+      display:inline-block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      color:var(--cyan);margin-bottom:12px;
+    }
+    .block h2{font-size:clamp(24px,4vw,32px);font-weight:800;letter-spacing:-.5px;margin-bottom:20px;color:var(--text);}
+    .block h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text);}
+    .prose{font-size:16px;line-height:1.75;color:#374151;}
+    .prose p{margin-bottom:16px;}
+    .prose p:last-child{margin-bottom:0;}
+
+    /* ===== CARDS GRID ===== */
+    .grid{display:grid;gap:16px;}
+    .grid-2{grid-template-columns:repeat(2,1fr);}
+    .grid-3{grid-template-columns:repeat(3,1fr);}
+    .info-card{
+      background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:20px;
+      transition:all .2s;
+    }
+    .info-card:hover{border-color:var(--cyan);box-shadow:0 4px 16px rgba(0,102,255,.1);transform:translateY(-2px);}
+    .info-card h3{margin-bottom:6px;}
+    .info-card p{font-size:14px;color:var(--text2);line-height:1.6;}
+
+    /* ===== TABELA MEDIDAS ===== */
+    .medidas-tabela{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+    .medida-row{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);}
+    .medida-row:last-child{border-bottom:none;}
+    .medida-row:nth-child(even){background:var(--bg3);}
+    .medida-item{font-size:14.5px;color:#374151;font-weight:500;}
+    .medida-valor{font-size:15px;color:var(--cyan);font-weight:700;}
+
+    /* ===== COMO ESCOLHER ===== */
+    .escolher-item{
+      background:#fff;border-left:3px solid var(--gold);border-radius:0 10px 10px 0;
+      padding:18px 22px;margin-bottom:14px;box-shadow:var(--shadow);
+    }
+    .escolher-item h3{color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+    .escolher-item .num{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:24px;height:24px;border-radius:50%;background:var(--gold);color:#fff;
+      font-size:13px;font-weight:700;flex-shrink:0;
+    }
+    .escolher-item p{font-size:14.5px;color:var(--text2);line-height:1.65;}
+
+    /* ===== CURIOSIDADES ===== */
+    .curiosidades{background:linear-gradient(135deg,#EEF4FF,#F5F8FF);border:1px solid #D6E4FF;border-radius:14px;padding:24px 28px;}
+    .curiosidades h3{color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .curiosidade-item{display:flex;gap:12px;margin-bottom:12px;font-size:15px;color:#374151;line-height:1.6;}
+    .curiosidade-item:last-child{margin-bottom:0;}
+    .curiosidade-item .dot{color:var(--gold);font-size:18px;flex-shrink:0;line-height:1.4;}
+
+    /* ===== CTA ===== */
+    .cta-box{
+      background:linear-gradient(135deg,var(--cyan),var(--cyan2));border-radius:18px;
+      padding:40px;text-align:center;color:#fff;margin:48px 0;
+    }
+    .cta-box h2{color:#fff;margin-bottom:10px;}
+    .cta-box p{font-size:16px;opacity:.95;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;}
+    .btn-cta{
+      display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--cyan);
+      font-size:16px;font-weight:700;padding:15px 34px;border-radius:50px;transition:all .2s;
+      box-shadow:0 6px 20px rgba(0,0,0,.2);
+    }
+    .btn-cta:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.28);}
+
+    /* ===== OUTROS ESPORTES ===== */
+    .outros{padding:48px 0;background:var(--bg3);}
+    .outros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;max-width:1000px;margin:24px auto 0;padding:0 20px;}
+    .outro-card{
+      background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 10px;
+      text-align:center;transition:all .2s;cursor:pointer;
+    }
+    .outro-card:hover{border-color:var(--cyan);transform:translateY(-3px);box-shadow:var(--shadow);}
+    .outro-card .e{font-size:30px;margin-bottom:6px;}
+    .outro-card .n{font-size:12.5px;font-weight:600;color:#374151;}
+
+    /* ===== FOOTER ===== */
+    footer{background:#1A2340;color:#fff;padding:40px 20px;text-align:center;}
+    footer .logo{color:#fff;justify-content:center;margin-bottom:10px;}
+    footer p{font-size:13px;color:#94A3B8;}
+
+    /* ===== LOADING / ERRO ===== */
+    .loading{text-align:center;padding:80px 20px;color:var(--text2);}
+    .erro-404{text-align:center;padding:80px 20px;}
+    .erro-404 .big{font-size:64px;margin-bottom:16px;}
+    .erro-404 h1{font-size:26px;margin-bottom:10px;}
+    .erro-404 p{color:var(--text2);margin-bottom:24px;}
+
+    /* ===== RESPONSIVO ===== */
+    @media(max-width:768px){
+      .grid-2,.grid-3{grid-template-columns:1fr;}
+      .header-in{padding:12px 16px;gap:12px;}
+      .h-link.hide-mob{display:none;}
+      section.block{padding:36px 0;}
+      .cta-box{padding:30px 24px;}
+      .hero{min-height:280px;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">🚚 Frete grátis acima de R$ 299 &nbsp;·&nbsp; ⚡ Aprenda sobre seu esporte e monte seu kit</div>
+
+  <header class="site-header">
+    <div class="header-in">
+      <a href="loja.html" class="logo">NEWLOUNGE<span> SPORT</span></a>
+      <div class="header-actions">
+        <a href="loja.html" class="h-link">← Voltar à loja</a>
+        <a href="loja.html" class="h-link hide-mob">Todos os produtos</a>
+        <a href="conta.html" class="h-link">Conta</a>
+      </div>
+    </div>
+  </header>
+
+  <div id="app">
+    <div class="loading">Carregando...</div>
+  </div>
+
+  <footer>
+    <a href="loja.html" class="logo">NEWLOUNGE<span style="color:#3385FF"> SPORT</span></a>
+    <p>Equipamentos esportivos com entrega para todo o Brasil</p>
+  </footer>
+
+  <script>
+// ============================================================
+// NEWLOUNGE SPORT — Conteúdo dos esportes
+// EDITE LIVREMENTE os textos abaixo. Cada esporte tem a mesma estrutura.
+// ============================================================
+// Como editar: cada bloco entre { } é um esporte.
+// Os campos são: nome, tagline, historia, quadras[], medidas[],
+// equipamentos[], comoEscolher[], curiosidades[]
+// ============================================================
+
+const ESPORTES_DATA = {
+
+  // ========================= TÊNIS =========================
+  'tenis': {
+    nome: 'Tênis',
+    emoji: '🎾',
+    tagline: 'O esporte da precisão, resistência e estratégia',
+    cor: '#C8FF00',
+    historia: `O tênis moderno nasceu na Inglaterra no final do século XIX, derivado do "jeu de paume" francês jogado com as mãos. Em 1877 aconteceu o primeiro torneio de Wimbledon, marco do esporte.
+
+Um divisor de águas foi a chegada da chamada Era Aberta, em 1968, quando os torneios passaram a aceitar tanto jogadores amadores quanto profissionais competindo juntos pelos mesmos títulos e premiações. Antes disso, os grandes torneios eram restritos a amadores, e os profissionais ficavam de fora. A Era Aberta profissionalizou o esporte e deu origem ao circuito mundial como conhecemos hoje (ATP e WTA).
+
+Os quatro torneios de Grand Slam — Australian Open, Roland Garros, Wimbledon e US Open — representam o ápice da modalidade, cada um disputado em um tipo diferente de quadra.`,
+    quadras: [
+      { nome: 'Saibro (clay)', desc: 'Superfície de pó de tijolo. Bola quica mais alto e lento, favorecendo jogadores de fundo de quadra e trocas longas. É a quadra de Roland Garros.' },
+      { nome: 'Rápida / Dura (hard)', desc: 'Concreto ou acrílico. Quique médio e previsível, equilibra saque e fundo. É a quadra do US Open e Australian Open.' },
+      { nome: 'Grama (grass)', desc: 'A mais rápida e de quique baixo. Premia o saque e jogo de rede. É a quadra histórica de Wimbledon.' },
+    ],
+    medidas: [
+      { item: 'Comprimento da quadra', valor: '23,77 m' },
+      { item: 'Largura (simples)', valor: '8,23 m' },
+      { item: 'Largura (duplas)', valor: '10,97 m' },
+      { item: 'Altura da rede (centro)', valor: '0,914 m' },
+      { item: 'Altura da rede (postes)', valor: '1,07 m' },
+    ],
+    equipamentos: [
+      { nome: 'Raquete', desc: 'Composta por cabeça (área das cordas), garganta, haste e cabo (empunhadura). O tamanho da cabeça varia de ~85 a 115 pol². Cabeças maiores perdoam mais erros; menores dão mais controle.' },
+      { nome: 'Cordas (encordoamento)', desc: 'Podem ser de tripa natural, multifilamento ou poliéster. A tensão (em libras) afeta controle vs potência: mais tensa = controle, menos tensa = potência.' },
+      { nome: 'Bola', desc: 'Amarela, pressurizada, com feltro. Perde pressão com o uso — por isso vêm em tubos selados.' },
+      { nome: 'Overgrip', desc: 'Fita que envolve o cabo para absorver suor e melhorar a pegada.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Empunhadura (grip)', desc: 'O tamanho do cabo importa. No Brasil os tamanhos vão de L0 a L5. Regra rápida: segure a raquete e veja se cabe um dedo entre os dedos e a palma. L2 e L3 são os mais comuns para adultos.' },
+      { titulo: 'Peso', desc: 'Raquetes leves (260-285g) são fáceis de manejar, boas para iniciantes. Pesadas (300g+) dão mais potência e estabilidade, para jogadores avançados.' },
+      { titulo: 'Tamanho da cabeça', desc: 'Iniciantes: cabeça grande (100-115 pol²) perdoa erros. Avançados: cabeça menor (95-98 pol²) dá precisão.' },
+      { titulo: 'Equilíbrio', desc: 'Peso na cabeça = mais potência. Peso no cabo = mais controle e manobrabilidade.' },
+    ],
+    curiosidades: [
+      'A pontuação (15, 30, 40) tem origem incerta, possivelmente ligada a relógios medievais.',
+      'A bola amarela só foi adotada em 1972, para melhor visibilidade na TV.',
+    ],
+  },
+
+  // ===================== BEACH TENNIS =====================
+  'beach-tennis': {
+    nome: 'Beach Tennis',
+    emoji: '🏖️',
+    tagline: 'A energia da praia com a emoção das raquetes',
+    cor: '#00BFFF',
+    historia: `O Beach Tennis surgiu na Itália, na região da Romagna, nos anos 1990, combinando elementos do tênis, vôlei de praia e badminton. Rapidamente se espalhou pela Europa e chegou ao Brasil, onde encontrou terreno perfeito no litoral e explodiu em popularidade a partir da década de 2010.
+
+Hoje o Brasil é uma das maiores potências mundiais do esporte, com forte presença em rankings internacionais. A modalidade é regida pela ITF (Federação Internacional de Tênis), a mesma do tênis tradicional.
+
+O esporte é jogado quase sempre em duplas, com pontuação similar à do tênis, mas sem deixar a bola quicar na areia.`,
+    quadras: [
+      { nome: 'Quadra de areia', desc: 'Areia fina e nivelada, a mesma usada no vôlei de praia. A profundidade da areia deve ser suficiente para amortecer quedas.' },
+    ],
+    medidas: [
+      { item: 'Comprimento da quadra', valor: '16 m' },
+      { item: 'Largura (duplas)', valor: '8 m' },
+      { item: 'Altura da rede', valor: '1,70 m' },
+      { item: 'Tolerância da rede', valor: '± 0,10 m' },
+    ],
+    equipamentos: [
+      { nome: 'Raquete (não tem cordas!)', desc: 'Diferente do tênis, a raquete de beach tennis é sólida, sem cordas. Feita de fibra de vidro ou carbono, com furos para reduzir a resistência ao ar. A superfície pode ser lisa ou rugosa (mais spin).' },
+      { nome: 'Bola', desc: 'Parecida com a de tênis mas com menos pressão (bola "estágio 2", despressurizada). Quica menos e é mais lenta.' },
+      { nome: 'Rede', desc: 'Mais alta que a do vôlei, posicionada a 1,70m.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Formato da raquete', desc: 'Formato "diamante" (mais peso na ponta) gera mais potência. Formato "redondo/oval" tem o ponto de impacto maior e mais controle, ideal para iniciantes.' },
+      { titulo: 'Material', desc: 'Fibra de vidro é mais flexível e barata, boa para começar. Carbono é mais rígido, leve e potente, para jogadores avançados.' },
+      { titulo: 'Peso', desc: 'Entre 330g e 370g. Mais leve = controle e manobra. Mais pesada = potência.' },
+      { titulo: 'Rugosidade', desc: 'Superfície com textura (areia/grit) ajuda a dar efeito (spin) na bola.' },
+    ],
+    curiosidades: [
+      'No beach tennis a bola nunca pode quicar na areia — é como o vôlei nesse aspecto.',
+      'O Brasil tem vários campeões mundiais e é referência no esporte.',
+    ],
+  },
+
+  // ========================= VÔLEI =========================
+  'volei': {
+    nome: 'Vôlei',
+    emoji: '🏐',
+    tagline: 'Força, salto e jogo coletivo na rede',
+    cor: '#FF6B35',
+    historia: `O voleibol foi criado em 1895 nos Estados Unidos por William G. Morgan, um instrutor de educação física que queria um esporte menos intenso que o basquete para seus alunos. Inicialmente chamado de "mintonette", logo mudou de nome para volleyball.
+
+O esporte cresceu mundialmente e estreou nos Jogos Olímpicos em 1964, em Tóquio. O Brasil se tornou uma das maiores potências do voleibol mundial, tanto no masculino quanto no feminino, com múltiplas medalhas olímpicas e títulos mundiais.
+
+Existem duas variações principais: o vôlei de quadra (6 jogadores) e o vôlei de praia (2 jogadores), ambos disputados em alto nível no Brasil.`,
+    quadras: [
+      { nome: 'Quadra indoor', desc: 'Piso de madeira ou sintético (PVC). Dividida ao meio pela rede, com a "linha de ataque" a 3m da rede demarcando a zona de ataque.' },
+      { nome: 'Quadra de praia', desc: 'Areia, menor que a indoor. Jogada em duplas, sem rodízio de posições.' },
+    ],
+    medidas: [
+      { item: 'Comprimento da quadra', valor: '18 m' },
+      { item: 'Largura', valor: '9 m' },
+      { item: 'Altura da rede (masculino)', valor: '2,43 m' },
+      { item: 'Altura da rede (feminino)', valor: '2,24 m' },
+      { item: 'Linha de ataque', valor: '3 m da rede' },
+    ],
+    equipamentos: [
+      { nome: 'Bola', desc: 'Couro ou sintético, mais leve que a de futebol. A de quadra é mais firme; a de praia é um pouco maior e mais leve, resistente à umidade.' },
+      { nome: 'Joelheiras', desc: 'Essenciais para proteger os joelhos nas defesas e mergulhos.' },
+      { nome: 'Tênis específico', desc: 'Solado com boa aderência e amortecimento para os saltos constantes (no indoor). Na praia, joga-se descalço.' },
+      { nome: 'Rede e antenas', desc: 'A rede tem antenas nas laterais que delimitam o espaço válido de passagem da bola.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Bola certa', desc: 'Para quadra, escolha bolas oficiais firmes. Para praia, bolas próprias resistentes à areia e umidade. Iniciantes podem usar bolas de espuma/soft, mais macias.' },
+      { titulo: 'Tênis de vôlei', desc: 'Priorize amortecimento (para os saltos) e solado de borracha aderente (para os deslocamentos rápidos). Cano médio ajuda a estabilizar o tornozelo.' },
+      { titulo: 'Joelheira', desc: 'Procure modelos com boa proteção na patela e que não escorreguem. Conforto é chave, pois fica horas em uso.' },
+    ],
+    curiosidades: [
+      'O "saque viagem" (jump serve) pode ultrapassar 130 km/h no masculino.',
+      'O líbero, jogador de defesa que usa camisa de cor diferente, foi introduzido em 1998.',
+    ],
+  },
+
+  // ======================= HANDBALL =======================
+  'handball': {
+    nome: 'Handball',
+    emoji: '🤾',
+    tagline: 'Velocidade, força e gols em quadra',
+    cor: '#9B59B6',
+    historia: `O handebol moderno surgiu no norte da Europa (Alemanha e Escandinávia) no início do século XX. A versão de quadra (indoor) com 7 jogadores por equipe se consolidou e estreou nos Jogos Olímpicos de Munique, em 1972 (masculino), e Montreal, 1976 (feminino).
+
+No Brasil, o handebol é muito forte na base escolar e universitária. A seleção feminina brasileira conquistou o título mundial em 2013, um marco histórico para o esporte no país.
+
+É um esporte de contato físico intenso, combinando corrida, saltos, arremessos potentes e estratégia coletiva.`,
+    quadras: [
+      { nome: 'Quadra indoor', desc: 'Piso sintético ou de madeira. Tem duas áreas de gol (semicírculos de 6m) onde só o goleiro pode ficar. A linha de 9m (tracejada) marca o limite do arremesso livre.' },
+    ],
+    medidas: [
+      { item: 'Comprimento da quadra', valor: '40 m' },
+      { item: 'Largura', valor: '20 m' },
+      { item: 'Área do goleiro (gol)', valor: '6 m (raio)' },
+      { item: 'Linha de tiro livre', valor: '9 m' },
+      { item: 'Gol (largura × altura)', valor: '3 m × 2 m' },
+    ],
+    equipamentos: [
+      { nome: 'Bola', desc: 'Menor que a de futebol, feita para ser segurada com uma mão. Tem 3 tamanhos: H1 (infantil), H2 (feminino/juvenil) e H3 (masculino adulto).' },
+      { nome: 'Resina (breu)', desc: 'Cola aplicada nas mãos para segurar melhor a bola. Característica marcante do esporte.' },
+      { nome: 'Tênis de quadra', desc: 'Solado aderente e com bom amortecimento lateral para as mudanças bruscas de direção.' },
+      { nome: 'Equipamento do goleiro', desc: 'Calça comprida e camisa de cor diferente. Alguns usam proteções leves.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Tamanho da bola', desc: 'Escolha pelo gênero e idade: H3 para homens adultos, H2 para mulheres e juvenis, H1 para crianças. Pegar o tamanho errado dificulta o domínio.' },
+      { titulo: 'Tênis', desc: 'Procure modelos de handebol/indoor com reforço lateral e solado não-marcante (que não risca a quadra).' },
+      { titulo: 'Resina', desc: 'Há resinas laváveis e à base de água, mais fáceis de limpar. Verifique se sua quadra permite o uso.' },
+    ],
+    curiosidades: [
+      'Um arremesso de elite pode passar de 100 km/h.',
+      'A seleção feminina do Brasil foi campeã mundial em 2013, na Sérvia.',
+    ],
+  },
+
+  // ======================== FUTSAL ========================
+  'futsal': {
+    nome: 'Futsal',
+    emoji: '⚽',
+    tagline: 'O futebol de salão, rápido e técnico',
+    cor: '#27AE60',
+    historia: `O futsal nasceu na América do Sul nas décadas de 1930-40, com forte disputa de origem entre Brasil e Uruguai. Surgiu da adaptação do futebol para quadras menores, em ambientes fechados, popularizado por clubes e associações cristãs de jovens (ACMs).
+
+O Brasil é a maior potência mundial do futsal, revelando craques que depois brilham no futebol de campo. Grandes nomes do futebol mundial começaram no futsal, que desenvolve domínio de bola em espaço reduzido, tomada de decisão rápida e técnica apurada.
+
+É regido pela FIFA e tem Copa do Mundo própria, na qual o Brasil é o maior vencedor.`,
+    quadras: [
+      { nome: 'Quadra oficial', desc: 'Piso de madeira ou sintético. Menor que a de futebol de campo, com gols menores e bola específica. As linhas demarcam a área do goleiro e a marca do tiro livre.' },
+    ],
+    medidas: [
+      { item: 'Comprimento (oficial)', valor: '38 a 42 m' },
+      { item: 'Largura (oficial)', valor: '18 a 22 m' },
+      { item: 'Gol (largura × altura)', valor: '3 m × 2 m' },
+      { item: 'Marca do pênalti', valor: '6 m' },
+      { item: 'Segundo pênalti', valor: '10 m' },
+    ],
+    equipamentos: [
+      { nome: 'Bola de futsal', desc: 'Menor e mais pesada que a de campo, com menos quique (bola "murcha" de propósito). Isso mantém a bola baixa e favorece o controle.' },
+      { nome: 'Tênis (chuteira de futsal)', desc: 'Solado liso de borracha, feito para quadra. NÃO tem travas. Dá aderência sem prender o pé.' },
+      { nome: 'Caneleira', desc: 'Protege a canela dos choques e divididas.' },
+      { nome: 'Meião', desc: 'Meia alta que segura a caneleira e protege a perna.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Tênis certo', desc: 'Para quadra, use tênis de futsal com solado liso antiderrapante. Para society/grama sintética, aí sim use chuteira com travas pequenas (são coisas diferentes!).' },
+      { titulo: 'Bola oficial', desc: 'Verifique se é bola de futsal (quique reduzido). Bola de campo numa quadra fica saltando demais e atrapalha o jogo.' },
+      { titulo: 'Caneleira', desc: 'Escolha pelo tamanho da canela. Modelos com tornozeleira dão proteção extra.' },
+    ],
+    curiosidades: [
+      'Muitos craques do futebol mundial começaram no futsal.',
+      'A bola de futsal tem quique reduzido para manter o jogo no chão e técnico.',
+    ],
+  },
+
+};
+
+
+// ============================================================
+// NEWLOUNGE SPORT — Conteúdo dos esportes (PARTE 2)
+// Continuação: tênis de mesa, basquete, futebol, corrida, ciclismo
+// ============================================================
+
+const ESPORTES_DATA_2 = {
+
+  // ===================== TÊNIS DE MESA =====================
+  'tenis-de-mesa': {
+    nome: 'Tênis de Mesa',
+    emoji: '🏓',
+    tagline: 'Reflexos relâmpago e efeitos surpreendentes',
+    cor: '#E74C3C',
+    historia: `O tênis de mesa surgiu na Inglaterra vitoriana no final do século XIX, como uma versão de salão do tênis, jogado sobre mesas de jantar. Ganhou o apelido de "ping-pong" pelo som da bola.
+
+Tornou-se esporte olímpico em 1988, em Seul. A Ásia, especialmente a China, domina a modalidade em nível mundial. É um dos esportes mais rápidos do mundo em termos de reação — a bola pode atingir mais de 100 km/h em distâncias curtíssimas.
+
+No Brasil, o esporte vem crescendo com destaque para atletas que competem em alto nível internacional.`,
+    quadras: [
+      { nome: 'Mesa oficial', desc: 'Superfície rígida, geralmente verde ou azul fosco, dividida por uma rede baixa. O quique deve ser uniforme em toda a mesa.' },
+    ],
+    medidas: [
+      { item: 'Comprimento da mesa', valor: '2,74 m' },
+      { item: 'Largura da mesa', valor: '1,525 m' },
+      { item: 'Altura da mesa (do chão)', valor: '0,76 m' },
+      { item: 'Altura da rede', valor: '0,1525 m (15,25 cm)' },
+      { item: 'Diâmetro da bola', valor: '40 mm' },
+    ],
+    equipamentos: [
+      { nome: 'Raquete (raquete/raqueteira)', desc: 'Lâmina de madeira coberta por borracha dos dois lados. A borracha pode ser lisa ou com pinos. As cores são obrigatoriamente diferentes em cada lado (uma vermelha, outra preta).' },
+      { nome: 'Bola', desc: 'Pequena (40mm), leve, de plástico. Branca ou laranja.' },
+      { nome: 'Borrachas', desc: 'O coração da raquete. Borrachas diferentes geram mais velocidade, efeito (spin) ou controle.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Tipo de jogador', desc: 'Ofensivo: borrachas mais rápidas e lâmina veloz. Defensivo: borrachas com mais controle. Iniciante: raquete pré-montada com borrachas de controle.' },
+      { titulo: 'Raquete pré-montada vs montada', desc: 'Iniciantes devem começar com raquetes prontas (já com borracha). Avançados montam a própria, escolhendo lâmina e borrachas separadamente.' },
+      { titulo: 'Pega (grip)', desc: 'Existem dois estilos: "clássica" (caneta segura por baixo) e "caneta" (penhold). A clássica é mais comum no Ocidente.' },
+    ],
+    curiosidades: [
+      'A bola pode girar a mais de 9.000 rotações por minuto.',
+      'A China domina o esporte há décadas em nível mundial.',
+    ],
+  },
+
+  // ======================== BASQUETE ========================
+  'basquete': {
+    nome: 'Basquete',
+    emoji: '🏀',
+    tagline: 'Altura, habilidade e cestas decisivas',
+    cor: '#F39C12',
+    historia: `O basquete foi inventado em 1891 pelo professor canadense James Naismith, nos Estados Unidos, que pregou cestos de pêssego nas paredes de um ginásio para criar um esporte de inverno para seus alunos.
+
+Tornou-se esporte olímpico em 1936, em Berlim. A NBA (liga americana), fundada em 1946, transformou o basquete num fenômeno global. O Brasil tem tradição na modalidade, com títulos mundiais no passado (1959 e 1963 no masculino) e participação constante em Olimpíadas.
+
+É um esporte de ritmo intenso, combinando velocidade, salto, precisão nos arremessos e jogadas coletivas elaboradas.`,
+    quadras: [
+      { nome: 'Quadra oficial', desc: 'Piso de madeira (na NBA e competições de elite) ou sintético. Tem a linha de 3 pontos, o garrafão (área restritiva) e a linha de lance livre.' },
+    ],
+    medidas: [
+      { item: 'Comprimento (FIBA)', valor: '28 m' },
+      { item: 'Largura (FIBA)', valor: '15 m' },
+      { item: 'Altura da cesta', valor: '3,05 m' },
+      { item: 'Linha de 3 pontos (FIBA)', valor: '6,75 m' },
+      { item: 'Linha de lance livre', valor: '5,80 m' },
+    ],
+    equipamentos: [
+      { nome: 'Bola', desc: 'Laranja com sulcos pretos. Tamanhos: nº 7 (masculino adulto), nº 6 (feminino), nº 5 (infantil). O material pode ser couro (indoor) ou borracha (outdoor).' },
+      { nome: 'Tênis de basquete', desc: 'Cano alto ou médio para proteger o tornozelo, com forte amortecimento para os saltos e solado de borracha aderente.' },
+      { nome: 'Cesta (aro + tabela + rede)', desc: 'Aro de metal a 3,05m, com rede e tabela. Aros oficiais têm sistema de mola (breakaway).' },
+    ],
+    comoEscolher: [
+      { titulo: 'Bola: indoor ou outdoor', desc: 'Para quadra coberta, bola de couro/composto. Para quadra de rua (cimento), bola de borracha, muito mais resistente à abrasão.' },
+      { titulo: 'Tamanho da bola', desc: 'nº 7 para homens, nº 6 para mulheres, nº 5 para crianças. Tamanho errado prejudica o controle e o arremesso.' },
+      { titulo: 'Tênis', desc: 'Priorize amortecimento e estabilidade do tornozelo. Cano alto protege mais; cano baixo dá mais liberdade. Solado aderente é essencial.' },
+    ],
+    curiosidades: [
+      'Os primeiros cestos eram de pêssego e alguém precisava pegar a bola cada vez que entrava.',
+      'O Brasil foi bicampeão mundial em 1959 e 1963.',
+    ],
+  },
+
+  // ======================== FUTEBOL ========================
+  'futebol': {
+    nome: 'Futebol',
+    emoji: '⚽',
+    tagline: 'O esporte mais amado do Brasil e do mundo',
+    cor: '#2ecc71',
+    historia: `O futebol moderno foi codificado na Inglaterra em 1863, com a fundação da Football Association, que padronizou as regras. Mas jogos com bola e pés existem há séculos em diversas culturas.
+
+Chegou ao Brasil em 1894, trazido por Charles Miller, e se tornou parte da identidade nacional. O Brasil é o país mais vitorioso da Copa do Mundo, com cinco títulos (1958, 1962, 1970, 1994 e 2002), e revelou alguns dos maiores jogadores da história.
+
+É o esporte mais popular do planeta, regido pela FIFA, com a Copa do Mundo sendo o evento esportivo mais assistido do mundo.`,
+    quadras: [
+      { nome: 'Campo de grama natural', desc: 'O tradicional. Grama bem cuidada, usada em estádios profissionais.' },
+      { nome: 'Grama sintética', desc: 'Cada vez mais comum, exige menos manutenção. Usada em muitos campos e no society.' },
+      { nome: 'Society', desc: 'Campo menor de grama sintética, geralmente para 7 jogadores por lado. Muito popular no Brasil.' },
+    ],
+    medidas: [
+      { item: 'Comprimento (oficial)', valor: '100 a 110 m' },
+      { item: 'Largura (oficial)', valor: '64 a 75 m' },
+      { item: 'Gol (largura × altura)', valor: '7,32 m × 2,44 m' },
+      { item: 'Marca do pênalti', valor: '11 m' },
+      { item: 'Círculo central (raio)', valor: '9,15 m' },
+    ],
+    equipamentos: [
+      { nome: 'Bola', desc: 'Tamanho oficial nº 5 para adultos. Feita de painéis costurados ou termocolados. Tamanhos menores (4, 3) para categorias de base.' },
+      { nome: 'Chuteira', desc: 'Travas variam pelo piso: travas altas/mistas para grama natural, travas baixas (society) para sintético, e tênis liso para futsal.' },
+      { nome: 'Caneleira', desc: 'Obrigatória em jogos oficiais. Protege a canela.' },
+      { nome: 'Luvas (goleiro)', desc: 'Com grip especial na palma para segurar a bola.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Chuteira pelo piso', desc: 'Grama natural: travas mistas (FG). Society/sintético: travas baixas (society). Futsal: solado liso. Usar a errada prejudica a aderência e pode machucar.' },
+      { titulo: 'Tamanho da bola', desc: 'nº 5 para 12 anos ou mais. nº 4 para 8-11 anos. nº 3 para menores. Bola certa ajuda no desenvolvimento técnico.' },
+      { titulo: 'Caneleira', desc: 'Escolha pelo tamanho da perna. Modelos com tornozeleira dão proteção extra para quem joga na defesa.' },
+    ],
+    curiosidades: [
+      'O Brasil é o único país a vencer 5 Copas do Mundo.',
+      'Charles Miller trouxe as primeiras bolas e regras ao Brasil em 1894.',
+    ],
+  },
+
+  // ======================== CORRIDA ========================
+  'corrida': {
+    nome: 'Corrida',
+    emoji: '🏃',
+    tagline: 'Supere seus limites, um passo de cada vez',
+    cor: '#E8633A',
+    historia: `A corrida é talvez o esporte mais antigo e natural da humanidade. Como competição organizada, remonta aos Jogos Olímpicos da Grécia Antiga (776 a.C.), onde a prova de corrida ("stadion") era a principal.
+
+A maratona moderna nasceu nos Jogos Olímpicos de 1896, inspirada na lenda do soldado grego Filípides, que teria corrido de Maratona a Atenas. A distância oficial de 42,195 km foi padronizada em 1921.
+
+Hoje a corrida de rua é um dos esportes que mais cresce no Brasil, com milhares de provas anuais (5k, 10k, meia-maratona e maratona) e uma comunidade enorme de corredores amadores.`,
+    quadras: [
+      { nome: 'Asfalto (corrida de rua)', desc: 'O mais comum. Provas de 5k, 10k, 21k e 42k em ruas e avenidas. Exige tênis com bom amortecimento.' },
+      { nome: 'Pista de atletismo', desc: 'Superfície sintética de 400m por volta. Para provas de velocidade e treinos de ritmo.' },
+      { nome: 'Trail (trilha)', desc: 'Corrida em terrenos naturais: montanhas, terra, pedras. Exige tênis com mais aderência (cravos).' },
+    ],
+    medidas: [
+      { item: 'Maratona', valor: '42,195 km' },
+      { item: 'Meia-maratona', valor: '21,0975 km' },
+      { item: 'Pista (volta completa)', valor: '400 m' },
+      { item: 'Provas de rua comuns', valor: '5 km e 10 km' },
+      { item: 'Velocidade (sprint)', valor: '100 m, 200 m, 400 m' },
+    ],
+    equipamentos: [
+      { nome: 'Tênis de corrida', desc: 'O item mais importante. Varia por pisada e amortecimento. Tênis de rua têm mais amortecimento; de trail têm cravos para aderência.' },
+      { nome: 'Roupa técnica (dry-fit)', desc: 'Tecido que afasta o suor da pele, evitando assaduras e mantendo o corpo seco.' },
+      { nome: 'Meia técnica', desc: 'Sem costura saliente, evita bolhas. Material que não retém suor.' },
+      { nome: 'Relógio GPS', desc: 'Mede distância, ritmo, frequência cardíaca. Útil para acompanhar a evolução.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Conheça sua pisada', desc: 'Pronada (pé rola para dentro), supinada (para fora) ou neutra. Lojas especializadas fazem o teste. O tênis certo previne lesões.' },
+      { titulo: 'Amortecimento', desc: 'Corredores mais pesados ou de longas distâncias precisam de mais amortecimento. Para velocidade, tênis mais leves e responsivos.' },
+      { titulo: 'Tamanho', desc: 'Compre meio número acima do seu normal — os pés incham na corrida. Deve sobrar um dedo de espaço na ponta.' },
+      { titulo: 'Drop', desc: 'Diferença de altura entre calcanhar e ponta. Drop alto (10-12mm) é mais tradicional; drop baixo (0-6mm) exige adaptação.' },
+    ],
+    curiosidades: [
+      'A distância da maratona (42,195 km) foi fixada nos Jogos de 1908, influenciada pela família real britânica.',
+      'A corrida de rua é um dos esportes que mais cresce no Brasil.',
+    ],
+  },
+
+  // ======================== CICLISMO ========================
+  'ciclismo': {
+    nome: 'Ciclismo',
+    emoji: '🚴',
+    tagline: 'Pedale mais longe, mais rápido, mais livre',
+    cor: '#FFD700',
+    historia: `A bicicleta surgiu no século XIX, e o ciclismo como esporte competitivo começou logo depois, com as primeiras corridas na Europa por volta de 1860-1870. O Tour de France, criado em 1903, tornou-se a corrida mais famosa do mundo.
+
+O ciclismo está nos Jogos Olímpicos desde a primeira edição moderna, em 1896. Ao longo do tempo, ramificou-se em várias modalidades: estrada, mountain bike (MTB), pista, BMX e ciclismo urbano.
+
+No Brasil, o ciclismo cresce tanto como esporte de competição quanto como meio de transporte e atividade de lazer e saúde, com forte comunidade de pedal.`,
+    quadras: [
+      { nome: 'Estrada (road)', desc: 'Asfalto. Bikes leves e aerodinâmicas, pneus finos. Para velocidade e longas distâncias.' },
+      { nome: 'Mountain Bike (MTB)', desc: 'Trilhas, terra, montanha. Bikes robustas, com suspensão e pneus largos com cravos.' },
+      { nome: 'Velódromo (pista)', desc: 'Pista oval inclinada, coberta ou aberta. Bikes "fixed gear" sem freios.' },
+      { nome: 'Urbano', desc: 'Cidade, ciclovias. Bikes confortáveis para o dia a dia e transporte.' },
+    ],
+    medidas: [
+      { item: 'Aro mais comum (adulto)', valor: '29" (MTB) / 700c (estrada)' },
+      { item: 'Velódromo (volta)', valor: '250 m (olímpico)' },
+      { item: 'Quadro (tamanhos)', valor: 'PP, P, M, G, GG (por altura)' },
+      { item: 'Pressão pneu estrada', valor: '~100-120 psi' },
+      { item: 'Pressão pneu MTB', valor: '~30-50 psi' },
+    ],
+    equipamentos: [
+      { nome: 'Bicicleta', desc: 'O tipo varia pela modalidade: speed/road (estrada), MTB (trilha), urbana (cidade). Quadro de alumínio (mais barato) ou carbono (leve e caro).' },
+      { nome: 'Capacete', desc: 'Item de segurança indispensável. Deve ter certificação e encaixar bem na cabeça.' },
+      { nome: 'Roupa (bretelle e camisa)', desc: 'Bretelle (calça com forro acolchoado) protege na pedalada longa. Camisa com bolsos atrás e tecido respirável.' },
+      { nome: 'Sapatilha + pedal clip', desc: 'Prende o pé ao pedal, melhorando a eficiência da pedalada. Exige adaptação.' },
+    ],
+    comoEscolher: [
+      { titulo: 'Tipo de bike pelo uso', desc: 'Vai pedalar no asfalto e quer velocidade? Speed. Trilhas e terra? MTB. Cidade e conforto? Urbana. Comprar a errada frustra o uso.' },
+      { titulo: 'Tamanho do quadro', desc: 'O mais importante para conforto e segurança. Baseia-se na sua altura. Quadro errado causa dores e lesões. Consulte a tabela do fabricante.' },
+      { titulo: 'Material do quadro', desc: 'Alumínio: bom custo-benefício, resistente. Carbono: mais leve e absorve vibração, mas caro. Aço: durável e confortável, mais pesado.' },
+      { titulo: 'Aro', desc: 'Para adultos, MTB geralmente aro 29". Estrada usa padrão 700c. O aro influencia estabilidade e rolagem.' },
+    ],
+    curiosidades: [
+      'O Tour de France percorre cerca de 3.500 km em três semanas.',
+      'Pedais de encaixe (clip) podem aumentar a eficiência da pedalada significativamente.',
+    ],
+  },
+
+};
+
+
+const ESPORTES_ALL = Object.assign({}, ESPORTES_DATA, ESPORTES_DATA_2);
+
+
+// ====== CONFIG ======
+const STORAGE_BASE = 'https://cdobspwhlvspoxblorfx.supabase.co/storage/v1/object/public/produtos-fotos/esportes';
+const LOGO_URL = 'COLE_URL_DA_LOGO_AQUI';
+
+// Aplica logo se configurada
+if (LOGO_URL && !LOGO_URL.includes('COLE_URL')) {
+  document.querySelectorAll('.logo').forEach(el => {
+    el.innerHTML = '<img src="' + LOGO_URL + '" alt="NewLounge Sport">';
+  });
+}
+
+// ====== LER SLUG DA URL ======
+function getSlug() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('s') || params.get('esporte') || '';
+}
+
+// ====== RENDERIZAR ======
+function render() {
+  const slug = getSlug();
+  const app = document.getElementById('app');
+  const dados = ESPORTES_ALL[slug];
+
+  if (!dados) {
+    app.innerHTML = `
+      <div class="erro-404">
+        <div class="big">🏷️</div>
+        <h1>Esporte não encontrado</h1>
+        <p>Não temos um guia para esse esporte ainda.</p>
+        <a href="loja.html" class="btn-cta" style="background:var(--cyan);color:#fff;">← Voltar à loja</a>
+      </div>`;
+    return;
+  }
+
+  // Atualiza título da página
+  document.title = dados.nome + ' — Guia Completo | NewLounge Sport';
+
+  const imgHero = STORAGE_BASE + '/' + slug + '.jpg';
+
+  // HERO
+  let html = `
+    <div class="hero" style="background-image:url('${imgHero}')">
+      <div class="hero-top">
+        <a href="loja.html" class="hero-back">← Voltar à loja</a>
+      </div>
+      <div class="hero-content">
+        <div class="hero-emoji">${dados.emoji || '🏅'}</div>
+        <h1>${dados.nome}</h1>
+        <p class="hero-tagline">${dados.tagline || ''}</p>
+      </div>
+    </div>
+    <div class="wrap">`;
+
+  // HISTÓRIA
+  if (dados.historia) {
+    const paragrafos = dados.historia.split('\n\n').filter(p => p.trim());
+    html += `
+      <section class="block">
+        <span class="block-label">A história</span>
+        <h2>Como surgiu o ${dados.nome.toLowerCase()}</h2>
+        <div class="prose">
+          ${paragrafos.map(p => '<p>' + p.trim() + '</p>').join('')}
+        </div>
+      </section>`;
+  }
+
+  // QUADRAS / AMBIENTES
+  if (dados.quadras && dados.quadras.length) {
+    const colClass = dados.quadras.length >= 3 ? 'grid-3' : (dados.quadras.length === 2 ? 'grid-2' : '');
+    html += `
+      <section class="block">
+        <span class="block-label">Onde se joga</span>
+        <h2>Tipos de quadra e superfície</h2>
+        <div class="grid ${colClass}">
+          ${dados.quadras.map(q => `
+            <div class="info-card">
+              <h3>${q.nome}</h3>
+              <p>${q.desc}</p>
+            </div>`).join('')}
+        </div>
+      </section>`;
+  }
+
+  // MEDIDAS
+  if (dados.medidas && dados.medidas.length) {
+    html += `
+      <section class="block">
+        <span class="block-label">Medidas oficiais</span>
+        <h2>Dimensões e especificações</h2>
+        <div class="medidas-tabela">
+          ${dados.medidas.map(m => `
+            <div class="medida-row">
+              <span class="medida-item">${m.item}</span>
+              <span class="medida-valor">${m.valor}</span>
+            </div>`).join('')}
+        </div>
+      </section>`;
+  }
+
+  // EQUIPAMENTOS
+  if (dados.equipamentos && dados.equipamentos.length) {
+    html += `
+      <section class="block">
+        <span class="block-label">Conheça o material</span>
+        <h2>Equipamentos e como reconhecê-los</h2>
+        <div class="grid grid-2">
+          ${dados.equipamentos.map(e => `
+            <div class="info-card">
+              <h3>${e.nome}</h3>
+              <p>${e.desc}</p>
+            </div>`).join('')}
+        </div>
+      </section>`;
+  }
+
+  // COMO ESCOLHER
+  if (dados.comoEscolher && dados.comoEscolher.length) {
+    html += `
+      <section class="block">
+        <span class="block-label">Guia de compra</span>
+        <h2>Como escolher seu equipamento</h2>
+        ${dados.comoEscolher.map((c, i) => `
+          <div class="escolher-item">
+            <h3><span class="num">${i+1}</span> ${c.titulo}</h3>
+            <p>${c.desc}</p>
+          </div>`).join('')}
+      </section>`;
+  }
+
+  // CURIOSIDADES
+  if (dados.curiosidades && dados.curiosidades.length) {
+    html += `
+      <section class="block">
+        <div class="curiosidades">
+          <h3>💡 Você sabia?</h3>
+          ${dados.curiosidades.map(c => `
+            <div class="curiosidade-item">
+              <span class="dot">▪</span>
+              <span>${c}</span>
+            </div>`).join('')}
+        </div>
+      </section>`;
+  }
+
+  // CTA — ver produtos
+  html += `
+      <div class="cta-box">
+        <h2>Pronto para jogar?</h2>
+        <p>Veja todos os produtos de ${dados.nome.toLowerCase()} disponíveis na nossa loja.</p>
+        <a href="loja.html?cat=${slug}" class="btn-cta">Ver produtos de ${dados.nome} →</a>
+      </div>
+    </div>`;
+
+  // OUTROS ESPORTES
+  const outros = Object.keys(ESPORTES_ALL).filter(s => s !== slug);
+  html += `
+    <div class="outros">
+      <div class="wrap" style="padding:0 20px;">
+        <span class="block-label" style="display:block;text-align:center;">Explore mais</span>
+        <h2 style="text-align:center;font-size:26px;font-weight:800;">Outros esportes</h2>
+      </div>
+      <div class="outros-grid">
+        ${outros.map(s => {
+          const d = ESPORTES_ALL[s];
+          return `
+            <a href="esporte.html?s=${s}" class="outro-card">
+              <div class="e">${d.emoji || '🏅'}</div>
+              <div class="n">${d.nome}</div>
+            </a>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+// Renderiza ao carregar
+render();
+
+// Re-renderiza se a URL mudar (navegação entre esportes)
+window.addEventListener('popstate', render);
+
+  </script>
+</body>
+</html>
