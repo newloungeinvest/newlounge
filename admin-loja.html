@@ -952,7 +952,13 @@ async function abrirModalProduto(id) {
     document.getElementById('mp-destaque').checked = p.destaque || false;
     document.getElementById('mp-novo').checked     = p.novidade || false;
     document.getElementById('mp-oferta').checked   = p.oferta || false;
-    if (p.foto_principal) fotos = [{ url: p.foto_principal, file: null, isNew: false }];
+    // Carregar TODAS as fotos da galeria (imagens_produto); fallback p/ foto_principal
+    const { data: imgs } = await sb.from('imagens_produto').select('*').eq('produto_id', id).order('ordem');
+    if (imgs && imgs.length) {
+      fotos = imgs.map(im => ({ url: im.url, file: null, isNew: false }));
+    } else if (p.foto_principal) {
+      fotos = [{ url: p.foto_principal, file: null, isNew: false }];
+    }
     // Carregar variantes
     const { data: vars } = await sb.from('variantes_produto').select('*').eq('produto_id', id);
     variantesForm = (vars || []).map(v => ({ ...v, isNew: false }));
@@ -999,6 +1005,13 @@ async function salvarProduto() {
       ? await sb.from('produtos').update(dados).eq('id', editandoId)
       : await sb.from('produtos').insert({ id, ...dados });
     if (error) throw error;
+    // Salvar TODAS as fotos na galeria (imagens_produto) — corrige fotos extras órfãs
+    await sb.from('imagens_produto').delete().eq('produto_id', id);
+    if (urls.length) {
+      const imgsDados = urls.map((url, idx) => ({ produto_id: id, url, ordem: idx }));
+      const { error: imgErr } = await sb.from('imagens_produto').insert(imgsDados);
+      if (imgErr) console.error('Erro ao salvar galeria de fotos:', imgErr);
+    }
     // Salvar variantes
     if (variantesForm.length) {
       const varsDados = variantesForm.map(v => ({
@@ -1384,11 +1397,9 @@ async function carregarEsportes() {
   }
   tbody.innerHTML = esportesData.map(e => {
     const numItens = (e.quadras?.length||0)+(e.medidas?.length||0)+(e.equipamentos?.length||0)+(e.como_escolher?.length||0)+(e.curiosidades?.length||0);
-    const imgCard = `https://cdobspwhlvspoxblorfx.supabase.co/storage/v1/object/public/produtos-fotos/cards/${e.slug}.jpg`;
-    const thumb = `<img src="${imgCard}" alt="" style="width:38px;height:38px;border-radius:7px;object-fit:cover;vertical-align:middle;margin-right:10px;border:1px solid var(--border);" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"><span style="display:none;font-size:20px;margin-right:8px;vertical-align:middle;">${e.emoji||'🏅'}</span>`;
     return `
       <tr>
-        <td><strong style="display:flex;align-items:center;">${thumb}${e.nome}</strong></td>
+        <td><strong>${e.emoji||''} ${e.nome}</strong></td>
         <td style="font-size:13px;color:var(--text2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.tagline||'—'}</td>
         <td style="font-size:12px;color:var(--text2);">${e.historia?'✓ história':'sem história'} · ${numItens} itens</td>
         <td>${e.ativo?'<span style="color:var(--ok,#10b981);font-size:12px;">● ativo</span>':'<span style="color:var(--text3);font-size:12px;">○ oculto</span>'}</td>
