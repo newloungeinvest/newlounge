@@ -35,3 +35,12 @@
   from = "/loja"
   to = "/loja.html"
   status = 200
+[[redirects]]
+from = "/pedido"
+to = "/pedido.html"
+status = 200
+
+[[redirects]]
+from = "/meu-pedido"
+to = "/pedido.html"
+status = 200
