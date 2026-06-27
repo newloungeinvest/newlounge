@@ -782,7 +782,24 @@ async function fazerLogout() {
   document.getElementById('dashboard').style.display = 'none';
 }
 
+async function verificarAdmin(user) {
+  const role = user?.app_metadata?.role;
+  if (role !== 'admin') {
+    await sb.auth.signOut();
+    const msg = document.getElementById('login-msg') || document.getElementById('login-err') || document.getElementById('err');
+    if (msg) {
+      msg.textContent = 'Acesso negado. Esta área é restrita a administradores.';
+      msg.style.display = 'block';
+    } else {
+      alert('Acesso negado. Esta área é restrita a administradores.');
+    }
+    return false;
+  }
+  return true;
+}
 async function mostrarDashboard() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!await verificarAdmin(user)) return;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   await carregarImoveis();
@@ -795,7 +812,14 @@ window.addEventListener('load', async () => {
   });
   // Check sessão existente
   const { data: { session } } = await sb.auth.getSession();
-  if (session) mostrarDashboard();
+  if (session) {
+    const { data: { user } } = await sb.auth.getUser();
+    if (user?.app_metadata?.role === 'admin') {
+      mostrarDashboard();
+    } else {
+      await sb.auth.signOut();
+    }
+  }
 });
 
 // ---- DADOS ----
