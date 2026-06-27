@@ -12,10 +12,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
-      --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
-      --border:#2a2a2a;--cyan:#00E5FF;--cyan2:#80F0FF;
-      --red:#FF3B30;--green:#34C759;--gold:#c9a96e;
-      --text:#F5F5F5;--text2:#999;--text3:#555;
+      --bg:#F5F7FA;--bg2:#FFFFFF;--bg3:#EEF2F7;--bg4:#E5EAF0;
+      --border:#DDE3ED;--cyan:#0066FF;--cyan2:#3385FF;
+      --red:#FF3B30;--green:#28A745;--gold:#c9a96e;
+      --text:#111827;--text2:#6B7280;--text3:#9CA3AF;
       --ff:'Inter',-apple-system,sans-serif;--r:8px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -27,14 +27,14 @@
     /* HEADER */
     .header{
       position:sticky;top:0;z-index:300;
-      background:rgba(10,10,10,.97);backdrop-filter:blur(20px);
-      border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.97);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.08);
     }
     .header-main{
       padding:0 24px;height:60px;
       display:flex;align-items:center;gap:16px;
     }
-    .logo{font-size:20px;font-weight:800;}
+    .logo{font-size:20px;font-weight:800;color:#111827;}
     .logo span{color:var(--cyan);}
     .h-back{
       font-size:13px;color:var(--text2);
@@ -61,7 +61,7 @@
       padding:14px 24px;
       display:flex;align-items:center;gap:6px;
       font-size:12px;color:var(--text3);
-      border-bottom:1px solid var(--border);
+      border-bottom:1px solid #DDE3ED;background:#fff;
       overflow-x:auto;white-space:nowrap;
     }
     .breadcrumb a{color:var(--text3);transition:color .2s;}
@@ -282,6 +282,15 @@
     }
       .logo img{height:38px;width:auto;display:block;}
     .logo{display:flex;align-items:center;}
+
+    /* HERO CATEGORIA */
+    .cat-hero{position:relative;height:260px;overflow:hidden;display:flex;align-items:flex-end;transition:background .4s;}
+    .cat-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s;}
+    .cat-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1) 0%,rgba(0,0,0,.35) 50%,rgba(0,0,0,.75) 100%);}
+    .cat-hero-content{position:relative;z-index:1;padding:0 28px 24px;display:flex;align-items:center;gap:14px;width:100%;}
+    .cat-hero-badge{font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:999px;font-weight:700;white-space:nowrap;border:1px solid;backdrop-filter:blur(8px);}
+    .cat-hero-nome{font-size:clamp(18px,3vw,28px);font-weight:800;text-shadow:0 2px 16px rgba(0,0,0,.8);line-height:1.2;color:#fff;}
+    @media(max-width:600px){.cat-hero{height:160px;}}
   </style>
 </head>
 <body>
@@ -298,6 +307,16 @@
   </div>
 </header>
 
+
+<!-- HERO CATEGORIA -->
+<div class="cat-hero" id="cat-hero" style="display:none;">
+  <img class="cat-hero-img" id="cat-hero-img" src="" alt="">
+  <div class="cat-hero-overlay"></div>
+  <div class="cat-hero-content">
+    <span class="cat-hero-badge" id="cat-hero-badge"></span>
+    <span class="cat-hero-nome" id="cat-hero-nome"></span>
+  </div>
+</div>
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
   <a href="loja.html">Loja</a>
@@ -340,7 +359,7 @@ async function init() {
   if (!id) { renderErro('Produto não encontrado.'); return; }
 
   const [{ data: prod }, { data: vars }, { data: imgs }] = await Promise.all([
-    sb.from('produtos').select('*,categorias_loja(nome,slug)').eq('id', id).single(),
+    sb.from('produtos').select('*,categorias_loja(nome,slug,imagem_url,imagem_card,cor_bg)').eq('id', id).single(),
     sb.from('variantes_produto').select('*').eq('produto_id', id).eq('ativo', true),
     sb.from('imagens_produto').select('*').eq('produto_id', id).order('ordem'),
   ]);
@@ -355,6 +374,53 @@ async function init() {
   document.getElementById('og-image').content = prod.foto_principal || '';
   document.getElementById('bc-categoria').textContent = prod.categorias_loja?.nome || 'Produtos';
   document.getElementById('bc-nome').textContent = prod.nome;
+
+  // ── HERO TEMÁTICO ──────────────────────────────────────────
+  const catData = prod.categorias_loja;
+  const TEMAS = {
+    'tenis':         {bg:'linear-gradient(135deg,#5C2800,#8B4513,#A0522D)',texto:'#FFE4B5',badge:'rgba(255,180,80,.2)',badgeBorda:'rgba(255,160,60,.5)',emoji:'🎾'},
+    'beach-tennis':  {bg:'linear-gradient(135deg,#B8860B,#D4A853,#E8C170)',texto:'#3B2500',badge:'rgba(60,30,0,.15)',badgeBorda:'rgba(80,40,0,.4)',emoji:'🏖️'},
+    'volei':         {bg:'linear-gradient(135deg,#6B4A00,#9B6A00,#C49A00)',texto:'#FFF8DC',badge:'rgba(255,240,150,.15)',badgeBorda:'rgba(220,190,60,.4)',emoji:'🏐'},
+    'handball':      {bg:'linear-gradient(135deg,#7A4A00,#A06820,#C08030)',texto:'#FFF0D0',badge:'rgba(255,200,120,.15)',badgeBorda:'rgba(220,150,50,.4)',emoji:'🤾'},
+    'futsal':        {bg:'linear-gradient(135deg,#1A380E,#2A5218,#3A6A22)',texto:'#E8F5E0',badge:'rgba(100,200,80,.15)',badgeBorda:'rgba(80,180,60,.4)',emoji:'⚽'},
+    'tenis-de-mesa': {bg:'linear-gradient(135deg,#102848,#183A60,#205080)',texto:'#E0F0FF',badge:'rgba(100,180,255,.15)',badgeBorda:'rgba(80,160,240,.4)',emoji:'🏓'},
+    'basquete':      {bg:'linear-gradient(135deg,#6B2800,#9B3800,#C04800)',texto:'#FFE8D0',badge:'rgba(255,140,60,.15)',badgeBorda:'rgba(240,110,30,.4)',emoji:'🏀'},
+    'futebol':       {bg:'linear-gradient(135deg,#0E3010,#1A5020,#226A2A)',texto:'#E0FFE0',badge:'rgba(80,220,80,.15)',badgeBorda:'rgba(60,200,60,.4)',emoji:'⚽'},
+    'corrida':       {bg:'linear-gradient(135deg,#500A0A,#7A1010,#9A1A1A)',texto:'#FFE8E8',badge:'rgba(255,120,120,.15)',badgeBorda:'rgba(240,80,80,.4)',emoji:'🏃'},
+    'ciclismo':      {bg:'linear-gradient(135deg,#101828,#182038,#202A48)',texto:'#D0E0FF',badge:'rgba(100,150,255,.15)',badgeBorda:'rgba(80,130,240,.4)',emoji:'🚴'},
+    'mergulho':      {bg:'linear-gradient(135deg,#001020,#001C38,#002850)',texto:'#B0E0FF',badge:'rgba(60,180,255,.15)',badgeBorda:'rgba(40,160,240,.4)',emoji:'🤿'},
+    'academia':      {bg:'linear-gradient(135deg,#101020,#181828,#202038)',texto:'#E0E0FF',badge:'rgba(150,150,255,.15)',badgeBorda:'rgba(130,130,240,.4)',emoji:'💪'},
+    'acessorios':    {bg:'linear-gradient(135deg,#1A1010,#281818,#342020)',texto:'#FFE8D8',badge:'rgba(255,160,100,.15)',badgeBorda:'rgba(240,130,70,.4)',emoji:'🎽'},
+    'vestuario':     {bg:'linear-gradient(135deg,#1A1020,#281828,#342035)',texto:'#F0D8FF',badge:'rgba(200,120,255,.15)',badgeBorda:'rgba(180,100,240,.4)',emoji:'👕'},
+    'masculino':     {bg:'linear-gradient(135deg,#0A1428,#101C38,#182448)',texto:'#D0E8FF',badge:'rgba(80,160,255,.15)',badgeBorda:'rgba(60,140,240,.4)',emoji:'👔'},
+    'feminino':      {bg:'linear-gradient(135deg,#280A20,#3A1030,#4A1840)',texto:'#FFD8F0',badge:'rgba(255,100,200,.15)',badgeBorda:'rgba(240,80,180,.4)',emoji:'👗'},
+    'ofertas':       {bg:'linear-gradient(135deg,#280000,#480000,#600000)',texto:'#FFD0D0',badge:'rgba(255,80,80,.2)',badgeBorda:'rgba(255,60,60,.5)',emoji:'🔥'},
+    'lancamentos':   {bg:'linear-gradient(135deg,#001828,#002040,#002858)',texto:'#C0E8FF',badge:'rgba(60,200,255,.15)',badgeBorda:'rgba(40,180,240,.4)',emoji:'✨'},
+    'promocoes':     {bg:'linear-gradient(135deg,#001428,#001C40,#002458)',texto:'#B0D8FF',badge:'rgba(80,160,255,.2)',badgeBorda:'rgba(60,140,240,.5)',emoji:'🏷️'},
+  };
+  const TEMA_DEFAULT = {bg:'linear-gradient(135deg,#0a0a1a,#101030)',texto:'#E0E8FF',badge:'rgba(100,150,255,.15)',badgeBorda:'rgba(80,130,240,.4)',emoji:'🏅'};
+
+  const slug  = catData?.slug || '';
+  const tema  = TEMAS[slug] || TEMA_DEFAULT;
+  const heroEl    = document.getElementById('cat-hero');
+  const heroImg   = document.getElementById('cat-hero-img');
+  const heroBadge = document.getElementById('cat-hero-badge');
+  const heroNome  = document.getElementById('cat-hero-nome');
+
+  heroEl.style.background = tema.bg;
+  const imgSrc = catData?.imagem_url || catData?.imagem_card || '';
+  if (imgSrc) {
+    heroImg.src = imgSrc;
+    heroImg.style.mixBlendMode = 'normal';
+    heroImg.onload = () => { heroImg.style.opacity = '1'; };
+  }
+  heroBadge.textContent  = `${tema.emoji}  ${catData?.nome || 'Produto'}`;
+  heroBadge.style.background   = tema.badge;
+  heroBadge.style.borderColor  = tema.badgeBorda;
+  heroBadge.style.color        = tema.texto;
+  heroNome.textContent = prod.nome;
+  heroNome.style.color = tema.texto;
+  heroEl.style.display = 'flex';
 
   renderProduto();
   carregarRelacionados(prod.categoria_id, prod.id);
@@ -501,7 +567,7 @@ function renderProduto() {
         <!-- GARANTIAS -->
         <div class="garantias">
           <div class="garantia"><span>🔒</span> Compra segura</div>
-          <div class="garantia"><span>🔄</span> 30 dias para trocar</div>
+          <div class="garantia"><span>🔄</span> 7 dias para trocar</div>
           <div class="garantia"><span>🚚</span> Frete grátis acima R$ 299</div>
           <div class="garantia"><span>📦</span> Embalagem reforçada</div>
         </div>

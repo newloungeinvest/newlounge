@@ -1207,19 +1207,55 @@ let carrosselTimer = null;
 
 async function carregarCarrossel() {
   const hoje = new Date().toISOString().split('T')[0];
-  const { data } = await sb.from('banners_loja')
+
+  // Busca banners manuais
+  const { data: bannersData } = await sb.from('banners_loja')
     .select('*').eq('posicao','carrossel').eq('ativo',true)
     .in('plataforma',['loja','ambos']).order('ordem');
-  if (!data || !data.length) return;
-  carrosselSlides = data.filter(b => {
+
+  // Banners dentro do período
+  const bannersFiltrados = (bannersData || []).filter(b => {
     if (b.inicio && b.inicio > hoje) return false;
-    if (b.fim && b.fim < hoje) return false;
+    if (b.fim    && b.fim    < hoje) return false;
     return true;
   });
+
+  // Busca produtos destaque/novidade/oferta (máx 5)
+  const { data: prodDestaque } = await sb.from('produtos')
+    .select('id,nome,foto_principal,preco,preco_promo,destaque,novidade,oferta,lancamento,categorias_loja(slug)')
+    .eq('ativo', true)
+    .or('destaque.eq.true,novidade.eq.true,oferta.eq.true,lancamento.eq.true')
+    .order('destaque', { ascending: false })
+    .limit(5);
+
+  // Monta slides: banners primeiro, depois produtos
+  const slidesbanners = bannersFiltrados.map(b => ({ tipo: 'banner', ...b }));
+  const slidesProdutos = (prodDestaque || []).map(p => ({ tipo: 'produto', ...p }));
+  carrosselSlides = [...slidesbanners, ...slidesProdutos];
+
   if (!carrosselSlides.length) return;
   const track = document.getElementById('carrossel-track');
   const dots  = document.getElementById('carrossel-dots');
-  track.innerHTML = carrosselSlides.map(b => {
+  track.innerHTML = carrosselSlides.map(slide => {
+    if (slide.tipo === 'produto') {
+      // Slide de produto destaque/novidade/oferta
+      const preco = 'R$ ' + Number(slide.preco_promo || slide.preco).toLocaleString('pt-BR',{minimumFractionDigits:2});
+      const precoOrig = slide.preco_promo && slide.preco_promo < slide.preco
+        ? `<s style="opacity:.6;font-size:14px;font-weight:400">R$ ${Number(slide.preco).toLocaleString('pt-BR',{minimumFractionDigits:2})}</s>` : '';
+      const tag = slide.oferta ? '🔥 Oferta' : slide.novidade ? '✨ Novidade' : slide.lancamento ? '🚀 Lançamento' : '⭐ Destaque';
+      const conteudo = `
+        ${slide.foto_principal ? `<img src="${slide.foto_principal}" alt="${slide.nome||''}">` : ''}
+        <div class="slide-overlay"></div>
+        <span class="slide-ad-tag">${tag}</span>
+        <div class="slide-content">
+          <h3>${slide.nome||''}</h3>
+          <p style="display:flex;align-items:center;gap:10px;">${preco} ${precoOrig}</p>
+          <span class="slide-btn">Ver produto →</span>
+        </div>`;
+      return `<a href="produto?id=${slide.id}" class="carrossel-slide">${conteudo}</a>`;
+    }
+    // Slide de banner normal
+    const b = slide;
     const temLink = b.link && b.link.trim();
     const conteudo = `
       ${b.imagem_url ? `<img src="${b.imagem_url}" alt="${b.titulo||''}">` : ''}
