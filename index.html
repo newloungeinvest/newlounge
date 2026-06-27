@@ -618,6 +618,84 @@
       .hero-title { font-size: 32px; }
       .stats-section { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ===== CARROSSEL PUBLICIDADE (tema escuro imobiliária) ===== */
+    .carrossel-section-im{padding:0 48px 48px;}
+    .carrossel-wrap-im{
+      max-width:1280px;margin:0 auto;position:relative;
+      border-radius:12px;overflow:hidden;
+      border:1px solid rgba(201,169,110,.2);
+    }
+    .carrossel-track-im{display:flex;transition:transform .5s ease;}
+    .carrossel-slide-im{
+      min-width:100%;position:relative;
+      height:280px; /* altura fixa — não depende de aspect-ratio */
+      background:#12100E;display:flex;align-items:center;overflow:hidden;
+    }
+    .carrossel-slide-im img{
+      position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;
+    }
+    .carrossel-slide-im .slide-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.5) 55%,rgba(0,0,0,.2) 100%);
+    }
+    .carrossel-slide-im .slide-content{
+      position:relative;z-index:2;padding:0 7%;max-width:620px;
+    }
+    .carrossel-slide-im h3{
+      font-family:var(--serif);font-size:clamp(20px,2.5vw,30px);
+      font-weight:700;color:#fff;margin-bottom:8px;line-height:1.25;
+      text-shadow:0 2px 16px rgba(0,0,0,.6);
+    }
+    .carrossel-slide-im p{
+      font-size:clamp(12px,1.5vw,15px);color:rgba(255,255,255,.88);
+      margin-bottom:16px;text-shadow:0 1px 10px rgba(0,0,0,.6);
+    }
+    .carrossel-slide-im .slide-btn{
+      display:inline-block;background:var(--gold);color:#12100E;
+      font-weight:600;padding:9px 22px;border-radius:4px;
+      font-size:13px;letter-spacing:.5px;transition:all .2s;
+    }
+    .carrossel-slide-im .slide-btn:hover{background:var(--gold2);}
+    .carrossel-slide-im .slide-ad-tag{
+      position:absolute;top:12px;right:12px;z-index:3;
+      background:rgba(0,0,0,.55);color:rgba(255,255,255,.75);
+      font-size:9px;font-weight:600;padding:3px 8px;border-radius:3px;
+      letter-spacing:1px;border:1px solid rgba(201,169,110,.25);
+    }
+    .carrossel-btn-im{
+      position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+      width:40px;height:40px;border-radius:50%;
+      border:1px solid rgba(201,169,110,.4);cursor:pointer;
+      background:rgba(18,16,14,.75);color:var(--gold);
+      font-size:22px;display:flex;align-items:center;justify-content:center;
+      transition:all .2s;backdrop-filter:blur(4px);
+    }
+    .carrossel-btn-im:hover{background:rgba(18,16,14,.95);border-color:var(--gold);}
+    .carrossel-btn-im.prev{left:16px;}
+    .carrossel-btn-im.next{right:16px;}
+    .carrossel-dots-im{
+      position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+      z-index:5;display:flex;gap:8px;
+    }
+    .carrossel-dots-im .dot{
+      width:7px;height:7px;border-radius:50%;
+      background:rgba(255,255,255,.35);cursor:pointer;
+      transition:all .2s;border:none;padding:0;
+    }
+    .carrossel-dots-im .dot.active{background:var(--gold);width:20px;border-radius:4px;}
+    /* Pause no hover */
+    .carrossel-wrap-im:hover .carrossel-track-im{
+      /* pausa visual — o JS controla o timer */
+    }
+    @media(max-width:768px){
+      .carrossel-section-im{padding:0 20px 32px;}
+      .carrossel-slide-im{height:180px;}
+      .carrossel-btn-im{width:32px;height:32px;font-size:18px;}
+    }
+    @media(max-width:480px){
+      .carrossel-slide-im{height:150px;}
+    }
   </style>
 </head>
 <body>
@@ -1369,6 +1447,13 @@ async function carregarCarrossel() {
   document.getElementById('carrossel-pub').style.display = 'block';
   if (carrosselSlides.length > 1) iniciarAutoplay();
   else document.querySelectorAll('.carrossel-btn-im').forEach(b => b.style.display='none');
+
+  // Pause no hover
+  const wrap = document.querySelector('.carrossel-wrap-im');
+  if (wrap) {
+    wrap.addEventListener('mouseenter', () => { if (carrosselTimer) clearInterval(carrosselTimer); });
+    wrap.addEventListener('mouseleave', () => { if (carrosselSlides.length > 1) iniciarAutoplay(); });
+  }
 }
 function atualizarCarrossel() {
   document.getElementById('carrossel-track').style.transform = `translateX(-${carrosselIdx*100}%)`;
