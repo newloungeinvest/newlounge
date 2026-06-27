@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Termos de Uso — New Lounge Invest · NewLounge Sport</title>
+  <meta name="description" content="Termos de uso da plataforma New Lounge Invest e da loja NewLounge Sport. Leia antes de utilizar nossos serviços." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0a0a0f;
+      --surface: #12121a;
+      --border:  #1e1e2e;
+      --accent:  #c9a96e;
+      --text:    #e8e8f0;
+      --muted:   #7a7a9a;
+      --white:   #ffffff;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans:  'Helvetica Neue', Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.78;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,15,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand {
+      font-family: var(--font-serif);
+      font-size: 0.88rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 2rem 3.5rem;
+      max-width: 760px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .hero-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .hero-divider {
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+    }
+    .hero-date {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      font-weight: normal;
+      line-height: 1.18;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero-lead {
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ── ÍNDICE ── */
+    .indice-wrap {
+      max-width: 760px;
+      margin: 2.5rem auto 0;
+      padding: 0 2rem;
+    }
+    .indice {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .indice-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .indice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.3rem 1.5rem;
+    }
+    .indice-grid a {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.2rem 0;
+      transition: color 0.2s;
+      border-bottom: 1px solid transparent;
+    }
+    .indice-grid a:hover { color: var(--accent); }
+    .indice-num {
+      color: var(--accent);
+      font-size: 0.72rem;
+      margin-right: 0.4rem;
+    }
+
+    /* ── EMPRESA ── */
+    .empresa-wrap {
+      max-width: 760px;
+      margin: 2rem auto 0;
+      padding: 0 2rem;
+    }
+    .empresa-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1.25rem 1.75rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+    .empresa-card strong { color: var(--text); font-weight: 600; }
+    .empresa-card a { color: var(--accent); text-decoration: none; }
+
+    /* ── CONTEÚDO ── */
+    .content {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 6rem;
+    }
+
+    .section {
+      padding: 2.75rem 0;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-num {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    h2 {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: normal;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 1.75rem 0 0.75rem;
+    }
+
+    p {
+      font-size: 0.94rem;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      margin-bottom: 1rem;
+      padding-left: 0;
+      list-style: none;
+    }
+    ul li, ol li {
+      position: relative;
+      padding-left: 1.4rem;
+      margin-bottom: 0.55rem;
+      font-size: 0.94rem;
+      color: var(--text);
+    }
+    ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.78rem;
+      top: 0.08em;
+    }
+    ol { counter-reset: ol-count; }
+    ol li { counter-increment: ol-count; }
+    ol li::before {
+      content: counter(ol-count) ".";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      top: 0.08em;
+    }
+
+    .note {
+      background: var(--surface);
+      border-left: 2px solid var(--accent);
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .note strong { color: var(--text); }
+
+    .warn {
+      background: #1a1008;
+      border-left: 2px solid #c9a96e;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+      color: #b89050;
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.4rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .footer-links a {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    footer p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      .hero, .indice-wrap, .empresa-wrap, .content { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .hero { padding-top: 3rem; }
+      .indice-grid { grid-template-columns: 1fr; }
+      .nav-links a:not(:last-child) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="https://newloungeinvest.com.br/">New Lounge</a>
+  <div class="nav-links">
+    <a href="/politica-privacidade">Privacidade</a>
+    <a href="/politica-trocas">Trocas</a>
+    <a href="https://newloungeinvest.com.br/">← Voltar ao site</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">
+    <span class="hero-tag">Documentos legais</span>
+    <div class="hero-divider"></div>
+    <span class="hero-date">Versão 1.0 · 26 de junho de 2026</span>
+  </div>
+  <h1>Termos de <em>Uso</em></h1>
+  <p class="hero-lead">
+    Condições que regem o uso da plataforma New Lounge Invest e da loja NewLounge Sport.
+    Leia antes de utilizar nossos serviços. Ao continuar navegando, você concorda com estes termos.
+  </p>
+</header>
+
+<div class="indice-wrap">
+  <div class="indice">
+    <span class="indice-label">Neste documento</span>
+    <div class="indice-grid">
+      <a href="#s1"><span class="indice-num">01</span>Quem somos</a>
+      <a href="#s2"><span class="indice-num">02</span>Aceitação dos termos</a>
+      <a href="#s3"><span class="indice-num">03</span>Plataforma imobiliária</a>
+      <a href="#s4"><span class="indice-num">04</span>Loja virtual</a>
+      <a href="#s5"><span class="indice-num">05</span>Cadastro e conta</a>
+      <a href="#s6"><span class="indice-num">06</span>Pagamentos e preços</a>
+      <a href="#s7"><span class="indice-num">07</span>Conduta do usuário</a>
+      <a href="#s8"><span class="indice-num">08</span>Propriedade intelectual</a>
+      <a href="#s9"><span class="indice-num">09</span>Limitação de responsabilidade</a>
+      <a href="#s10"><span class="indice-num">10</span>Disponibilidade</a>
+      <a href="#s11"><span class="indice-num">11</span>Privacidade e dados</a>
+      <a href="#s12"><span class="indice-num">12</span>Alterações e encerramento</a>
+      <a href="#s13"><span class="indice-num">13</span>Lei aplicável e foro</a>
+      <a href="#s14"><span class="indice-num">14</span>Contato</a>
+    </div>
+  </div>
+</div>
+
+<div class="empresa-wrap">
+  <div class="empresa-card">
+    <strong>Empresa responsável por estes Termos:</strong><br>
+    J DE A MOTA NETO COMERCIO E SERVICOS &nbsp;·&nbsp;
+    CNPJ <strong>36.737.905/0001-96</strong><br>
+    R. Projetada VM 01, nº 43, Quadra B, Lotes 10 e 11 – Centro, Paripueira – AL, CEP 57.935-000<br>
+    <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a> &nbsp;·&nbsp;
+    <a href="tel:+5582999570442">(82) 99957-0442</a>
+  </div>
+</div>
+
+<main class="content">
+
+  <!-- 01 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Quem somos</h2>
+    </div>
+    <p>A <strong>New Lounge Invest</strong> é uma plataforma de curadoria e consultoria imobiliária voltada a investidores patrimoniais. A <strong>NewLounge Sport</strong> é uma loja virtual de artigos esportivos. Ambas são operadas pela mesma pessoa jurídica — J DE A MOTA NETO COMERCIO E SERVICOS, CNPJ 36.737.905/0001-96 — e compartilham o mesmo domínio <em>newloungeinvest.com.br</em>.</p>
+    <p>Estes Termos de Uso se aplicam a todas as páginas, serviços, funcionalidades e conteúdos disponibilizados nesse domínio, independentemente de qual das marcas o usuário esteja acessando.</p>
+  </div>
+
+  <!-- 02 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Aceitação dos termos</h2>
+    </div>
+    <p>Ao acessar, navegar ou utilizar qualquer funcionalidade do site — incluindo formulários de contato, área do investidor, cadastro na loja, carrinho de compras ou checkout — você declara que leu, entendeu e concorda com estes Termos.</p>
+    <p>Se você não concorda com alguma condição, não utilize o serviço correspondente.</p>
+    <div class="note">
+      <strong>Menores de 18 anos:</strong> o uso deste site por menores requer autorização e supervisão dos responsáveis legais. Compras realizadas por menores sem essa autorização podem ser anuladas.
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Plataforma imobiliária — New Lounge Invest</h2>
+    </div>
+
+    <h3>O que oferecemos</h3>
+    <p>A plataforma disponibiliza curadoria de imóveis, análises técnicas, consultoria patrimonial e captação de interesse de investidores. O acesso ao portfólio completo (incluindo imóveis off-market) é restrito à Área do Investidor, mediante credenciamento.</p>
+
+    <h3>Natureza informativa dos conteúdos</h3>
+    <p>As informações sobre imóveis — metragem, preço, rentabilidade estimada, TIR, características — são fornecidas a título informativo e podem estar sujeitas a atualizações. <strong>Não constituem oferta vinculante, promessa de rentabilidade ou garantia de resultado.</strong></p>
+
+    <div class="warn">
+      Investimentos imobiliários envolvem riscos. Rentabilidades passadas ou projetadas não garantem resultados futuros. Recomendamos análise técnica independente antes de qualquer decisão de investimento.
+    </div>
+
+    <h3>Captação de leads e consultas</h3>
+    <p>Ao preencher formulários de interesse ou solicitar consulta, você autoriza o contato pela equipe da New Lounge Invest pelos meios informados (e-mail e/ou WhatsApp). Você pode revogar essa autorização a qualquer momento pelo e-mail <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a>.</p>
+
+    <h3>Área do Investidor</h3>
+    <p>O acesso à Área do Investidor é restrito a usuários credenciados. O compartilhamento de credenciais com terceiros é proibido. Conteúdos acessados na área restrita — portfólio off-market, documentos, análises — são confidenciais e não podem ser reproduzidos ou distribuídos sem autorização expressa.</p>
+  </div>
+
+  <!-- 04 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Loja virtual — NewLounge Sport</h2>
+    </div>
+
+    <h3>Operação da loja</h3>
+    <p>A NewLounge Sport comercializa artigos esportivos por meio eletrônico, com entregas para todo o Brasil. As vendas são regidas pelo Código de Defesa do Consumidor (Lei nº 8.078/1990) e demais normas aplicáveis ao comércio eletrônico.</p>
+
+    <h3>Disponibilidade de produtos</h3>
+    <p>A exibição de um produto no site não garante disponibilidade em estoque. Em caso de ruptura após a confirmação do pedido, o cliente será avisado e poderá optar por produto equivalente, aguardar reposição ou cancelar com reembolso integral.</p>
+
+    <h3>Imagens e descrições</h3>
+    <p>As imagens dos produtos são ilustrativas. Podem ocorrer variações de cor, textura ou acabamento em relação à foto exibida, decorrentes de calibração de monitores ou lote de fabricação. Descrições técnicas são fornecidas com base nas informações dos fornecedores.</p>
+
+    <h3>Trocas e devoluções</h3>
+    <p>O prazo para exercício do direito de arrependimento é de <strong>7 dias corridos</strong> a partir do recebimento, conforme art. 49 do CDC. As condições completas estão em nossa <a href="/politica-trocas">Política de Trocas e Devoluções</a>.</p>
+  </div>
+
+  <!-- 05 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Cadastro e conta</h2>
+    </div>
+    <p>Para acessar determinadas funcionalidades — como histórico de pedidos, área do investidor e checkout — é necessário criar uma conta.</p>
+    <ul>
+      <li>Você é responsável por manter a confidencialidade de sua senha</li>
+      <li>As informações cadastrais devem ser verdadeiras e atualizadas</li>
+      <li>Cada pessoa pode manter apenas uma conta ativa</li>
+      <li>Em caso de suspeita de acesso não autorizado, notifique-nos imediatamente</li>
+      <li>Contas com informações falsas ou utilizadas de forma indevida podem ser suspensas</li>
+    </ul>
+    <p>Você pode solicitar a exclusão da sua conta a qualquer momento pelo e-mail <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a>, observados os prazos legais de retenção de dados.</p>
+  </div>
+
+  <!-- 06 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Pagamentos e preços</h2>
+    </div>
+    <p>Os preços exibidos na loja são em reais (BRL) e incluem os tributos aplicáveis ao produto, salvo indicação em contrário. Frete e eventuais descontos são calculados no momento do checkout.</p>
+    <ul>
+      <li>Aceitamos Pix, cartão de crédito e boleto bancário</li>
+      <li>Pedidos só são confirmados após aprovação do pagamento pelo processador</li>
+      <li>Em caso de falha no pagamento, o pedido não é gerado</li>
+      <li>Cupons de desconto têm validade e condições específicas indicadas no momento da emissão</li>
+    </ul>
+    <div class="note">
+      <strong>Segurança:</strong> não armazenamos dados de cartão de crédito em nossos servidores. O processamento é realizado diretamente pelo provedor de pagamento contratado.
+    </div>
+    <p>Erros de precificação evidentes (ex.: produto de R$ 300 exibido por R$ 3,00) não geram obrigação de venda. Nesses casos, o pedido será cancelado e o cliente reembolsado integralmente.</p>
+  </div>
+
+  <!-- 07 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Conduta do usuário</h2>
+    </div>
+    <p>Ao utilizar este site, você se compromete a não:</p>
+    <ul>
+      <li>Fornecer informações falsas em formulários, cadastros ou pedidos</li>
+      <li>Utilizar meios automatizados (bots, scrapers) para acessar ou extrair conteúdo sem autorização</li>
+      <li>Tentar acessar áreas restritas sem credencial válida</li>
+      <li>Manipular preços, estoques ou pedidos por meios técnicos</li>
+      <li>Reproduzir, distribuir ou comercializar conteúdos do site sem autorização</li>
+      <li>Praticar qualquer conduta que viole leis brasileiras ou direitos de terceiros</li>
+      <li>Realizar pedidos com intenção de fraude ou chargebacks indevidos</li>
+    </ul>
+    <p>O descumprimento pode resultar em suspensão de conta, cancelamento de pedidos e, quando aplicável, responsabilização civil e criminal.</p>
+  </div>
+
+  <!-- 08 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Propriedade intelectual</h2>
+    </div>
+    <p>Todo o conteúdo deste site — textos, imagens, logotipos, identidade visual, nomes de marca, análises, relatórios e código — é de propriedade da empresa ou de seus licenciadores, e está protegido pela legislação de propriedade intelectual.</p>
+    <p>É vedada a reprodução, cópia, distribuição, republicação ou uso comercial de qualquer conteúdo sem autorização expressa e por escrito.</p>
+    <p>O uso das marcas <em>New Lounge Invest</em> e <em>NewLounge Sport</em> por terceiros, sem autorização, caracteriza infração passível de medidas legais.</p>
+  </div>
+
+  <!-- 09 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Limitação de responsabilidade</h2>
+    </div>
+
+    <h3>Plataforma imobiliária</h3>
+    <p>A New Lounge Invest atua como consultora e curadora imobiliária. Não somos parte nos contratos de compra, venda ou locação de imóveis — esses instrumentos são firmados diretamente entre as partes envolvidas. Não nos responsabilizamos por perdas decorrentes de decisões de investimento baseadas em informações do site.</p>
+
+    <h3>Loja virtual</h3>
+    <p>Nossa responsabilidade está limitada ao valor do produto adquirido. Não nos responsabilizamos por danos indiretos, lucros cessantes ou prejuízos decorrentes de uso inadequado dos produtos.</p>
+
+    <h3>Links externos</h3>
+    <p>Links para sites de terceiros (transportadoras, processadores de pagamento, redes sociais) são fornecidos por conveniência. Não controlamos e não nos responsabilizamos pelo conteúdo ou práticas desses sites.</p>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Disponibilidade do serviço</h2>
+    </div>
+    <p>Envidaremos esforços razoáveis para manter o site disponível de forma contínua, mas não garantimos disponibilidade ininterrupta. Podem ocorrer interrupções por:</p>
+    <ul>
+      <li>Manutenções programadas ou emergenciais</li>
+      <li>Falhas de infraestrutura de terceiros (hospedagem, DNS, CDN)</li>
+      <li>Eventos fora do nosso controle (força maior, falhas de telecomunicações)</li>
+    </ul>
+    <p>Pedidos em andamento durante uma interrupção serão preservados. Em caso de perda de dados por falha técnica de nossa responsabilidade, buscaremos solução adequada para cada situação.</p>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2>Privacidade e proteção de dados</h2>
+    </div>
+    <p>O tratamento de dados pessoais coletados neste site é regido pela nossa <a href="/politica-privacidade">Política de Privacidade</a>, disponível em endereço próprio e incorporada a estes Termos por referência.</p>
+    <p>Em caso de conflito entre estes Termos e a Política de Privacidade em matéria de dados pessoais, prevalece a Política de Privacidade.</p>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2>Alterações dos termos e encerramento</h2>
+    </div>
+    <p>Podemos atualizar estes Termos a qualquer momento. Alterações relevantes serão comunicadas por e-mail aos usuários cadastrados e/ou por aviso visível no site, com antecedência mínima de 10 dias antes da entrada em vigor — exceto quando exigido urgência por lei ou segurança.</p>
+    <p>O uso continuado do site após a vigência das novas condições implica aceitação das alterações.</p>
+    <p>Reservamo-nos o direito de suspender ou encerrar qualquer serviço mediante aviso prévio razoável, garantida a conclusão de pedidos já confirmados na loja.</p>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2>Lei aplicável e foro</h2>
+    </div>
+    <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Para resolução de conflitos decorrentes deste instrumento, fica eleito o foro da comarca de <strong>Maceió – AL</strong>, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</p>
+    <p>Nas relações de consumo, prevalecem as disposições do Código de Defesa do Consumidor (Lei nº 8.078/1990) sempre que entrarem em conflito com qualquer cláusula destes Termos.</p>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <h2>Contato</h2>
+    </div>
+    <p>Dúvidas sobre estes Termos, solicitações ou notificações legais:</p>
+    <ul>
+      <li>E-mail: <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a></li>
+      <li>WhatsApp: <a href="https://wa.me/5582999570442">(82) 99957-0442</a> — dias úteis, 9h às 18h</li>
+      <li>Endereço: R. Projetada VM 01, nº 43, Quadra B, Lotes 10 e 11 – Centro, Paripueira – AL, CEP 57.935-000</li>
+    </ul>
+    <p style="margin-top:1.5rem; font-size:0.82rem; color:var(--muted);">
+      Versão 1.0 · Publicada em 26 de junho de 2026.<br>
+      J DE A MOTA NETO COMERCIO E SERVICOS · CNPJ 36.737.905/0001-96
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="/politica-privacidade">Política de Privacidade</a>
+    <a href="/politica-trocas">Trocas e Devoluções</a>
+    <a href="https://newloungeinvest.com.br/">New Lounge Invest</a>
+    <a href="https://newloungeinvest.com.br/loja">NewLounge Sport</a>
+  </div>
+  <p>© 2026 J DE A MOTA NETO COMERCIO E SERVICOS · CNPJ 36.737.905/0001-96</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trocas e Devoluções — NewLounge Sport</title>
+  <meta name="description" content="Política de trocas, devoluções e cancelamentos da NewLounge Sport. Saiba seus direitos e como solicitar." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f8f8fa;
+      --white:    #ffffff;
+      --border:   #e4e4ec;
+      --accent:   #1a1a2e;
+      --accent2:  #e63946;
+      --text:     #1a1a2e;
+      --muted:    #6b6b8a;
+      --pill-bg:  #eeeef8;
+      --font-sans: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--accent);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nav-back {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--accent);
+      color: #fff;
+      padding: 4rem 2rem 3rem;
+      text-align: left;
+    }
+    .hero-inner { max-width: 760px; margin: 0 auto; }
+    .hero-tag {
+      display: inline-block;
+      background: var(--accent2);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2px;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.65);
+      max-width: 520px;
+    }
+
+    /* ── PILLS DESTAQUE ── */
+    .pills {
+      max-width: 760px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .pill {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.6rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pill-icon { font-size: 1rem; }
+
+    /* ── CONTEÚDO ── */
+    .content {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0.5rem 2rem 5rem;
+    }
+
+    .section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    h3 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin: 1.25rem 0 0.6rem;
+    }
+    h3:first-of-type { margin-top: 0; }
+
+    p {
+      font-size: 0.92rem;
+      color: var(--text);
+      margin-bottom: 0.9rem;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    ul {
+      list-style: none;
+      margin-bottom: 0.9rem;
+    }
+    ul li {
+      position: relative;
+      padding-left: 1.1rem;
+      margin-bottom: 0.45rem;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    ul li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #2a9d8f;
+      font-size: 0.75rem;
+      font-weight: 700;
+      top: 0.1em;
+    }
+    ul.cross li::before {
+      content: '✕';
+      color: var(--accent2);
+    }
+
+    ol {
+      padding-left: 0;
+      list-style: none;
+      counter-reset: steps;
+      margin-bottom: 0.9rem;
+    }
+    ol li {
+      counter-increment: steps;
+      position: relative;
+      padding-left: 2.25rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    ol li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      background: var(--pill-bg);
+      border-radius: 50%;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .prazo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    .prazo-card {
+      background: var(--pill-bg);
+      border-radius: 4px;
+      padding: 1rem;
+    }
+    .prazo-card .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .prazo-card .dias {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .prazo-card .desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .destaque {
+      background: #f0fdf8;
+      border-left: 3px solid #2a9d8f;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.9rem;
+    }
+
+    .alerta {
+      background: #fff5f5;
+      border-left: 3px solid var(--accent2);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.9rem;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── CONTATO BAR ── */
+    .contato-bar {
+      max-width: 760px;
+      margin: 0 auto 1.25rem;
+      padding: 0 2rem;
+    }
+    .contato-card {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .contato-card p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+    .contato-card strong { color: #fff; }
+    .btn-contato {
+      background: var(--accent2);
+      color: #fff !important;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.65rem 1.25rem;
+      border-radius: 3px;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--accent);
+      padding: 1.75rem 2rem;
+      text-align: center;
+    }
+    footer p {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      margin: 0;
+    }
+    footer a { color: rgba(255,255,255,0.55); }
+    footer a:hover { color: #fff; }
+
+    @media (max-width: 600px) {
+      .pills, .content, .contato-bar { padding-left: 1rem; padding-right: 1rem; }
+      .hero { padding: 2.5rem 1rem 2rem; }
+      .prazo-grid { grid-template-columns: 1fr; }
+      .section { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="https://newloungeinvest.com.br/loja">NewLounge Sport</a>
+  <a class="nav-back" href="https://newloungeinvest.com.br/loja">← Continuar comprando</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="hero-tag">Central de ajuda</span>
+    <h1>Trocas, Devoluções<br>e Cancelamentos</h1>
+    <p>Seus direitos explicados de forma clara. Compramos com você, resolvemos com você.</p>
+  </div>
+</header>
+
+<div class="pills">
+  <div class="pill"><span class="pill-icon">🔄</span> 7 dias para desistir</div>
+  <div class="pill"><span class="pill-icon">📦</span> Frete de devolução por nossa conta</div>
+  <div class="pill"><span class="pill-icon">💳</span> Reembolso integral</div>
+  <div class="pill"><span class="pill-icon">📧</span> Resposta em 2 dias úteis</div>
+</div>
+
+<div class="contato-bar">
+  <div class="contato-card">
+    <div>
+      <strong>Precisa resolver agora?</strong>
+      <p>Atendimento de segunda a sexta, das 9h às 18h.</p>
+    </div>
+    <a class="btn-contato" href="https://wa.me/5582999570442?text=Olá,%20preciso%20de%20ajuda%20com%20uma%20troca%20ou%20devolução">
+      Falar no WhatsApp →
+    </a>
+  </div>
+</div>
+
+<main class="content">
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>Direito de Arrependimento — compras online</h2>
+    </div>
+    <p>Todo produto comprado pela internet garante o <strong>direito de arrependimento em até 7 dias corridos</strong> a partir da data de recebimento, sem necessidade de justificativa — conforme o art. 49 do Código de Defesa do Consumidor.</p>
+    <div class="destaque">
+      Nesse prazo, você tem direito a <strong>reembolso integral</strong> (produto + frete original pago) e <strong>frete de devolução por nossa conta</strong>.
+    </div>
+    <p style="font-size:0.82rem; color: var(--muted);">Este direito é irrenunciável e não pode ser afastado por nenhuma condição da nossa parte.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>Prazos para cada situação</h2>
+    </div>
+
+    <div class="prazo-grid">
+      <div class="prazo-card">
+        <div class="label">Arrependimento</div>
+        <div class="dias">7 dias</div>
+        <div class="desc">Corridos após receber. Qualquer produto, sem justificativa.</div>
+      </div>
+      <div class="prazo-card">
+        <div class="label">Defeito — produto durável</div>
+        <div class="dias">90 dias</div>
+        <div class="desc">Equipamentos, raquetes, calçados e similares.</div>
+      </div>
+      <div class="prazo-card">
+        <div class="label">Defeito — produto não durável</div>
+        <div class="dias">30 dias</div>
+        <div class="desc">Roupas, acessórios, itens de uso único.</div>
+      </div>
+      <div class="prazo-card">
+        <div class="label">Troca (tamanho / cor)</div>
+        <div class="dias">7 dias</div>
+        <div class="desc">Cortesia. Frete de retorno por conta do cliente.</div>
+      </div>
+    </div>
+
+    <p style="font-size:0.82rem; color:var(--muted);">Os prazos de defeito são garantidos pelo CDC e não podem ser reduzidos.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>Condições para aceite</h2>
+    </div>
+
+    <h3>Aceitamos devolução quando o produto estiver:</h3>
+    <ul>
+      <li>Sem sinais de uso, lavagem ou alteração</li>
+      <li>Com etiqueta original intacta e na posição original</li>
+      <li>Na embalagem original ou embalagem adequada para transporte</li>
+      <li>Acompanhado do número do pedido ou comprovante de compra</li>
+    </ul>
+
+    <h3>Não aceitamos devolução de:</h3>
+    <ul class="cross">
+      <li>Produtos com evidência de uso</li>
+      <li>Produtos sem etiqueta original</li>
+      <li>Produtos danificados pelo cliente após o recebimento</li>
+      <li>Produtos de higiene íntima (meias, roupas íntimas) por questões sanitárias</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>Como solicitar — passo a passo</h2>
+    </div>
+    <ol>
+      <li>Envie e-mail para <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a> com o assunto <strong>"TROCA/DEVOLUÇÃO – Pedido nº [número]"</strong></li>
+      <li>Informe: número do pedido, produto, motivo. Se for defeito, inclua fotos.</li>
+      <li>Nossa equipe responde em até <strong>2 dias úteis</strong> com as instruções de envio.</li>
+      <li>Após recebermos e conferirmos o produto, processamos o reembolso ou enviamos o novo item.</li>
+    </ol>
+    <p>Prefere falar diretamente? WhatsApp <a href="https://wa.me/5582999570442">(82) 99957-0442</a> — dias úteis, 9h às 18h.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>Reembolso — prazo por forma de pagamento</h2>
+    </div>
+    <ul>
+      <li><strong>Pix:</strong> até 3 dias úteis após confirmação da devolução</li>
+      <li><strong>Cartão de crédito:</strong> até 2 faturas subsequentes (prazo da operadora)</li>
+      <li><strong>Boleto bancário:</strong> depósito em até 5 dias úteis após confirmação</li>
+    </ul>
+    <div class="destaque">
+      No caso de arrependimento dentro do prazo legal, o reembolso inclui o valor do produto <strong>e</strong> o frete original pago.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>Cancelamento de pedido</h2>
+    </div>
+    <p>O cancelamento é possível enquanto o pedido ainda não foi despachado:</p>
+    <ul>
+      <li>Solicite pelo e-mail <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a> ou WhatsApp</li>
+      <li>Se ainda não postado: cancelamos sem custo e reembolsamos integralmente</li>
+      <li>Se já despachado: aguarde o recebimento e solicite devolução por arrependimento</li>
+    </ul>
+    <div class="alerta">
+      Pedidos já entregues à transportadora não podem ser interceptados. O processo de arrependimento se aplica após o recebimento.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>Produto com defeito ou incorreto</h2>
+    </div>
+    <p>Se você recebeu um produto com defeito de fabricação ou diferente do que pediu:</p>
+    <ul>
+      <li>Fotografe o produto e o defeito antes de qualquer manuseio</li>
+      <li>Entre em contato dentro dos prazos do CDC</li>
+      <li><strong>Custeamos integralmente</strong> o frete de devolução e envio do produto correto ou reembolso</li>
+      <li>Não exigimos prova prévia do defeito; avaliamos após receber o produto</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>Endereço para devolução e contato</h2>
+    </div>
+    <ul>
+      <li><strong>E-mail:</strong> <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a></li>
+      <li><strong>WhatsApp:</strong> <a href="https://wa.me/5582999570442">(82) 99957-0442</a> — dias úteis, 9h às 18h</li>
+      <li><strong>Endereço:</strong> R. Projetada VM 01, nº 43, Quadra B, Lotes 10 e 11 – Centro, Paripueira – AL, CEP 57.935-000</li>
+    </ul>
+    <p style="font-size:0.85rem; color:var(--muted); margin-top:1rem;">
+      As instruções de envio serão fornecidas pela equipe após a abertura do chamado. Não envie o produto sem antes receber autorização — isso agiliza o processo.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  <p>
+    © 2026 J DE A MOTA NETO COMERCIO E SERVICOS · CNPJ 36.737.905/0001-96 &nbsp;·&nbsp;
+    <a href="/loja">NewLounge Sport</a> &nbsp;·&nbsp;
+    <a href="/politica-privacidade">Política de Privacidade</a> &nbsp;·&nbsp;
+    <a href="https://newloungeinvest.com.br/">New Lounge Invest</a>
+  </p>
+</footer>
+
+</body>
+</html>

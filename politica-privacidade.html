@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidade — New Lounge Invest</title>
+  <meta name="description" content="Política de privacidade e proteção de dados da New Lounge Invest e NewLounge Sport, conforme a Lei Geral de Proteção de Dados (LGPD)." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #12121a;
+      --border:   #1e1e2e;
+      --accent:   #c9a96e;
+      --text:     #e8e8f0;
+      --muted:    #7a7a9a;
+      --white:    #ffffff;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans:  'Helvetica Neue', Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-back {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 2rem 3rem;
+      max-width: 760px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: normal;
+      line-height: 1.2;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+    .hero-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .hero-meta strong { color: var(--text); font-weight: 500; }
+
+    /* ── EMPRESA BOX ── */
+    .empresa-box {
+      max-width: 760px;
+      margin: 2.5rem auto;
+      padding: 0 2rem;
+    }
+    .empresa-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1.5rem 2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .empresa-card strong { color: var(--text); font-weight: 600; }
+
+    /* ── CONTEÚDO ── */
+    .content {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1rem 2rem 6rem;
+    }
+
+    .section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-number {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    h2 {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: normal;
+      color: var(--white);
+      margin-bottom: 1.25rem;
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    p {
+      color: var(--text);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    ul {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+    ul li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.8rem;
+      top: 0.05em;
+    }
+
+    .highlight {
+      background: var(--surface);
+      border-left: 2px solid var(--accent);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+    footer p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0;
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 600px) {
+      .hero, .empresa-box, .content { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .hero { padding-top: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="https://newloungeinvest.com.br/">New Lounge Invest</a>
+  <a class="nav-back" href="https://newloungeinvest.com.br/">← Voltar ao site</a>
+</nav>
+
+<header class="hero">
+  <span class="hero-tag">Legal &amp; Compliance</span>
+  <h1>Política de Privacidade<br>e Proteção de Dados</h1>
+  <p class="hero-meta">
+    Versão <strong>1.0</strong> &nbsp;·&nbsp;
+    Vigente desde <strong>26 de junho de 2026</strong> &nbsp;·&nbsp;
+    Conforme a <strong>Lei nº 13.709/2018 (LGPD)</strong>
+  </p>
+</header>
+
+<div class="empresa-box">
+  <div class="empresa-card">
+    <strong>Controlador dos dados:</strong><br>
+    J DE A MOTA NETO COMERCIO E SERVICOS &nbsp;·&nbsp; Nome fantasia: <strong>NEWLOUNGE INVEST / NEWLOUNGE SPORT</strong><br>
+    CNPJ <strong>36.737.905/0001-96</strong><br>
+    R. Projetada VM 01, nº 43, Quadra B, Lotes 10 e 11 – Centro, Paripueira – AL, CEP 57.935-000<br>
+    E-mail: <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a> &nbsp;·&nbsp;
+    Tel: <a href="tel:+5582999570442">(82) 99957-0442</a>
+  </div>
+</div>
+
+<main class="content">
+
+  <div class="section">
+    <span class="section-number">01</span>
+    <h2>Quem somos e o que é esta Política</h2>
+    <p>Esta Política descreve como a <strong>New Lounge Invest</strong> e a <strong>NewLounge Sport</strong> — operadas pela mesma empresa — coletam, utilizam, armazenam e protegem seus dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD).</p>
+    <p>Ao utilizar nossos serviços — plataforma imobiliária, área do investidor, loja virtual ou formulários de contato — você reconhece as práticas descritas aqui.</p>
+  </div>
+
+  <div class="section">
+    <span class="section-number">02</span>
+    <h2>Quais dados coletamos</h2>
+
+    <h3>Plataforma imobiliária (New Lounge Invest)</h3>
+    <ul>
+      <li>Nome completo</li>
+      <li>Endereço de e-mail</li>
+      <li>Número de telefone / WhatsApp</li>
+      <li>Perfil de investidor (pessoa física, family office, incorporadora ou gestora/fundo)</li>
+      <li>Faixa de investimento declarada</li>
+    </ul>
+
+    <h3>Loja virtual (NewLounge Sport)</h3>
+    <ul>
+      <li>Nome completo e CPF (quando exigido pelo meio de pagamento)</li>
+      <li>Endereço de e-mail e telefone</li>
+      <li>Endereço de entrega completo</li>
+      <li>Dados de pagamento — processados pelo provedor contratado; <strong>não armazenamos dados de cartão</strong></li>
+      <li>Histórico de pedidos</li>
+    </ul>
+
+    <h3>Dados coletados automaticamente</h3>
+    <ul>
+      <li>Endereço IP e tipo de dispositivo/navegador</li>
+      <li>Páginas visitadas e tempo de permanência</li>
+      <li>Origem do acesso (busca orgânica, redes sociais, links diretos)</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="section-number">03</span>
+    <h2>Para que usamos seus dados</h2>
+    <ul>
+      <li><strong>Execução de contrato:</strong> processamento e entrega de pedidos da loja virtual</li>
+      <li><strong>Execução de contrato:</strong> prestação de serviços imobiliários e de consultoria patrimonial</li>
+      <li><strong>Legítimo interesse:</strong> comunicação sobre imóveis e oportunidades, quando há relação comercial prévia</li>
+      <li><strong>Consentimento:</strong> envio de comunicações de marketing e novidades da loja</li>
+      <li><strong>Obrigação legal:</strong> emissão de nota fiscal, registros fiscais e compliance financeiro</li>
+      <li><strong>Prevenção a fraudes:</strong> análise de risco em pagamentos e pedidos</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="section-number">04</span>
+    <h2>Com quem compartilhamos seus dados</h2>
+    <p><strong>Não vendemos dados pessoais.</strong> Compartilhamos apenas quando estritamente necessário:</p>
+    <ul>
+      <li><strong>Processadores de pagamento:</strong> para autorização e liquidação de transações</li>
+      <li><strong>Transportadoras:</strong> nome e endereço de entrega para despacho de pedidos</li>
+      <li><strong>Plataformas de comunicação:</strong> confirmações de pedido e mensagens autorizadas</li>
+      <li><strong>Autoridades:</strong> quando exigido por lei, decisão judicial ou regulação aplicável</li>
+    </ul>
+    <p>Todo compartilhamento ocorre mediante contratos ou instrumentos que garantem proteção adequada dos dados.</p>
+  </div>
+
+  <div class="section">
+    <span class="section-number">05</span>
+    <h2>Por quanto tempo guardamos seus dados</h2>
+    <ul>
+      <li><strong>Dados de pedidos:</strong> 5 anos após a transação (obrigação fiscal)</li>
+      <li><strong>Leads imobiliários:</strong> 2 anos após o último contato ou enquanto houver relação ativa</li>
+      <li><strong>Dados de navegação / cookies:</strong> até 12 meses</li>
+      <li><strong>Conta ativa:</strong> mantidos enquanto a conta estiver ativa</li>
+    </ul>
+    <p>Após esses prazos, os dados são excluídos de forma segura ou anonimizados.</p>
+  </div>
+
+  <div class="section">
+    <span class="section-number">06</span>
+    <h2>Seus direitos como titular</h2>
+    <p>Nos termos da LGPD, você pode a qualquer momento:</p>
+    <ul>
+      <li>Confirmar se tratamos seus dados</li>
+      <li>Acessar os dados que possuímos sobre você</li>
+      <li>Corrigir dados incompletos, inexatos ou desatualizados</li>
+      <li>Solicitar anonimização, bloqueio ou eliminação de dados desnecessários</li>
+      <li>Solicitar portabilidade para outro fornecedor</li>
+      <li>Revogar o consentimento, a qualquer momento</li>
+      <li>Solicitar informação sobre com quem compartilhamos seus dados</li>
+    </ul>
+    <div class="highlight">
+      Para exercer qualquer desses direitos, envie solicitação para
+      <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a>
+      com o assunto <strong>"LGPD – [seu direito]"</strong>.
+      Responderemos em até <strong>15 dias úteis</strong>.
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-number">07</span>
+    <h2>Cookies e rastreamento</h2>
+    <ul>
+      <li><strong>Cookies essenciais:</strong> sessão, carrinho, autenticação — necessários para o funcionamento básico</li>
+      <li><strong>Cookies analíticos:</strong> compreensão do comportamento de navegação para melhoria do serviço</li>
+      <li><strong>Cookies de marketing:</strong> veiculação de comunicações relevantes (somente com consentimento)</li>
+    </ul>
+    <p>Você pode desativar cookies não essenciais pelas configurações do seu navegador. A desativação de cookies essenciais pode comprometer o funcionamento do site.</p>
+  </div>
+
+  <div class="section">
+    <span class="section-number">08</span>
+    <h2>Como protegemos seus dados</h2>
+    <ul>
+      <li>Transmissão via HTTPS/TLS em todas as páginas</li>
+      <li>Controle de acesso por autenticação para áreas restritas</li>
+      <li>Dados de cartão processados diretamente pelo provedor — não armazenamos esses dados</li>
+      <li>Acesso a dados pessoais restrito a colaboradores autorizados</li>
+    </ul>
+    <p>Em caso de incidente de segurança que possa afetar seus dados, notificaremos a ANPD e os titulares afetados no prazo legal.</p>
+  </div>
+
+  <div class="section">
+    <span class="section-number">09</span>
+    <h2>Contato e canal LGPD</h2>
+    <ul>
+      <li>E-mail: <a href="mailto:comercial@newloungeinvest.com.br">comercial@newloungeinvest.com.br</a></li>
+      <li>WhatsApp: <a href="https://wa.me/5582999570442">(82) 99957-0442</a></li>
+      <li>Endereço: R. Projetada VM 01, nº 43, Quadra B, Lotes 10 e 11 – Centro, Paripueira – AL, CEP 57.935-000</li>
+    </ul>
+    <p>Você também pode registrar reclamações perante a Autoridade Nacional de Proteção de Dados (ANPD) em <a href="https://www.gov.br/anpd" target="_blank" rel="noopener">www.gov.br/anpd</a>.</p>
+  </div>
+
+  <div class="section">
+    <span class="section-number">10</span>
+    <h2>Atualizações desta Política</h2>
+    <p>Esta Política pode ser atualizada periodicamente. A versão vigente sempre estará disponível neste endereço com a data de última atualização. Alterações significativas serão comunicadas por e-mail aos titulares cadastrados.</p>
+    <p style="color: var(--muted); font-size:0.85rem;">Versão 1.0 · Publicada em 26 de junho de 2026.</p>
+  </div>
+
+</main>
+
+<footer>
+  <p>
+    © 2026 J DE A MOTA NETO COMERCIO E SERVICOS · CNPJ 36.737.905/0001-96 &nbsp;·&nbsp;
+    <a href="https://newloungeinvest.com.br/">New Lounge Invest</a> &nbsp;·&nbsp;
+    <a href="https://newloungeinvest.com.br/loja">NewLounge Sport</a>
+  </p>
+</footer>
+
+</body>
+</html>
