@@ -393,7 +393,7 @@
       </div>
       <div class="tabela-wrap">
         <table class="tabela">
-          <thead><tr><th>Posição</th><th>Título</th><th>Link</th><th>Status</th><th>Ações</th></tr></thead>
+          <thead><tr><th>Posição</th><th>Título / Anunciante</th><th>Período</th><th>Valor/mês</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody id="tbody-banners">
             <tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr>
           </tbody>
@@ -561,6 +561,7 @@
       <div class="grid-2">
         <div class="form-grp"><label>Posição</label>
           <select id="mban-pos">
+            <option value="carrossel">🎠 Carrossel (publicidade)</option>
             <option value="hero">Hero (principal)</option>
             <option value="secundario">Secundário</option>
             <option value="categoria">Categoria</option>
@@ -576,8 +577,34 @@
           </select>
         </div>
       </div>
-      <div class="form-grp"><label>Ordem</label><input type="number" id="mban-ordem" value="0"></div>
-      <div class="inline-chk"><input type="checkbox" id="mban-ativo" checked><label for="mban-ativo">Ativo</label></div>
+      <div class="grid-2">
+        <div class="form-grp"><label>Ordem</label><input type="number" id="mban-ordem" value="0"></div>
+        <div class="form-grp"><label>💰 Valor mensal (R$)</label><input type="number" id="mban-valor" placeholder="0.00" step="0.01"></div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px;">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:600;">📅 Período de veiculação</div>
+        <div class="grid-2">
+          <div class="form-grp"><label>Data de início</label><input type="date" id="mban-inicio"></div>
+          <div class="form-grp"><label>Data de término</label><input type="date" id="mban-fim"></div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px;">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:600;">🏢 Dados do anunciante</div>
+        <div class="form-grp"><label>Nome do anunciante</label><input type="text" id="mban-anunciante" placeholder="Ex: Head Brasil, Nike, Incorporadora X..."></div>
+        <div class="grid-2">
+          <div class="form-grp"><label>Contato</label><input type="text" id="mban-contato" placeholder="email ou WhatsApp"></div>
+          <div class="form-grp"><label>Status comercial</label>
+            <select id="mban-status-com">
+              <option value="">Selecione...</option>
+              <option value="proposta">Em proposta</option>
+              <option value="ativo">Contrato ativo</option>
+              <option value="encerrado">Encerrado</option>
+              <option value="permuta">Permuta/parceria</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="inline-chk"><input type="checkbox" id="mban-ativo" checked><label for="mban-ativo">Banner ativo (visível no site)</label></div>
     </div>
     <div class="modal-footer">
       <div><button class="btn btn-danger btn-sm" id="mban-del" style="display:none" onclick="deletarBanner()">🗑 Deletar</button></div>
@@ -635,6 +662,41 @@ async function mostrarDash() {
   await Promise.all([carregarProdutos(), carregarCategorias(), carregarMarcas(), carregarPedidos(), carregarCupons(), carregarBanners()]);
   popularSelects();
 }
+
+// Checkboxes de categoria — destaque, novidade e oferta são mutuamente exclusivos
+function setupCheckboxExclusivos() {
+  const grupos = ['mp-destaque','mp-novo','mp-oferta'];
+  grupos.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', function() {
+      if (this.checked) {
+        grupos.filter(g => g !== id).forEach(g => {
+          const outro = document.getElementById(g);
+          if (outro) outro.checked = false;
+        });
+      }
+    });
+  });
+}
+
+
+function setupCheckboxExclusivos() {
+  const grupos = ['mp-destaque','mp-novo','mp-oferta'];
+  grupos.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', function() {
+      if (this.checked) {
+        grupos.filter(g => g !== id).forEach(g => {
+          const outro = document.getElementById(g);
+          if (outro) outro.checked = false;
+        });
+      }
+    });
+  });
+}
+
 window.addEventListener('load', async () => {
   document.getElementById('l-senha').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   const { data: { session } } = await sb.auth.getSession();
@@ -788,15 +850,20 @@ function renderCupons() {
 function renderBanners() {
   const tbody = document.getElementById('tbody-banners');
   if (!banners.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhum banner</td></tr>`; return; }
-  tbody.innerHTML = banners.map(b => `<tr>
-    <td><span class="status-badge status-ativo">${b.posicao}</span></td>
-    <td><strong>${b.titulo||'—'}</strong><br><small style="color:var(--text2)">${b.subtitulo||''}</small></td>
-    <td style="font-size:12px;color:var(--text2)">${b.link||'—'}</td>
-    <td><span class="status-badge ${b.ativo?'status-ativo':'status-inativo'}">${b.ativo?'Ativo':'Inativo'}</span></td>
-    <td class="td-actions">
-      <button class="btn btn-ghost btn-xs" onclick="abrirModalBanner('${b.id}')">✏️ Editar</button>
-    </td>
-  </tr>`).join('');
+  tbody.innerHTML = banners.map(b => {
+    const periodo = b.inicio && b.fim ? `${b.inicio} → ${b.fim}` : b.inicio ? `A partir de ${b.inicio}` : '—';
+    const valor   = b.valor_mensal ? `R$ ${Number(b.valor_mensal).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—';
+    return `<tr>
+      <td><span class="status-badge status-ativo">${b.posicao}</span><br><small style="color:var(--text3)">${b.plataforma}</small></td>
+      <td><strong>${b.titulo||'—'}</strong><br><small style="color:var(--text2)">${b.anunciante||b.subtitulo||''}</small></td>
+      <td style="font-size:12px;color:var(--text2)">${periodo}</td>
+      <td style="font-size:12px;font-weight:600;color:var(--green)">${valor}</td>
+      <td><span class="status-badge ${b.ativo?'status-ativo':'status-inativo'}">${b.ativo?'Ativo':'Inativo'}</span></td>
+      <td class="td-actions">
+        <button class="btn btn-ghost btn-xs" onclick="abrirModalBanner('${b.id}')">✏️ Editar</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 // ===== MODAL PRODUTO =====
@@ -1133,6 +1200,11 @@ async function salvarBanner() {
     plataforma: document.getElementById('mban-plat').value,
     ordem: parseInt(document.getElementById('mban-ordem').value) || 0,
     ativo: document.getElementById('mban-ativo').checked,
+    inicio: document.getElementById('mban-inicio').value || null,
+    fim: document.getElementById('mban-fim').value || null,
+    anunciante: document.getElementById('mban-anunciante').value.trim() || null,
+    contato: document.getElementById('mban-contato').value.trim() || null,
+    valor_mensal: parseFloat(document.getElementById('mban-valor').value) || null,
   };
   const { error } = editandoId
     ? await sb.from('banners_loja').update(dados).eq('id', editandoId)
