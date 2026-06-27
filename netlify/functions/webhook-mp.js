@@ -1,101 +1,114 @@
 // ============================================================
 // NETLIFY FUNCTION — Webhook do Mercado Pago
-// Caminho: /.netlify/functions/webhook-mp
+// VERSÃO 2 — com validação de assinatura
 // ============================================================
-// O Mercado Pago chama esta função automaticamente quando
-// o status de um pagamento muda. Aqui atualizamos o pedido
-// no banco APENAS quando o MP confirma o pagamento.
-// ============================================================
-
 exports.handler = async (event) => {
-  const ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
-  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const ACCESS_TOKEN      = process.env.MP_ACCESS_TOKEN;
+  const SUPABASE_URL      = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  const WEBHOOK_SECRET    = process.env.MP_WEBHOOK_SECRET;
 
-  // O MP sempre espera resposta 200 rápido
-  const ok = { statusCode: 200, body: 'OK' };
+  const ok  = { statusCode: 200, body: 'OK' };
+  const err = { statusCode: 200, body: 'IGNORED' }; // sempre 200 pro MP não reenviar em loop
 
   if (event.httpMethod !== 'POST') return ok;
-  if (!ACCESS_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_KEY) return ok;
+  if (!ACCESS_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_KEY) return err;
 
+  // ===== VALIDAÇÃO DE ASSINATURA DO MERCADO PAGO =====
+  // O MP envia x-signature e x-request-id em todo webhook de produção
+  if (WEBHOOK_SECRET) {
+    const signature = event.headers['x-signature'];
+    const requestId = event.headers['x-request-id'];
+
+    if (!signature) {
+      console.error('Webhook sem x-signature — rejeitado');
+      return err;
+    }
+
+    // Extrai ts e v1 do header x-signature
+    const parts = {};
+    signature.split(',').forEach(part => {
+      const [k, v] = part.trim().split('=');
+      parts[k] = v;
+    });
+
+    const ts = parts['ts'];
+    const v1 = parts['v1'];
+
+    if (!ts || !v1) {
+      console.error('x-signature malformado — rejeitado');
+      return err;
+    }
+
+    // Monta o manifest para validação
+    const body   = event.body || '';
+    const dataId = (() => {
+      try { return JSON.parse(body)?.data?.id || ''; } catch { return ''; }
+    })();
+
+    const manifest = `id:${dataId};request-id:${requestId || ''};ts:${ts};`;
+
+    // Calcula HMAC-SHA256
+    const crypto = require('crypto');
+    const expected = crypto
+      .createHmac('sha256', WEBHOOK_SECRET)
+      .update(manifest)
+      .digest('hex');
+
+    if (expected !== v1) {
+      console.error('Assinatura inválida — possível webhook falso rejeitado');
+      return err;
+    }
+  }
+
+  // ===== PROCESSAR WEBHOOK =====
   try {
     const body = JSON.parse(event.body || '{}');
-
-    // O MP manda notificações de vários tipos; só nos importa "payment"
     const tipo = body.type || body.topic;
     if (tipo !== 'payment') return ok;
 
     const paymentId = body.data?.id || body.resource;
     if (!paymentId) return ok;
 
-    // ===== BUSCAR DETALHES DO PAGAMENTO NO MP =====
+    // Busca detalhes reais do pagamento direto no MP
     const mpResp = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
     });
     const pagamento = await mpResp.json();
-
-    if (!mpResp.ok) return ok;
+    if (!mpResp.ok) return err;
 
     const pedidoId = pagamento.external_reference;
-    const statusMP = pagamento.status; // approved, pending, rejected, cancelled, refunded
+    const statusMP = pagamento.status;
     if (!pedidoId) return ok;
 
-    // ===== MAPEAR STATUS DO MP PARA NOSSO SISTEMA =====
-    const mapaStatus = {
-      approved:    'pagamento_aprovado',
-      pending:     'pagamento_pendente',
-      in_process:  'pagamento_em_analise',
-      rejected:    'pagamento_recusado',
-      cancelled:   'cancelado',
-      refunded:    'devolvido',
-      charged_back:'devolvido',
-    };
-    const novoStatus = mapaStatus[statusMP] || 'pagamento_pendente';
-
-    // ===== ATUALIZAR PEDIDO NO BANCO =====
-    await fetch(`${SUPABASE_URL}/rest/v1/pedidos?id=eq.${pedidoId}`, {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_SERVICE_KEY,
-        Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify({
-        status: novoStatus,
-        metodo_pagamento: pagamento.payment_type_id || 'mercadopago',
-        atualizado_em: new Date().toISOString(),
-      }),
-    });
-
-    // ===== REGISTRAR EVENTO (auditoria de pagamento) =====
-    // Grava o evento bruto para reconciliação futura
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/payment_events`, {
-        method: 'POST',
+    // ===== VALIDAÇÃO DE VALOR =====
+    // Busca o total esperado no banco antes de aprovar
+    const pedidoResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/pedidos?id=eq.${pedidoId}&select=total,status`,
+      {
         headers: {
           apikey: SUPABASE_SERVICE_KEY,
           Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-          'Content-Type': 'application/json',
-          Prefer: 'return=minimal',
         },
-        body: JSON.stringify({
-          pedido_id: pedidoId,
-          payment_id: String(paymentId),
-          status_mp: statusMP,
-          valor: pagamento.transaction_amount || 0,
-          metodo: pagamento.payment_type_id || '',
-          raw: pagamento,
-        }),
-      });
-    } catch (e) {
-      // Se a tabela payment_events não existir, ignora (não bloqueia o webhook)
+      }
+    );
+    const pedidos = await pedidoResp.json();
+    const pedido  = pedidos?.[0];
+
+    if (!pedido) {
+      console.error(`Pedido ${pedidoId} não encontrado no banco`);
+      return err;
     }
 
-    return ok;
+    // Se pagamento aprovado, valida se o valor bate (tolerância de R$ 0,10)
+    if (statusMP === 'approved') {
+      const valorPago    = Number(pagamento.transaction_amount || 0);
+      const valorEsperado = Number(pedido.total || 0);
+      const diferenca    = Math.abs(valorPago - valorEsperado);
 
-  } catch (e) {
-    // Mesmo em erro, responde 200 para o MP não ficar reenviando infinitamente
-    return ok;
-  }
-};
+      if (diferenca > 0.10) {
+        console.error(`Valor divergente — esperado: ${valorEsperado}, pago: ${valorPago}`);
+        // Marca pedido como suspeito em vez de aprovar
+        await atualizarPedido(SUPABASE_URL, SUPABASE_SERVICE_KEY, pedidoId, {
+          status: 'pagamento_suspeito',
+          atualizado_em: new
