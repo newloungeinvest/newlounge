@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Pedido — NewLounge Sport</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#F5F7FA;--bg2:#fff;--bg3:#EEF2F7;--border:#DDE3ED;
+      --cyan:#0066FF;--green:#28A745;--red:#FF3B30;--warn:#FF9500;
+      --text:#111827;--text2:#6B7280;--text3:#9CA3AF;
+      --ff:'Inter',-apple-system,sans-serif;--r:10px;
+      --shadow:0 2px 12px rgba(0,0,0,.08);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:var(--ff);font-size:15px;line-height:1.6;}
+    a{color:inherit;text-decoration:none;}
+
+    /* HEADER */
+    .header{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+    .logo{font-size:18px;font-weight:800;color:#111827;}
+    .logo span{color:var(--cyan);}
+    .header-back{font-size:13px;color:var(--text2);border:1px solid var(--border);padding:7px 16px;border-radius:6px;transition:all .2s;}
+    .header-back:hover{border-color:var(--cyan);color:var(--cyan);}
+
+    /* LAYOUT */
+    .container{max-width:780px;margin:0 auto;padding:32px 24px 80px;}
+
+    /* TOPO DO PEDIDO */
+    .pedido-header{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px;box-shadow:var(--shadow);}
+    .pedido-numero{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+    .pedido-id{font-size:26px;font-weight:800;color:var(--text);font-family:monospace;margin-bottom:16px;}
+    .pedido-meta{display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--text2);}
+    .pedido-meta strong{color:var(--text);font-weight:600;}
+
+    /* STATUS BADGE */
+    .status-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;
+      letter-spacing:.5px;margin-bottom:20px;
+    }
+    .status-badge.aguardando{background:rgba(255,149,0,.1);color:#C07000;border:1px solid rgba(255,149,0,.3);}
+    .status-badge.aprovado   {background:rgba(40,167,69,.1);color:#1A6B2A;border:1px solid rgba(40,167,69,.3);}
+    .status-badge.separando  {background:rgba(0,102,255,.1);color:#0050CC;border:1px solid rgba(0,102,255,.3);}
+    .status-badge.embalando  {background:rgba(100,0,255,.1);color:#5000CC;border:1px solid rgba(100,0,255,.3);}
+    .status-badge.enviado    {background:rgba(0,180,216,.1);color:#006B80;border:1px solid rgba(0,180,216,.3);}
+    .status-badge.entregue   {background:rgba(40,167,69,.1);color:#1A6B2A;border:1px solid rgba(40,167,69,.3);}
+    .status-badge.recusado   {background:rgba(255,59,48,.1);color:#CC0000;border:1px solid rgba(255,59,48,.3);}
+    .status-badge.cancelado  {background:rgba(150,150,150,.1);color:#555;border:1px solid rgba(150,150,150,.3);}
+    .status-badge.devolvido  {background:rgba(150,150,150,.1);color:#555;border:1px solid rgba(150,150,150,.3);}
+
+    /* TIMELINE */
+    .timeline{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;margin-bottom:20px;box-shadow:var(--shadow);}
+    .timeline h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:24px;font-weight:600;}
+    .timeline-steps{display:flex;flex-direction:column;gap:0;}
+    .step{display:flex;gap:16px;position:relative;}
+    .step:not(:last-child)::after{content:'';position:absolute;left:15px;top:32px;bottom:0;width:2px;background:var(--border);}
+    .step.done:not(:last-child)::after{background:var(--green);}
+    .step.active:not(:last-child)::after{background:linear-gradient(to bottom,var(--green) 50%,var(--border) 100%);}
+    .step-circle{
+      width:32px;height:32px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:700;z-index:1;
+      background:var(--bg3);border:2px solid var(--border);color:var(--text3);
+      transition:all .3s;
+    }
+    .step.done   .step-circle{background:var(--green);border-color:var(--green);color:#fff;}
+    .step.active .step-circle{background:var(--cyan);border-color:var(--cyan);color:#fff;box-shadow:0 0 0 4px rgba(0,102,255,.15);}
+    .step-info{padding:4px 0 24px;}
+    .step-titulo{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+    .step.pending .step-titulo{color:var(--text3);}
+    .step-desc{font-size:12px;color:var(--text2);}
+    .step-data{font-size:11px;color:var(--text3);margin-top:2px;}
+
+    /* RASTREIO */
+    .rastreio-box{background:rgba(0,102,255,.04);border:1px solid rgba(0,102,255,.2);border-radius:8px;padding:16px;margin-bottom:20px;}
+    .rastreio-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:600;margin-bottom:6px;}
+    .rastreio-codigo{font-size:18px;font-weight:700;font-family:monospace;color:var(--text);margin-bottom:8px;}
+    .btn-rastrear{display:inline-flex;align-items:center;gap:6px;background:var(--cyan);color:#fff;font-size:13px;font-weight:700;padding:9px 18px;border-radius:6px;transition:background .2s;}
+    .btn-rastrear:hover{background:#0052CC;}
+
+    /* ITENS */
+    .itens-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px;box-shadow:var(--shadow);}
+    .itens-box h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:16px;font-weight:600;}
+    .item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .item:last-child{border-bottom:none;padding-bottom:0;}
+    .item-foto{width:60px;height:60px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;}
+    .item-foto img{width:100%;height:100%;object-fit:cover;}
+    .item-info{flex:1;}
+    .item-nome{font-size:14px;font-weight:600;margin-bottom:2px;}
+    .item-var{font-size:12px;color:var(--text2);}
+    .item-preco{font-size:15px;font-weight:700;color:var(--cyan);white-space:nowrap;}
+
+    /* TOTAIS */
+    .totais{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow);}
+    .total-linha{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:var(--text2);}
+    .total-linha strong{color:var(--text);}
+    .total-final{display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);margin-top:4px;}
+    .total-final span{font-size:15px;font-weight:600;}
+    .total-final strong{font-size:22px;font-weight:800;}
+
+    /* ENTREGA */
+    .entrega-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow);}
+    .entrega-box h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:600;}
+    .entrega-box p{font-size:14px;color:var(--text);line-height:1.7;}
+
+    /* AÇÕES */
+    .acoes{display:flex;gap:12px;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--ff);transition:all .2s;}
+    .btn-primary{background:var(--cyan);color:#fff;}
+    .btn-primary:hover{background:#0052CC;}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2);}
+    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+    .btn-danger{background:transparent;border:1px solid rgba(255,59,48,.3);color:var(--red);}
+    .btn-danger:hover{background:rgba(255,59,48,.05);}
+
+    /* LOADING / ERRO */
+    .loading{text-align:center;padding:80px 20px;color:var(--text2);}
+    .spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:16px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .erro{text-align:center;padding:80px 20px;}
+    .erro h2{font-size:22px;margin-bottom:8px;}
+    .erro p{color:var(--text2);margin-bottom:20px;}
+
+    /* BUSCA */
+    .busca-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:24px;box-shadow:var(--shadow);}
+    .busca-box h2{font-size:18px;font-weight:700;margin-bottom:6px;}
+    .busca-box p{font-size:13px;color:var(--text2);margin-bottom:16px;}
+    .busca-input-row{display:flex;gap:10px;}
+    .busca-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--ff);font-size:14px;padding:11px 14px;outline:none;transition:border-color .2s;}
+    .busca-input:focus{border-color:var(--cyan);}
+    .busca-input::placeholder{color:var(--text3);}
+
+    @media(max-width:600px){
+      .container{padding:16px 14px 60px;}
+      .pedido-meta{gap:12px;}
+      .acoes{flex-direction:column;}
+      .busca-input-row{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="loja.html" class="logo">NEWLOUNGE<span> SPORT</span></a>
+  <a href="loja.html" class="header-back">← Continuar comprando</a>
+</header>
+
+<div class="container" id="app">
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Carregando pedido...</p>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Mapa de status
+const STATUS_MAP = {
+  'aguardando_pagamento': { label:'Aguardando pagamento', emoji:'⏳', cls:'aguardando' },
+  'pagamento_pendente':   { label:'Pagamento pendente',   emoji:'🕐', cls:'aguardando' },
+  'pagamento_em_analise': { label:'Em análise',           emoji:'🔍', cls:'aguardando' },
+  'pagamento_aprovado':   { label:'Pagamento aprovado',   emoji:'✅', cls:'aprovado'   },
+  'separando':            { label:'Separando',            emoji:'📦', cls:'separando'  },
+  'embalando':            { label:'Embalando',            emoji:'🎁', cls:'embalando'  },
+  'enviado':              { label:'Enviado',              emoji:'🚚', cls:'enviado'    },
+  'entregue':             { label:'Entregue',             emoji:'🏠', cls:'entregue'   },
+  'pagamento_recusado':   { label:'Pagamento recusado',   emoji:'❌', cls:'recusado'   },
+  'cancelado':            { label:'Cancelado',            emoji:'🚫', cls:'cancelado'  },
+  'devolvido':            { label:'Devolvido',            emoji:'↩️', cls:'devolvido'  },
+  'pagamento_suspeito':   { label:'Em verificação',       emoji:'⚠️', cls:'aguardando' },
+};
+
+// Ordem da timeline
+const TIMELINE_STEPS = [
+  { key:'aguardando_pagamento', titulo:'Pedido criado',        desc:'Aguardando confirmação do pagamento',      emoji:'🛒' },
+  { key:'pagamento_aprovado',   titulo:'Pagamento aprovado',   desc:'Seu pagamento foi confirmado',             emoji:'✅' },
+  { key:'separando',            titulo:'Separando',            desc:'Estamos separando os itens do seu pedido', emoji:'📦' },
+  { key:'embalando',            titulo:'Embalando',            desc:'Seu pedido está sendo embalado com cuidado',emoji:'🎁' },
+  { key:'enviado',              titulo:'Enviado',              desc:'Seu pedido está a caminho',                emoji:'🚚' },
+  { key:'entregue',             titulo:'Entregue',             desc:'Pedido entregue com sucesso!',             emoji:'🏠' },
+];
+
+const STATUS_ORDER = TIMELINE_STEPS.map(s => s.key);
+
+function getStepState(stepKey, statusAtual) {
+  const stepIdx   = STATUS_ORDER.indexOf(stepKey);
+  const atualIdx  = STATUS_ORDER.indexOf(statusAtual);
+  if (stepIdx < atualIdx)  return 'done';
+  if (stepIdx === atualIdx) return 'active';
+  return 'pending';
+}
+
+function fmt(v) {
+  return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function fmtData(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+async function init() {
+  const params  = new URLSearchParams(window.location.search);
+  const pedidoId = params.get('id') || params.get('pedido');
+
+  if (!pedidoId) {
+    renderBusca();
+    return;
+  }
+  await carregarPedido(pedidoId);
+}
+
+async function carregarPedido(id) {
+  document.getElementById('app').innerHTML = `<div class="loading"><div class="spinner"></div><p>Carregando pedido...</p></div>`;
+
+  const { data: pedido, error } = await sb
+    .from('pedidos')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !pedido) {
+    renderErro(id);
+    return;
+  }
+
+  const { data: itens } = await sb
+    .from('itens_pedido')
+    .select('*')
+    .eq('pedido_id', id);
+
+  renderPedido(pedido, itens || []);
+}
+
+function renderPedido(pedido, itens) {
+  const status   = pedido.status || 'aguardando_pagamento';
+  const statusInfo = STATUS_MAP[status] || { label: status, emoji:'📋', cls:'aguardando' };
+  const isNegativo = ['pagamento_recusado','cancelado'].includes(status);
+  const isEntregue = status === 'entregue';
+  const temRastreio = pedido.codigo_rastreio;
+
+  const enderecoObj = pedido.endereco_entrega || {};
+  const enderecoStr = enderecoObj.logradouro
+    ? `${enderecoObj.logradouro}, ${enderecoObj.numero}${enderecoObj.complemento ? ', ' + enderecoObj.complemento : ''} — ${enderecoObj.bairro}, ${enderecoObj.cidade}/${enderecoObj.estado} — CEP ${enderecoObj.cep}`
+    : 'Endereço não disponível';
+
+  document.getElementById('app').innerHTML = `
+
+    <!-- CABEÇALHO -->
+    <div class="pedido-header">
+      <div class="pedido-numero">Número do pedido</div>
+      <div class="pedido-id">#${pedido.numero || pedido.id.substring(0,8).toUpperCase()}</div>
+      <span class="status-badge ${statusInfo.cls}">${statusInfo.emoji} ${statusInfo.label}</span>
+      <div class="pedido-meta">
+        <div><span>Data: </span><strong>${fmtData(pedido.criado_em)}</strong></div>
+        <div><span>Pagamento: </span><strong>${pedido.metodo_pagamento || '—'}</strong></div>
+        <div><span>Cliente: </span><strong>${pedido.cliente_nome || pedido.cliente_email || '—'}</strong></div>
+      </div>
+    </div>
+
+    <!-- RASTREIO (se tiver código) -->
+    ${temRastreio ? `
+    <div class="rastreio-box">
+      <div class="rastreio-label">📦 Código de rastreio</div>
+      <div class="rastreio-codigo">${pedido.codigo_rastreio}</div>
+      <a class="btn-rastrear" href="https://www.correios.com.br/rastreamento-de-objetos?objetos=${pedido.codigo_rastreio}" target="_blank" rel="noopener">
+        🔍 Rastrear entrega
+      </a>
+    </div>` : ''}
+
+    <!-- TIMELINE -->
+    ${!isNegativo ? `
+    <div class="timeline">
+      <h3>Acompanhamento</h3>
+      <div class="timeline-steps">
+        ${TIMELINE_STEPS.map(step => {
+          const state = getStepState(step.key, status);
+          return `
+            <div class="step ${state}">
+              <div class="step-circle">${state === 'done' ? '✓' : state === 'active' ? step.emoji : '○'}</div>
+              <div class="step-info">
+                <div class="step-titulo">${step.titulo}</div>
+                <div class="step-desc">${state === 'active' ? `<strong>${step.desc}</strong>` : step.desc}</div>
+                ${state === 'active' ? `<div class="step-data">Atualizado em ${fmtData(pedido.atualizado_em)}</div>` : ''}
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>` : `
+    <div class="timeline">
+      <h3>Status do pedido</h3>
+      <p style="color:var(--red);font-weight:600;font-size:15px;">${statusInfo.emoji} ${statusInfo.label}</p>
+      <p style="color:var(--text2);font-size:13px;margin-top:8px;">
+        ${status === 'cancelado' ? 'Este pedido foi cancelado. Se você pagou, o reembolso será processado em até 5 dias úteis.' : 'O pagamento foi recusado. Tente novamente com outro método de pagamento.'}
+      </p>
+    </div>`}
+
+    <!-- ITENS -->
+    <div class="itens-box">
+      <h3>Itens do pedido</h3>
+      ${itens.length ? itens.map(item => `
+        <div class="item">
+          <div class="item-foto">
+            ${item.produto_foto ? `<img src="${item.produto_foto}" alt="${item.produto_nome}">` : '👕'}
+          </div>
+          <div class="item-info">
+            <div class="item-nome">${item.produto_nome}</div>
+            <div class="item-var">${[item.variante_tamanho, item.variante_cor].filter(Boolean).join(' · ')} · Qtd: ${item.quantidade}</div>
+          </div>
+          <div class="item-preco">${fmt(item.preco_total)}</div>
+        </div>`).join('') : '<p style="color:var(--text2);font-size:13px;">Itens não disponíveis</p>'}
+    </div>
+
+    <!-- TOTAIS -->
+    <div class="totais">
+      <div class="total-linha"><span>Subtotal</span><strong>${fmt(pedido.subtotal)}</strong></div>
+      ${pedido.desconto_cupom > 0 ? `<div class="total-linha"><span style="color:var(--green)">Desconto</span><strong style="color:var(--green)">-${fmt(pedido.desconto_cupom)}</strong></div>` : ''}
+      <div class="total-linha"><span>Frete</span><strong>${pedido.frete > 0 ? fmt(pedido.frete) : 'Grátis'}</strong></div>
+      <div class="total-final"><span>Total</span><strong>${fmt(pedido.total)}</strong></div>
+    </div>
+
+    <!-- ENDEREÇO DE ENTREGA -->
+    <div class="entrega-box">
+      <h3>Endereço de entrega</h3>
+      <p>${enderecoStr}</p>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="acoes">
+      <a href="loja.html" class="btn btn-ghost">← Continuar comprando</a>
+      ${!isNegativo && !isEntregue ? `
+        <a href="https://wa.me/5582999570442?text=Olá,%20tenho%20uma%20dúvida%20sobre%20o%20pedido%20%23${pedido.numero||pedido.id.substring(0,8)}" 
+           target="_blank" class="btn btn-primary">💬 Falar com atendimento</a>` : ''}
+      ${isEntregue ? `
+        <a href="https://wa.me/5582999570442?text=Quero%20avaliar%20meu%20pedido%20%23${pedido.numero||pedido.id.substring(0,8)}" 
+           target="_blank" class="btn btn-primary">⭐ Avaliar compra</a>` : ''}
+    </div>
+  `;
+}
+
+function renderBusca() {
+  // Verifica se tem pedido no parâmetro de URL do checkout
+  const params = new URLSearchParams(window.location.search);
+  const statusParam = params.get('status');
+  
+  document.getElementById('app').innerHTML = `
+    ${statusParam === 'pendente' ? `
+      <div style="background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.3);border-radius:10px;padding:20px 24px;margin-bottom:20px;color:#C07000;">
+        <strong>⏳ Pagamento pendente</strong><br>
+        <span style="font-size:13px;">Seu pedido foi criado mas o pagamento ainda está sendo processado. Aguarde a confirmação.</span>
+      </div>` : ''}
+    ${statusParam === 'recusado' ? `
+      <div style="background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.3);border-radius:10px;padding:20px 24px;margin-bottom:20px;color:var(--red);">
+        <strong>❌ Pagamento não aprovado</strong><br>
+        <span style="font-size:13px;">Tente novamente com outro método de pagamento ou entre em contato conosco.</span>
+      </div>` : ''}
+
+    <div class="busca-box">
+      <h2>🔍 Acompanhar pedido</h2>
+      <p>Digite o número do pedido ou o e-mail usado na compra para consultar o status.</p>
+      <div class="busca-input-row">
+        <input class="busca-input" type="text" id="busca-input" placeholder="Ex: VS1234567890 ou seu e-mail">
+        <button class="btn btn-primary" onclick="buscarPedido()">Buscar</button>
+      </div>
+      <div id="busca-erro" style="font-size:13px;color:var(--red);margin-top:8px;display:none;"></div>
+    </div>
+
+    <div style="text-align:center;padding:40px 20px;color:var(--text2);">
+      <p style="font-size:14px;">Dúvidas? Fale com a gente:</p>
+      <a href="https://wa.me/5582999570442" target="_blank" 
+         style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:#25D366;color:#fff;padding:10px 20px;border-radius:6px;font-weight:600;font-size:13px;">
+        💬 WhatsApp (82) 99957-0442
+      </a>
+    </div>
+  `;
+}
+
+async function buscarPedido() {
+  const val  = document.getElementById('busca-input').value.trim();
+  const erro = document.getElementById('busca-erro');
+  erro.style.display = 'none';
+
+  if (!val) { erro.textContent = 'Digite o número do pedido ou e-mail.'; erro.style.display = 'block'; return; }
+
+  // Tenta buscar por número de pedido
+  const { data: porNumero } = await sb.from('pedidos').select('id').eq('numero', val.toUpperCase()).single();
+  if (porNumero) { window.location.href = `pedido?id=${porNumero.id}`; return; }
+
+  // Tenta buscar por e-mail (mostra o mais recente)
+  const { data: porEmail } = await sb.from('pedidos').select('id,numero,criado_em')
+    .eq('cliente_email', val.toLowerCase()).order('criado_em',{ascending:false}).limit(1).single();
+  if (porEmail) { window.location.href = `pedido?id=${porEmail.id}`; return; }
+
+  erro.textContent = 'Pedido não encontrado. Verifique o número ou e-mail digitado.';
+  erro.style.display = 'block';
+}
+
+function renderErro(id) {
+  document.getElementById('app').innerHTML = `
+    <div class="erro">
+      <div style="font-size:48px;margin-bottom:16px;">🔍</div>
+      <h2>Pedido não encontrado</h2>
+      <p>Não encontramos o pedido <strong>${id}</strong>.<br>Verifique o número e tente novamente.</p>
+      <button class="btn btn-primary" onclick="renderBusca()">← Buscar outro pedido</button>
+    </div>`;
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

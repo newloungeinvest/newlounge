@@ -687,6 +687,17 @@
   </div>
 </div>
 
+
+<!-- ============ CARROSSEL DE PUBLICIDADE ============ -->
+<section class="carrossel-section-im" id="carrossel-pub" style="display:none;">
+  <div class="carrossel-wrap-im">
+    <div class="carrossel-track-im" id="carrossel-track"></div>
+    <button class="carrossel-btn-im prev" onclick="moverCarrossel(-1)" aria-label="Anterior">‹</button>
+    <button class="carrossel-btn-im next" onclick="moverCarrossel(1)" aria-label="Próximo">›</button>
+    <div class="carrossel-dots-im" id="carrossel-dots"></div>
+  </div>
+</section>
+
 <!-- ============================================================
      PORTFÓLIO DINÂMICO
 ============================================================ -->
@@ -1045,6 +1056,7 @@ async function init() {
   }
 
   imoveis = data || [];
+  carregarCarrossel();
 
   // Atualiza contador no stats
   const totalEl = document.getElementById('count-imoveis');
@@ -1314,6 +1326,68 @@ const TIPOS = {
 };
 function tipoLabel(t) { return TIPOS[t] || t; }
 function escHtml(s)   { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+
+// ========== CARROSSEL DE PUBLICIDADE ==========
+let carrosselSlides = [];
+let carrosselIdx    = 0;
+let carrosselTimer  = null;
+
+async function carregarCarrossel() {
+  const hoje = new Date().toISOString().split('T')[0];
+  const { data } = await sb.from('banners_loja')
+    .select('*').eq('posicao','carrossel').eq('ativo',true)
+    .in('plataforma',['imoveis','ambos']).order('ordem');
+  if (!data || !data.length) return;
+  carrosselSlides = data.filter(b => {
+    if (b.inicio && b.inicio > hoje) return false;
+    if (b.fim    && b.fim    < hoje) return false;
+    return true;
+  });
+  if (!carrosselSlides.length) return;
+  const track = document.getElementById('carrossel-track');
+  const dots  = document.getElementById('carrossel-dots');
+  track.innerHTML = carrosselSlides.map(b => {
+    const temLink = b.link && b.link.trim();
+    const conteudo = `
+      ${b.imagem_url ? `<img src="${b.imagem_url}" alt="${b.titulo||''}">` : ''}
+      <div class="slide-overlay"></div>
+      <span class="slide-ad-tag">PUBLICIDADE</span>
+      <div class="slide-content">
+        ${b.titulo    ? `<h3>${b.titulo}</h3>`  : ''}
+        ${b.subtitulo ? `<p>${b.subtitulo}</p>` : ''}
+        ${temLink     ? `<span class="slide-btn">${b.link_texto||'Saiba mais'}</span>` : ''}
+      </div>`;
+    return temLink
+      ? `<a href="${b.link}" target="_blank" rel="noopener" class="carrossel-slide-im">${conteudo}</a>`
+      : `<div class="carrossel-slide-im">${conteudo}</div>`;
+  }).join('');
+  if (carrosselSlides.length > 1) {
+    dots.innerHTML = carrosselSlides.map((_,i) =>
+      `<button class="dot ${i===0?'active':''}" onclick="irParaSlide(${i})"></button>`).join('');
+  }
+  document.getElementById('carrossel-pub').style.display = 'block';
+  if (carrosselSlides.length > 1) iniciarAutoplay();
+  else document.querySelectorAll('.carrossel-btn-im').forEach(b => b.style.display='none');
+}
+function atualizarCarrossel() {
+  document.getElementById('carrossel-track').style.transform = `translateX(-${carrosselIdx*100}%)`;
+  document.querySelectorAll('.carrossel-dots-im .dot').forEach((d,i) => d.classList.toggle('active',i===carrosselIdx));
+}
+function moverCarrossel(dir) {
+  carrosselIdx = (carrosselIdx+dir+carrosselSlides.length)%carrosselSlides.length;
+  atualizarCarrossel(); reiniciarAutoplay();
+}
+function irParaSlide(i) { carrosselIdx=i; atualizarCarrossel(); reiniciarAutoplay(); }
+function iniciarAutoplay() {
+  if (carrosselTimer) clearInterval(carrosselTimer);
+  if (carrosselSlides.length > 1)
+    carrosselTimer = setInterval(() => { carrosselIdx=(carrosselIdx+1)%carrosselSlides.length; atualizarCarrossel(); },5000);
+}
+function reiniciarAutoplay() { iniciarAutoplay(); }
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && carrosselSlides.length > 1) iniciarAutoplay();
+});
 
 // ---- START ----
 window.addEventListener('load', init);
