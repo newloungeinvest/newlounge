@@ -103,8 +103,14 @@
       overflow-x:auto;scrollbar-width:none;
       border-top:1px solid var(--border);
       background:#fff;
+      -webkit-overflow-scrolling:touch;
+      white-space:nowrap;
+      flex-wrap:nowrap;
     }
     .nav-cats::-webkit-scrollbar{display:none;}
+    .nav-cats .nav-cat{flex-shrink:0;}
+    .nav-cats .nav-sep{flex-shrink:0;}
+    .nav-cats .nav-sep-label{flex-shrink:0;}
     .nav-sep{color:#DDE3ED;margin:0 6px;font-size:18px;line-height:42px;flex-shrink:0;}
     .nav-sep-label{
       font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
@@ -919,13 +925,24 @@ function renderProdutos() {
     );
   }
 
-  // Filtro categoria — _vestuario agrupa todas as roupas
+  // Filtro categoria
   if (catAtual === '_vestuario') {
+    // Vestuário: agrupa slugs relacionados
     const catIds = categorias
       .filter(c => VESTUARIO_SLUGS.includes(c.slug))
       .map(c => c.id);
     lista = lista.filter(p => catIds.includes(p.categoria_id));
+  } else if (catAtual === 'ofertas') {
+    // Ofertas: produtos marcados como oferta OU com desconto
+    lista = lista.filter(p => p.oferta === true || (p.preco_promo && p.preco_promo < p.preco));
+  } else if (catAtual === 'lancamentos') {
+    // Lançamentos: produtos marcados como lançamento ou novidade
+    lista = lista.filter(p => p.lancamento === true || p.novidade === true);
+  } else if (catAtual === 'promocoes') {
+    // Promoções: produtos com desconto real
+    lista = lista.filter(p => p.preco_promo && p.preco_promo < p.preco);
   } else if (catAtual) {
+    // Categoria normal: filtra pelo slug da categoria
     lista = lista.filter(p => p.categorias_loja?.slug === catAtual);
   }
 
@@ -971,7 +988,9 @@ function produtoCardHTML(p) {
   const isFav   = favoritosLocal.includes(p.id);
 
   let badge = '';
-  if (p.oferta && pDesc > 0) badge = `<span class="produto-badge badge-oferta">-${pDesc}%</span>`;
+  if (p.oferta) badge = pDesc > 0
+    ? `<span class="produto-badge badge-oferta">-${pDesc}%</span>`
+    : `<span class="produto-badge badge-oferta">🔥 Oferta</span>`;
   else if (p.novidade || p.lancamento) badge = `<span class="produto-badge badge-novo">Novo</span>`;
   else if (p.destaque) badge = `<span class="produto-badge badge-destaque">⭐</span>`;
 
