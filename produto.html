@@ -12,10 +12,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
-      --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
-      --border:#2a2a2a;--cyan:#00E5FF;--cyan2:#80F0FF;
-      --red:#FF3B30;--green:#34C759;--gold:#c9a96e;
-      --text:#F5F5F5;--text2:#999;--text3:#555;
+      --bg:#F5F7FA;--bg2:#FFFFFF;--bg3:#EEF2F7;--bg4:#E5EAF0;
+      --border:#DDE3ED;--cyan:#0066FF;--cyan2:#3385FF;
+      --red:#FF3B30;--green:#28A745;--gold:#c9a96e;
+      --text:#111827;--text2:#6B7280;--text3:#9CA3AF;
       --ff:'Inter',-apple-system,sans-serif;--r:8px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -27,18 +27,18 @@
     /* HEADER */
     .header{
       position:sticky;top:0;z-index:300;
-      background:rgba(10,10,10,.97);backdrop-filter:blur(20px);
+      background:rgba(255,255,255,.97);backdrop-filter:blur(20px);
       border-bottom:1px solid var(--border);
     }
     .header-main{
       padding:0 24px;height:60px;
       display:flex;align-items:center;gap:16px;
     }
-    .logo{font-size:20px;font-weight:800;}
+    .logo{font-size:20px;font-weight:800;color:#111827;}
     .logo span{color:var(--cyan);}
     .h-back{
-      font-size:13px;color:var(--text2);
-      border:1px solid var(--border);padding:7px 16px;border-radius:6px;
+      font-size:13px;color:#6B7280;
+      border:1px solid #DDE3ED;padding:7px 16px;border-radius:6px;
       transition:all .2s;margin-left:auto;
     }
     .h-back:hover{border-color:var(--cyan);color:var(--cyan);}
@@ -61,7 +61,8 @@
       padding:14px 24px;
       display:flex;align-items:center;gap:6px;
       font-size:12px;color:var(--text3);
-      border-bottom:1px solid var(--border);
+      border-bottom:1px solid #DDE3ED;
+      background:#fff;
       overflow-x:auto;white-space:nowrap;
     }
     .breadcrumb a{color:var(--text3);transition:color .2s;}
@@ -287,34 +288,39 @@
 
     /* HERO CATEGORIA */
     .cat-hero{
-      position:relative; height:200px; overflow:hidden;
+      position:relative; height:260px; overflow:hidden;
       display:flex; align-items:flex-end;
       transition:background .5s ease;
     }
     .cat-hero-img{
       position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:0; mix-blend-mode:soft-light;
+      object-fit:cover; opacity:0;
       transition:opacity .5s;
     }
     .cat-hero-overlay{
       position:absolute; inset:0;
-      background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.2) 60%,transparent 100%);
+      background:linear-gradient(to bottom,
+        rgba(0,0,0,.15) 0%,
+        rgba(0,0,0,.35) 50%,
+        rgba(0,0,0,.75) 100%);
     }
     .cat-hero-content{
-      position:relative; z-index:1; padding:0 24px 20px;
+      position:relative; z-index:1; padding:0 28px 24px;
       display:flex; align-items:center; gap:14px; width:100%;
     }
     .cat-hero-badge{
       font-size:10px; letter-spacing:2px; text-transform:uppercase;
       padding:5px 14px; border-radius:999px; font-weight:700;
       white-space:nowrap; border:1px solid;
+      backdrop-filter:blur(8px);
     }
     .cat-hero-nome{
-      font-size:clamp(18px,3vw,26px); font-weight:800;
-      text-shadow:0 2px 12px rgba(0,0,0,.5); line-height:1.2;
+      font-size:clamp(18px,3vw,28px); font-weight:800;
+      text-shadow:0 2px 16px rgba(0,0,0,.8); line-height:1.2;
+      color:#fff;
     }
     @media(max-width:600px){
-      .cat-hero{ height:150px; }
+      .cat-hero{ height:180px; }
       .cat-hero-nome{ font-size:16px; }
     }
   </style>
@@ -386,7 +392,7 @@ async function init() {
   if (!id) { renderErro('Produto não encontrado.'); return; }
 
   const [{ data: prod }, { data: vars }, { data: imgs }] = await Promise.all([
-    sb.from('produtos').select('*,categorias_loja(nome,slug,imagem_url,cor_bg)').eq('id', id).single(),
+    sb.from('produtos').select('*,categorias_loja(nome,slug,imagem_url,imagem_card,cor_bg)').eq('id', id).single(),
     sb.from('variantes_produto').select('*').eq('produto_id', id).eq('ativo', true),
     sb.from('imagens_produto').select('*').eq('produto_id', id).order('ordem'),
   ]);
@@ -431,10 +437,6 @@ async function init() {
   const tema  = TEMAS[slug] || TEMA_DEFAULT;
   const nome  = catData?.nome || 'Esporte';
 
-  // Aplica gradiente temático no body inteiro
-  document.body.style.background = tema.bg;
-  document.body.style.backgroundAttachment = 'fixed';
-
   // Hero
   const heroEl    = document.getElementById('cat-hero');
   const heroImg   = document.getElementById('cat-hero-img');
@@ -443,9 +445,16 @@ async function init() {
 
   heroEl.style.background = tema.bg;
 
-  if (catData?.imagem_url) {
-    heroImg.src = catData.imagem_url;
-    heroImg.onload = () => { heroImg.style.opacity = '0.4'; };
+  // Usa imagem_url se existir, senão usa imagem_card como fallback
+  const imgSrc = catData?.imagem_url || catData?.imagem_card || '';
+  if (imgSrc) {
+    heroImg.src = imgSrc;
+    heroImg.style.mixBlendMode = 'normal';
+    heroImg.style.objectFit = 'cover';
+    heroImg.onload = () => {
+      heroImg.style.transition = 'opacity .5s';
+      heroImg.style.opacity = '1';
+    };
   }
 
   heroBadge.textContent = `${tema.emoji}  ${nome}`;
