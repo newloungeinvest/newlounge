@@ -102,7 +102,6 @@
       display:flex;align-items:center;gap:4px;
       overflow-x:scroll;overflow-y:hidden;
       scrollbar-width:none;-ms-overflow-style:none;
-      border-top:1px solid var(--border);
       background:#fff;
       -webkit-overflow-scrolling:touch;
       flex-wrap:nowrap;
@@ -573,6 +572,22 @@
     .carrossel-dots .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;border:none;padding:0;}
     .carrossel-dots .dot.active{background:#fff;width:24px;border-radius:5px;}
     @media(max-width:768px){.carrossel-slide{aspect-ratio:2/1;}.carrossel-btn{width:34px;height:34px;font-size:20px;}}
+
+    /* SETAS DE NAVEGAÇÃO DO NAV */
+    .nav-cats-wrap{position:relative;border-top:1px solid var(--border);background:#fff;}
+    .nav-seta{
+      position:absolute;top:0;bottom:0;width:36px;z-index:10;
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(to right,#fff 60%,transparent);
+      border:none;cursor:pointer;font-size:18px;color:var(--text2);
+      transition:color .2s;padding:0;
+    }
+    .nav-seta.right{
+      right:0;
+      background:linear-gradient(to left,#fff 60%,transparent);
+    }
+    .nav-seta:hover{color:var(--cyan);}
+    .nav-seta.hidden{display:none;}
   </style>
 </head>
 <body>
@@ -622,7 +637,9 @@
       </button>
     </div>
   </div>
-  <nav class="nav-cats">
+  <div class="nav-cats-wrap">
+    <button class="nav-seta left" id="nav-seta-left" onclick="navScroll(-1)">‹</button>
+    <nav class="nav-cats" id="nav-cats-el">
     <button class="nav-cat active" onclick="filtrarCategoria(null,this)">Todos</button>
     <span class="nav-sep-label">ESPORTES</span>
     <button class="nav-cat" onclick="filtrarCategoria('tenis',this)">🎾 Tênis</button>
@@ -642,6 +659,8 @@
     <button class="nav-cat" onclick="filtrarCategoria('lancamentos',this)">✨ Lançamentos</button>
     <button class="nav-cat" onclick="filtrarCategoria('promocoes',this)">🏷️ Promoções</button>
   </nav>
+    <button class="nav-seta right" id="nav-seta-right" onclick="navScroll(1)">›</button>
+  </div>
 </header>
 
 <!-- ============ HERO ============ -->
@@ -1304,7 +1323,34 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && carrosselSlides.length > 1) iniciarAutoplay();
 });
 
-window.addEventListener('load', () => { init(); atualizarBadge(); });
+
+// ── SETAS DE NAVEGAÇÃO DO NAV ──
+function navScroll(dir) {
+  const nav = document.getElementById('nav-cats-el');
+  if (!nav) return;
+  nav.scrollBy({ left: dir * 200, behavior: 'smooth' });
+  setTimeout(atualizarSetasNav, 350);
+}
+
+function atualizarSetasNav() {
+  const nav = document.getElementById('nav-cats-el');
+  const btnL = document.getElementById('nav-seta-left');
+  const btnR = document.getElementById('nav-seta-right');
+  if (!nav || !btnL || !btnR) return;
+  btnL.classList.toggle('hidden', nav.scrollLeft <= 4);
+  btnR.classList.toggle('hidden', nav.scrollLeft + nav.clientWidth >= nav.scrollWidth - 4);
+}
+
+// Inicializa setas após carregamento
+window.addEventListener('load', () => {
+  const nav = document.getElementById('nav-cats-el');
+  if (nav) {
+    nav.addEventListener('scroll', atualizarSetasNav);
+    setTimeout(atualizarSetasNav, 500);
+  }
+});
+
+window.addEventListener('load', () => { init(); atualizarBadge(); setTimeout(atualizarSetasNav, 800); });
 </script>
 </body>
 </html>
