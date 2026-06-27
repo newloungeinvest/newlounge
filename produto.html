@@ -281,6 +281,34 @@
     }
       .logo img{height:38px;width:auto;display:block;}
     .logo{display:flex;align-items:center;}
+
+    /* HERO CATEGORIA */
+    .cat-hero{
+      position:relative;height:220px;overflow:hidden;
+      display:flex;align-items:flex-end;
+    }
+    .cat-hero-img{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:cover;transition:opacity .4s;
+    }
+    .cat-hero-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.3) 60%,transparent 100%);
+    }
+    .cat-hero-content{
+      position:relative;z-index:1;padding:0 24px 20px;
+      display:flex;align-items:flex-end;gap:16px;width:100%;
+    }
+    .cat-hero-badge{
+      font-size:9px;letter-spacing:2px;text-transform:uppercase;
+      background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);
+      color:#00E5FF;padding:4px 12px;border-radius:999px;font-weight:600;
+      white-space:nowrap;
+    }
+    .cat-hero-nome{
+      font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;
+      text-shadow:0 2px 12px rgba(0,0,0,.6);line-height:1;
+    }
   </style>
 </head>
 <body>
@@ -296,6 +324,17 @@
     </button>
   </div>
 </header>
+
+
+<!-- HERO CATEGORIA -->
+<div class="cat-hero" id="cat-hero" style="display:none;background:#0a0a14;">
+  <img class="cat-hero-img" id="cat-hero-img" src="" alt="">
+  <div class="cat-hero-overlay"></div>
+  <div class="cat-hero-content">
+    <span class="cat-hero-badge" id="cat-hero-badge">Categoria</span>
+    <span class="cat-hero-nome" id="cat-hero-nome"></span>
+  </div>
+</div>
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
@@ -339,7 +378,7 @@ async function init() {
   if (!id) { renderErro('Produto não encontrado.'); return; }
 
   const [{ data: prod }, { data: vars }, { data: imgs }] = await Promise.all([
-    sb.from('produtos').select('*,categorias_loja(nome,slug)').eq('id', id).single(),
+    sb.from('produtos').select('*,categorias_loja(nome,slug,imagem_url,cor_bg)').eq('id', id).single(),
     sb.from('variantes_produto').select('*').eq('produto_id', id).eq('ativo', true),
     sb.from('imagens_produto').select('*').eq('produto_id', id).order('ordem'),
   ]);
@@ -354,6 +393,28 @@ async function init() {
   document.getElementById('og-image').content = prod.foto_principal || '';
   document.getElementById('bc-categoria').textContent = prod.categorias_loja?.nome || 'Produtos';
   document.getElementById('bc-nome').textContent = prod.nome;
+
+  // Hero da categoria
+  const catData = prod.categorias_loja;
+  if (catData) {
+    const heroEl  = document.getElementById('cat-hero');
+    const heroImg = document.getElementById('cat-hero-img');
+    const heroBadge = document.getElementById('cat-hero-badge');
+    const heroNome  = document.getElementById('cat-hero-nome');
+    heroBadge.textContent = catData.nome || 'Categoria';
+    heroNome.textContent  = prod.nome;
+    if (catData.imagem_url) {
+      heroImg.src = catData.imagem_url;
+      heroImg.style.opacity = '0';
+      heroImg.onload = () => { heroImg.style.opacity = '1'; };
+      heroEl.style.display = 'flex';
+    } else if (catData.cor_bg) {
+      heroEl.style.background = catData.cor_bg;
+      heroEl.style.display = 'flex';
+    } else {
+      heroEl.style.display = 'flex';
+    }
+  }
 
   renderProduto();
   carregarRelacionados(prod.categoria_id, prod.id);
@@ -500,7 +561,7 @@ function renderProduto() {
         <!-- GARANTIAS -->
         <div class="garantias">
           <div class="garantia"><span>🔒</span> Compra segura</div>
-          <div class="garantia"><span>🔄</span> 30 dias para trocar</div>
+          <div class="garantia"><span>🔄</span> 7 dias para trocar</div>
           <div class="garantia"><span>🚚</span> Frete grátis acima R$ 299</div>
           <div class="garantia"><span>📦</span> Embalagem reforçada</div>
         </div>
