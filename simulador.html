@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Investimento — New Lounge Invest</title>
+  <meta name="description" content="Simule a viabilidade do seu investimento imobiliário: yield, cap rate, financiamento e fluxo de caixa.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg:#080808; --bg2:#0f0f0f; --bg3:#161616; --bg4:#1e1e1e;
+      --border:#1c1c1c; --border2:#282828;
+      --gold:#c9a96e; --gold2:#e8d5b0;
+      --text:#f0ede6; --text2:#9a9080; --text3:#5a5248;
+      --green:#52c07a; --green-bg:rgba(82,192,122,0.1);
+      --red:#e05252; --red-bg:rgba(224,82,82,0.1);
+      --serif:'Playfair Display',Georgia,serif;
+      --sans:'Inter',-apple-system,Helvetica Neue,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+
+    /* NAV — idêntico ao padrão do site */
+    .nav{
+      position:fixed;top:0;left:0;right:0;z-index:300;
+      padding:0 48px;height:68px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:rgba(8,8,8,0.95);backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-brand .sub{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);}
+    .nav-brand .name{font-size:14px;letter-spacing:3px;text-transform:uppercase;font-weight:600;}
+    .nav-back{
+      font-size:12px;letter-spacing:1px;color:var(--text2);
+      border:1px solid var(--border2);padding:8px 18px;border-radius:2px;
+      transition:all .2s;
+    }
+    .nav-back:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* PAGE HEAD */
+    .page-head{padding:140px 0 40px;}
+    .container{max-width:1180px;margin:0 auto;padding:0 32px;}
+    .eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+    h1{font-family:var(--serif);font-size:clamp(28px,4vw,44px);font-weight:700;line-height:1.15;max-width:680px;}
+    h1 em{font-style:italic;color:var(--gold);}
+    .lede{font-size:15px;color:var(--text2);max-width:560px;margin-top:16px;line-height:1.7;}
+
+    .disclaimer-top{
+      display:inline-flex;align-items:flex-start;gap:10px;
+      background:var(--bg2);border:1px solid var(--border2);border-radius:4px;
+      padding:12px 16px;margin-top:22px;font-size:12px;color:var(--text2);line-height:1.6;max-width:560px;
+    }
+    .disclaimer-top .dot{color:var(--gold);flex-shrink:0;}
+
+    /* LAYOUT */
+    .layout{display:grid;grid-template-columns:400px 1fr;gap:28px;padding-bottom:100px;}
+    @media (max-width:980px){.layout{grid-template-columns:1fr;}}
+
+    .panel{
+      background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:28px;
+    }
+    .panel + .panel{margin-top:18px;}
+    .panel-title{
+      font-family:var(--serif);font-size:15px;font-weight:600;
+      letter-spacing:0.3px;color:var(--text);margin-bottom:18px;
+      padding-bottom:14px;border-bottom:1px solid var(--border);
+    }
+    .panel-title .gold-mark{color:var(--gold);margin-right:6px;}
+
+    /* FORM */
+    .field{margin-bottom:15px;}
+    .field label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:7px;}
+    .field .hint{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;}
+    .field input, .field select{
+      width:100%;background:var(--bg3);border:1px solid var(--border2);
+      border-radius:4px;color:var(--text);font-family:var(--sans);
+      font-size:14.5px;padding:11px 14px;outline:none;transition:border-color .2s;-webkit-appearance:none;
+    }
+    .field input:focus, .field select:focus{border-color:var(--gold);}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .section-divider{border:none;border-top:1px solid var(--border);margin:22px 0;}
+    .micro-label{
+      font-size:10px;letter-spacing:1.5px;color:var(--text3);
+      text-transform:uppercase;margin:18px 0 10px;
+    }
+
+    /* KPI CARDS */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    @media (max-width:760px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+    .kpi{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:18px;}
+    .kpi-label{font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+    .kpi-value{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--text);line-height:1;}
+    .kpi-value.gold{color:var(--gold);}
+    .kpi-sub{font-size:10.5px;color:var(--text3);margin-top:8px;line-height:1.4;}
+
+    .status-strip{
+      display:flex;align-items:center;gap:10px;padding:14px 18px;
+      border-radius:4px;margin-bottom:22px;font-size:13.5px;line-height:1.5;
+    }
+    .status-strip.neg{background:var(--red-bg);border:1px solid rgba(224,82,82,0.3);color:#e89a9a;}
+    .status-strip.pos{background:var(--green-bg);border:1px solid rgba(82,192,122,0.3);color:#9ad6ae;}
+    .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+    .status-dot.neg{background:var(--red);}
+    .status-dot.pos{background:var(--green);}
+
+    /* TABLE */
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{
+      text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;
+      color:var(--text3);font-weight:500;padding:10px 4px;border-bottom:1px solid var(--border);
+    }
+    td{padding:10px 4px;border-bottom:1px solid var(--border);color:var(--text);}
+    tr:last-child td{border-bottom:none;}
+    td.num{font-family:var(--sans);text-align:right;}
+    td.neg-val{color:var(--red);}
+    td.pos-val{color:var(--green);}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    @media (max-width:760px){.two-col{grid-template-columns:1fr;}}
+
+    .compare-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .compare-cell{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:14px;text-align:center;}
+    .compare-cell .clabel{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .compare-cell .cval{font-family:var(--serif);font-size:18px;color:var(--text);}
+
+    /* FOOTNOTES */
+    .footnote-box{
+      background:var(--bg3);border-left:2px solid var(--gold);border-radius:0 4px 4px 0;
+      padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.65;margin-top:16px;
+    }
+    .footnote-box strong{color:var(--text);}
+
+    .footer-disclaimer{
+      margin-top:50px;border-top:1px solid var(--border);padding-top:28px;
+      font-size:11.5px;color:var(--text3);line-height:1.8;
+    }
+    .footer-disclaimer p{margin:0 0 10px;}
+
+    /* FOOTER bar */
+    .footer{
+      border-top:1px solid var(--border);padding:28px 0;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    }
+    .footer-copy{font-size:12px;color:var(--text3);}
+
+    @media(max-width:768px){
+      .nav{padding:0 16px;}
+      .container{padding:0 16px;}
+      .page-head{padding:120px 0 32px;}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="sub">Private Real Estate</div>
+    <div class="name">New Lounge Invest</div>
+  </div>
+  <a class="nav-back" href="/">← Portfólio</a>
+</nav>
+
+<div class="page-head">
+  <div class="container">
+    <div class="eyebrow">Ferramenta de análise</div>
+    <h1>Simule a <em>viabilidade</em><br>do seu investimento</h1>
+    <p class="lede">Preencha os dados do imóvel que está avaliando. Os indicadores — yield, cap rate, financiamento e fluxo de caixa — são recalculados automaticamente, em tempo real.</p>
+    <div class="disclaimer-top">
+      <span class="dot">◆</span>
+      <span>Ferramenta de simulação. Resultados são projeções, não garantia de rentabilidade. Confirme taxas e custos com seu curador patrimonial antes de decidir.</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="layout">
+
+    <!-- ===================== COLUNA DE INPUTS ===================== -->
+    <div>
+      <div class="panel">
+        <div class="panel-title"><span class="gold-mark">◆</span>Dados do imóvel</div>
+
+        <div class="field">
+          <label for="precoImovel">Preço de compra (R$)</label>
+          <input type="text" id="precoImovel" inputmode="decimal" value="1.105.350,34">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="areaImovel">Área privativa (m²)</label>
+            <input type="text" id="areaImovel" inputmode="decimal" value="94,20">
+          </div>
+          <div class="field">
+            <label for="pctEntrada">Entrada (%)</label>
+            <input type="text" id="pctEntrada" inputmode="decimal" value="40">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="panel-title" style="margin-bottom:14px;border:none;padding:0;font-size:13px;">Custos de aquisição</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="itbiPct">ITBI (%)</label>
+            <input type="text" id="itbiPct" inputmode="decimal" value="2,5">
+          </div>
+          <div class="field">
+            <label for="escritPct">Escritura+Registro (%)</label>
+            <input type="text" id="escritPct" inputmode="decimal" value="1,5">
+            <div class="hint">Estimativa — confirme com cartório</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="taxasBanc">Taxas bancárias (R$)</label>
+            <input type="text" id="taxasBanc" inputmode="decimal" value="3.500,00">
+          </div>
+          <div class="field">
+            <label for="contingPct">Contingência (%)</label>
+            <input type="text" id="contingPct" inputmode="decimal" value="2">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="panel-title" style="margin-bottom:14px;border:none;padding:0;font-size:13px;">Locação</div>
+        <div class="field">
+          <label for="aluguelMensal">Aluguel mensal estimado (R$)</label>
+          <input type="text" id="aluguelMensal" inputmode="decimal" value="5.500,00">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="vacanciaPct">Vacância (%)</label>
+            <input type="text" id="vacanciaPct" inputmode="decimal" value="5">
+          </div>
+          <div class="field">
+            <label for="taxaAdmPct">Taxa de administração (%)</label>
+            <input type="text" id="taxaAdmPct" inputmode="decimal" value="8">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="seguroAnual">Seguro anual (R$)</label>
+            <input type="text" id="seguroAnual" inputmode="decimal" value="600,00">
+          </div>
+          <div class="field">
+            <label for="manutAnual">Manutenção anual (R$)</label>
+            <input type="text" id="manutAnual" inputmode="decimal" value="1.200,00">
+          </div>
+        </div>
+        <div class="field">
+          <label for="reservaAnual">Reserva para reparos (R$/ano)</label>
+          <input type="text" id="reservaAnual" inputmode="decimal" value="600,00">
+        </div>
+
+        <hr class="section-divider">
+        <div class="panel-title" style="margin-bottom:14px;border:none;padding:0;font-size:13px;">Financiamento</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="taxaJurosAa">Taxa de juros (% a.a. + TR)</label>
+            <input type="text" id="taxaJurosAa" inputmode="decimal" value="11,5">
+            <div class="hint">Estimativa de mercado — confirme com simulação bancária</div>
+          </div>
+          <div class="field">
+            <label for="prazoMeses">Prazo (meses)</label>
+            <input type="text" id="prazoMeses" inputmode="numeric" value="360">
+          </div>
+        </div>
+        <div class="field">
+          <label for="sistemaAmort">Sistema de amortização</label>
+          <select id="sistemaAmort">
+            <option value="SAC" selected>SAC (parcelas decrescentes)</option>
+            <option value="PRICE">PRICE (parcelas fixas)</option>
+          </select>
+        </div>
+
+        <hr class="section-divider">
+        <div class="panel-title" style="margin-bottom:14px;border:none;padding:0;font-size:13px;">Projeção de 10 anos</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="reajusteAnual">Reajuste anual do aluguel (%)</label>
+            <input type="text" id="reajusteAnual" inputmode="decimal" value="5">
+          </div>
+          <div class="field">
+            <label for="valorizAnual">Valorização anual do imóvel (%)</label>
+            <input type="text" id="valorizAnual" inputmode="decimal" value="5">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== COLUNA DE RESULTADOS ===================== -->
+    <div>
+
+      <div id="statusStrip" class="status-strip pos">
+        <div class="status-dot pos"></div>
+        <div id="statusText">Calculando...</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="gold-mark">◆</span>Indicadores principais</div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Yield bruto</div>
+            <div class="kpi-value gold" id="kpiYield">—</div>
+            <div class="kpi-sub">Receita anual ÷ preço de compra</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Cap rate</div>
+            <div class="kpi-value gold" id="kpiCapRate">—</div>
+            <div class="kpi-sub">NOI ÷ custo total de aquisição</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">NOI anual</div>
+            <div class="kpi-value" id="kpiNoi">—</div>
+            <div class="kpi-sub">Receita operacional líquida</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Payback operacional</div>
+            <div class="kpi-value" id="kpiPayback">—</div>
+            <div class="kpi-sub">Custo total ÷ NOI anual</div>
+          </div>
+        </div>
+
+        <div class="micro-label">Composição da receita e do custo</div>
+        <table>
+          <tr><th>Indicador</th><th style="text-align:right;">Valor</th></tr>
+          <tr><td>Receita anual bruta</td><td class="num" id="tReceitaBruta">—</td></tr>
+          <tr><td>Vacância (R$/ano)</td><td class="num" id="tVacancia">—</td></tr>
+          <tr><td>Administração imobiliária (R$/ano)</td><td class="num" id="tAdmin">—</td></tr>
+          <tr><td>Seguro + manutenção + reserva (R$/ano)</td><td class="num" id="tSegManut">—</td></tr>
+          <tr><td>Custo total de aquisição</td><td class="num" id="tCustoTotal">—</td></tr>
+          <tr><td>Valor por m²</td><td class="num" id="tValorM2">—</td></tr>
+          <tr><td>Capital próprio necessário</td><td class="num" id="tCapitalProprio">—</td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="gold-mark">◆</span>Financiamento e cash-on-cash</div>
+        <div class="two-col">
+          <div>
+            <div class="micro-label" style="margin-top:0;">Parcela inicial (1º mês)</div>
+            <div class="kpi">
+              <div class="kpi-value" id="kpiParcelaInicial">—</div>
+              <div class="kpi-sub" id="kpiSistemaLabel">—</div>
+            </div>
+          </div>
+          <div>
+            <div class="micro-label" style="margin-top:0;">Fluxo de caixa após dívida (Ano 1)</div>
+            <div class="kpi">
+              <div class="kpi-value" id="kpiFluxoCaixa">—</div>
+              <div class="kpi-sub">Aluguel − parcela − despesas</div>
+            </div>
+          </div>
+        </div>
+        <table>
+          <tr><th>Indicador</th><th style="text-align:right;">Valor</th></tr>
+          <tr><td>Valor financiado</td><td class="num" id="tValorFinanciado">—</td></tr>
+          <tr><td>Parcela anual (Ano 1)</td><td class="num" id="tParcelaAnual">—</td></tr>
+          <tr><td>Capital próprio investido</td><td class="num" id="tCapitalInvestido">—</td></tr>
+          <tr><td>Cash-on-cash return</td><td class="num" id="tCashOnCash">—</td></tr>
+        </table>
+        <div class="footnote-box" id="cashOnCashNote"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="gold-mark">◆</span>Aluguel mensal vs. parcela do financiamento</div>
+        <div class="compare-row">
+          <div class="compare-cell">
+            <div class="clabel">Aluguel mensal</div>
+            <div class="cval" id="compAluguel">—</div>
+          </div>
+          <div class="compare-cell">
+            <div class="clabel">Parcela inicial</div>
+            <div class="cval" id="compParcela">—</div>
+          </div>
+          <div class="compare-cell">
+            <div class="clabel">Diferença</div>
+            <div class="cval" id="compDiferenca">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="gold-mark">◆</span>Projeção de fluxo de caixa — 10 anos</div>
+        <table>
+          <tr>
+            <th>Ano</th><th style="text-align:right;">Aluguel mensal</th>
+            <th style="text-align:right;">NOI</th>
+            <th style="text-align:right;">Fluxo após dívida</th>
+            <th style="text-align:right;">Valor do imóvel</th>
+          </tr>
+          <tbody id="tabelaFluxo10"></tbody>
+        </table>
+        <div class="footnote-box">
+          <strong>Resultado consolidado em 10 anos:</strong> <span id="resumoFluxo10"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-disclaimer">
+    <p><strong>Sobre esta ferramenta:</strong> este simulador calcula indicadores financeiros (yield, cap rate, NOI, cash-on-cash return e projeção de fluxo de caixa) com base exclusivamente nos dados inseridos. Todos os resultados são projeções e estimativas — não constituem garantia de rentabilidade, recomendação de investimento, consultoria financeira ou jurídica.</p>
+    <p>A taxa de juros padrão exibida é uma referência de mercado pesquisada para o setor de financiamento imobiliário e não representa cotação oficial nem condição pré-aprovada. Custos de escritura, registro e taxas bancárias são estimativas — confirme valores reais com cartório e instituição financeira antes de qualquer decisão.</p>
+    <p>Resultados não consideram Imposto de Renda sobre aluguel ou ganho de capital. A New Lounge Invest recomenda que toda decisão de compra seja revisada por corretor de imóveis, contador e instituição financeira.</p>
+  </div>
+
+  <div class="footer">
+    <span class="footer-copy">© MMXXVI NEW LOUNGE INVEST</span>
+    <a href="/" style="font-size:13px;color:var(--gold);">← Ver todo o portfólio</a>
+  </div>
+
+</div>
+
+<script>
+(function(){
+
+  // ---------- PRÉ-PREENCHIMENTO VIA URL ----------
+  // Aceita ?preco=1200000&area=85 direto na URL, ou ?id=<uuid> para buscar do Supabase
+  async function prefillFromQuery(){
+    var params = new URLSearchParams(window.location.search);
+    var precoParam = params.get('preco');
+    var areaParam = params.get('area');
+    var idParam = params.get('id');
+
+    if (precoParam) {
+      var n = parseFloat(precoParam);
+      if (!isNaN(n)) document.getElementById('precoImovel').value = n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    if (areaParam) {
+      var a = parseFloat(areaParam);
+      if (!isNaN(a)) document.getElementById('areaImovel').value = a.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    if (idParam && window.supabase) {
+      try {
+        var SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
+        var SUPABASE_KEY = 'sb_publishable_jnYS9jYYd4Oq5D8XD24a4w_CFNvXy_y';
+        var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        var res = await sb.from('imoveis').select('preco,area_m2,titulo').eq('id', idParam).single();
+        if (res.data) {
+          if (res.data.preco) {
+            document.getElementById('precoImovel').value = Number(res.data.preco).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+          }
+          if (res.data.area_m2) {
+            document.getElementById('areaImovel').value = Number(res.data.area_m2).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+          }
+          if (res.data.titulo) {
+            document.title = 'Simulador — ' + res.data.titulo + ' — New Lounge Invest';
+          }
+        }
+      } catch(e) { /* silencioso: mantém defaults se falhar */ }
+    }
+  }
+
+  // ---------- HELPERS ----------
+  function parseBR(str){
+    if (typeof str !== 'string') return Number(str) || 0;
+    var clean = str.replace(/[^\d,.-]/g,'');
+    clean = clean.replace(/\./g,'').replace(',', '.');
+    var n = parseFloat(clean);
+    return isNaN(n) ? 0 : n;
+  }
+  function fmtBRL(n){
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+  }
+  function fmtBRL2(n){
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:2});
+  }
+  function fmtPct(n){
+    if (!isFinite(n)) return '—';
+    return (n*100).toLocaleString('pt-BR', {maximumFractionDigits:2, minimumFractionDigits:2}) + '%';
+  }
+  function fmtYears(n){
+    if (!isFinite(n) || n < 0) return 'N/A';
+    return n.toLocaleString('pt-BR', {maximumFractionDigits:1}) + ' anos';
+  }
+  function $(id){ return document.getElementById(id); }
+  function val(id){ return parseBR($(id).value); }
+
+  function pmt(ratePerPeriod, nPeriods, presentValue){
+    if (ratePerPeriod === 0) return presentValue / nPeriods;
+    var r = ratePerPeriod;
+    return (presentValue * r) / (1 - Math.pow(1+r, -nPeriods));
+  }
+
+  // ---------- CORE CALC ----------
+  function calcular(){
+    var precoImovel = val('precoImovel');
+    var area = val('areaImovel');
+    var pctEntrada = val('pctEntrada')/100;
+    var pctFinanciado = 1 - pctEntrada;
+
+    var itbiPct = val('itbiPct')/100;
+    var escritPct = val('escritPct')/100;
+    var taxasBanc = val('taxasBanc');
+    var contingPct = val('contingPct')/100;
+
+    var aluguelMensal = val('aluguelMensal');
+    var vacanciaPct = val('vacanciaPct')/100;
+    var taxaAdmPct = val('taxaAdmPct')/100;
+    var seguroAnual = val('seguroAnual');
+    var manutAnual = val('manutAnual');
+    var reservaAnual = val('reservaAnual');
+
+    var taxaJurosAa = val('taxaJurosAa')/100;
+    var prazoMeses = val('prazoMeses');
+    var sistema = $('sistemaAmort').value;
+
+    var reajusteAnual = val('reajusteAnual')/100;
+    var valorizAnual = val('valorizAnual')/100;
+
+    if (precoImovel <= 0 || area <= 0 || prazoMeses <= 0) {
+      return;
+    }
+
+    var itbiVal = precoImovel * itbiPct;
+    var escritVal = precoImovel * escritPct;
+    var contingVal = precoImovel * contingPct;
+    var custoTotal = precoImovel + itbiVal + escritVal + taxasBanc + contingVal;
+
+    var receitaBruta = aluguelMensal * 12;
+    var vacanciaRS = receitaBruta * vacanciaPct;
+    var adminRS = receitaBruta * taxaAdmPct;
+    var noi = receitaBruta - vacanciaRS - adminRS - seguroAnual - manutAnual - reservaAnual;
+
+    var yieldBruto = receitaBruta / precoImovel;
+    var capRate = noi / custoTotal;
+    var payback = noi > 0 ? custoTotal / noi : Infinity;
+    var valorM2 = precoImovel / area;
+    var capitalProprio = (precoImovel * pctEntrada) + (custoTotal - precoImovel);
+
+    var valorFinanciado = precoImovel * pctFinanciado;
+    var taxaMensal = Math.pow(1+taxaJurosAa, 1/12) - 1;
+    var parcelaInicial, sistemaLabel;
+    if (sistema === 'PRICE') {
+      parcelaInicial = pmt(taxaMensal, prazoMeses, valorFinanciado);
+      sistemaLabel = 'PRICE — parcela fixa durante todo o contrato';
+    } else {
+      var amortConstante = valorFinanciado / prazoMeses;
+      parcelaInicial = amortConstante + valorFinanciado * taxaMensal;
+      sistemaLabel = 'SAC — parcela decresce ao longo do contrato';
+    }
+
+    var saldo = valorFinanciado;
+    var parcelaAnual1 = 0;
+    var amortConst = valorFinanciado / prazoMeses;
+    var pmtPrice = sistema === 'PRICE' ? pmt(taxaMensal, prazoMeses, valorFinanciado) : 0;
+    for (var m=0; m<12 && m<prazoMeses; m++){
+      var juros = saldo * taxaMensal;
+      var amort, parcela;
+      if (sistema === 'PRICE'){
+        parcela = pmtPrice;
+        amort = parcela - juros;
+      } else {
+        amort = amortConst;
+        parcela = amort + juros;
+      }
+      parcelaAnual1 += parcela;
+      saldo -= amort;
+    }
+
+    var fluxoCaixaAposDivida = noi - parcelaAnual1;
+    var cashOnCash = capitalProprio > 0 ? fluxoCaixaAposDivida / capitalProprio : NaN;
+
+    var strip = $('statusStrip');
+    var stripDot = strip.querySelector('.status-dot');
+    var stripText = $('statusText');
+    if (fluxoCaixaAposDivida >= 0) {
+      strip.className = 'status-strip pos';
+      stripDot.className = 'status-dot pos';
+      stripText.textContent = 'Fluxo de caixa após dívida positivo no Ano 1: o aluguel projetado cobre a parcela do financiamento e as despesas operacionais.';
+    } else {
+      strip.className = 'status-strip neg';
+      stripDot.className = 'status-dot neg';
+      stripText.textContent = 'Fluxo de caixa após dívida negativo no Ano 1: o aluguel projetado não cobre a parcela do financiamento e as despesas — haveria desembolso mensal do investidor.';
+    }
+
+    $('kpiYield').textContent = fmtPct(yieldBruto);
+    $('kpiCapRate').textContent = fmtPct(capRate);
+    $('kpiNoi').textContent = fmtBRL(noi);
+    $('kpiPayback').textContent = fmtYears(payback);
+
+    $('tReceitaBruta').textContent = fmtBRL(receitaBruta);
+    $('tVacancia').textContent = fmtBRL(vacanciaRS);
+    $('tAdmin').textContent = fmtBRL(adminRS);
+    $('tSegManut').textContent = fmtBRL(seguroAnual+manutAnual+reservaAnual);
+    $('tCustoTotal').textContent = fmtBRL(custoTotal);
+    $('tValorM2').textContent = fmtBRL2(valorM2);
+    $('tCapitalProprio').textContent = fmtBRL(capitalProprio);
+
+    $('kpiParcelaInicial').textContent = fmtBRL2(parcelaInicial);
+    $('kpiSistemaLabel').textContent = sistemaLabel;
+    $('kpiFluxoCaixa').textContent = fmtBRL(fluxoCaixaAposDivida);
+
+    $('tValorFinanciado').textContent = fmtBRL(valorFinanciado);
+    $('tParcelaAnual').textContent = fmtBRL(parcelaAnual1);
+    $('tCapitalInvestido').textContent = fmtBRL(capitalProprio);
+    var cocCell = $('tCashOnCash');
+    cocCell.textContent = fmtPct(cashOnCash);
+    cocCell.className = 'num ' + (cashOnCash >= 0 ? 'pos-val' : 'neg-val');
+
+    $('cashOnCashNote').innerHTML = '<strong>Cash-on-cash return</strong> mede o retorno sobre o capital próprio efetivamente investido (entrada + custos não financiados), considerando o financiamento. ' +
+      (cashOnCash < 0 ? 'Valor negativo indica que, neste cenário, o investidor precisaria aportar capital adicional todo ano para sustentar o imóvel financiado.' : 'Valor positivo indica que o fluxo de aluguel, após pagar a dívida, gera retorno sobre o capital investido.');
+
+    $('compAluguel').textContent = fmtBRL2(aluguelMensal);
+    $('compParcela').textContent = fmtBRL2(parcelaInicial);
+    var dif = aluguelMensal - parcelaInicial;
+    var difCell = $('compDiferenca');
+    difCell.textContent = (dif>=0?'+':'') + fmtBRL2(dif);
+    difCell.style.color = dif >= 0 ? 'var(--green)' : 'var(--red)';
+
+    var tbody = $('tabelaFluxo10');
+    tbody.innerHTML = '';
+    var aluguelY = aluguelMensal;
+    var imovelY = precoImovel;
+    var somaFluxo = 0;
+    var parcelaAnualY = parcelaAnual1;
+
+    for (var y=1; y<=10; y++){
+      if (y>1){
+        aluguelY = aluguelY * (1+reajusteAnual);
+        imovelY = imovelY * (1+valorizAnual);
+        if (sistema !== 'PRICE'){
+          parcelaAnualY = parcelaAnualY * 0.97;
+        }
+      }
+      var receitaY = aluguelY * 12;
+      var noiY = receitaY - (receitaY*vacanciaPct) - (receitaY*taxaAdmPct) - seguroAnual - manutAnual - reservaAnual;
+      var fluxoY = noiY - parcelaAnualY;
+      somaFluxo += fluxoY;
+
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+y+'</td>' +
+        '<td class="num">'+fmtBRL2(aluguelY)+'</td>' +
+        '<td class="num">'+fmtBRL(noiY)+'</td>' +
+        '<td class="num '+(fluxoY>=0?'pos-val':'neg-val')+'">'+fmtBRL(fluxoY)+'</td>' +
+        '<td class="num">'+fmtBRL(imovelY)+'</td>';
+      tbody.appendChild(tr);
+    }
+    var valorizacaoTotal = imovelY - precoImovel;
+    var resultadoTotal = somaFluxo + valorizacaoTotal;
+    $('resumoFluxo10').textContent = 'Fluxo de caixa operacional acumulado: ' + fmtBRL(somaFluxo) +
+      ' · Valorização patrimonial projetada: ' + fmtBRL(valorizacaoTotal) +
+      ' · Resultado total projetado: ' + fmtBRL(resultadoTotal) + '.';
+  }
+
+  var inputs = document.querySelectorAll('input, select');
+  inputs.forEach(function(inp){
+    inp.addEventListener('input', calcular);
+    inp.addEventListener('change', calcular);
+  });
+
+  prefillFromQuery().then(calcular);
+})();
+</script>
+</body>
+</html>
