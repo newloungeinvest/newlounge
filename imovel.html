@@ -209,6 +209,102 @@
     }
     .footer-copy{font-size:12px;color:var(--text3);}
 
+    /* FOOTER */
+    .footer{
+      border-top:1px solid var(--border);padding:28px 0;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    }
+    .footer-copy{font-size:12px;color:var(--text3);}
+
+    /* ---- VÍDEOS ---- */
+    .videos-section{margin:28px 0;}
+    .videos-section h3{
+      font-family:var(--serif);font-size:20px;font-weight:600;
+      margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);
+    }
+    .videos-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:14px;
+    }
+    .video-card{
+      position:relative;border-radius:6px;overflow:hidden;
+      background:var(--bg3);border:1px solid var(--border2);
+      cursor:pointer;transition:border-color .2s,transform .2s;
+    }
+    .video-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+    .video-thumb-wrap{
+      position:relative;aspect-ratio:16/9;
+      background:var(--bg);overflow:hidden;
+    }
+    .video-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+    .video-play-btn{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.4);transition:background .2s;
+    }
+    .video-card:hover .video-play-btn{background:rgba(0,0,0,.6);}
+    .video-play-icon{
+      width:52px;height:52px;border-radius:50%;
+      background:rgba(201,169,110,.9);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;padding-left:4px;
+    }
+    .video-type-badge{
+      position:absolute;top:8px;right:8px;
+      font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:600;
+      background:rgba(8,8,8,.85);color:var(--gold);
+      padding:3px 8px;border-radius:2px;
+    }
+    .video-label{padding:10px 12px;font-size:12px;color:var(--text3);}
+
+    /* LIGHTBOX VÍDEO */
+    .video-lightbox{
+      position:fixed;inset:0;z-index:999;
+      background:rgba(0,0,0,.95);
+      display:flex;align-items:center;justify-content:center;
+      padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;
+    }
+    .video-lightbox.open{opacity:1;pointer-events:all;}
+    .video-lightbox-inner{
+      position:relative;width:100%;max-width:900px;
+    }
+    .video-lightbox-wrap{
+      position:relative;padding-bottom:56.25%;height:0;
+      background:var(--bg3);border-radius:6px;overflow:hidden;
+    }
+    .video-lightbox-wrap iframe,
+    .video-lightbox-wrap video{
+      position:absolute;top:0;left:0;width:100%;height:100%;border:none;
+    }
+    .video-lightbox-close{
+      position:absolute;top:-40px;right:0;
+      background:none;border:none;color:var(--text2);
+      font-size:28px;cursor:pointer;line-height:1;
+      transition:color .2s;
+    }
+    .video-lightbox-close:hover{color:var(--gold);}
+
+    /* ---- MAPA ---- */
+    .map-section{margin:28px 0;}
+    .map-section h3{
+      font-family:var(--serif);font-size:20px;font-weight:600;
+      margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);
+    }
+    .map-frame{
+      border-radius:6px;overflow:hidden;
+      border:1px solid var(--border2);height:320px;
+    }
+    .map-frame iframe{width:100%;height:100%;border:none;display:block;}
+    .map-address-row{
+      display:flex;align-items:center;gap:10px;margin-top:10px;
+      font-size:13px;color:var(--text2);
+    }
+    .map-address-row a{
+      color:var(--gold);font-size:12px;letter-spacing:.5px;
+      border:1px solid rgba(201,169,110,.3);padding:4px 12px;border-radius:2px;
+      transition:all .2s;
+    }
+    .map-address-row a:hover{background:rgba(201,169,110,.1);}
+
     /* ERROR */
     .error-state{
       min-height:70vh;display:flex;flex-direction:column;
@@ -256,6 +352,14 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- LIGHTBOX VÍDEO -->
+<div class="video-lightbox" id="video-lightbox" onclick="fecharVideoLightbox(event)">
+  <div class="video-lightbox-inner">
+    <button class="video-lightbox-close" onclick="fecharVideo()">×</button>
+    <div class="video-lightbox-wrap" id="video-lightbox-wrap"></div>
+  </div>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://cdobspwhlvspoxblorfx.supabase.co';
@@ -392,6 +496,53 @@ function renderImovel(im) {
           </div>
         ` : ''}
 
+        <!-- Vídeos -->
+        ${(im.videos && im.videos.length) ? `
+          <div class="videos-section">
+            <h3>Vídeos do empreendimento</h3>
+            <div class="videos-grid">
+              ${im.videos.map((url, i) => {
+                const tipo = detectarTipoVideoPublic(url);
+                const thumb = thumbVideoPublic(url, tipo);
+                const tipoLabel = { youtube: 'YouTube', vimeo: 'Vimeo', instagram: 'Instagram', direto: 'Vídeo', link: 'Vídeo' }[tipo] || 'Vídeo';
+                return `
+                  <div class="video-card" onclick="abrirVideo('${url}','${tipo}')">
+                    <div class="video-thumb-wrap">
+                      ${thumb ? `<img src="${thumb}" alt="Vídeo ${i+1}" loading="lazy">` : '<div style="width:100%;height:100%;background:var(--bg3);"></div>'}
+                      <div class="video-play-btn">
+                        <div class="video-play-icon">▶</div>
+                      </div>
+                      <span class="video-type-badge">${tipoLabel}</span>
+                    </div>
+                    <div class="video-label">Vídeo ${i + 1}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Mapa -->
+        ${(im.lat && im.lng) ? `
+          <div class="map-section">
+            <h3>Localização</h3>
+            <div class="map-frame">
+              <iframe
+                src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(im.lng)-0.005},${parseFloat(im.lat)-0.004},${parseFloat(im.lng)+0.005},${parseFloat(im.lat)+0.004}&layer=mapnik&marker=${im.lat},${im.lng}"
+                loading="lazy"
+                title="Localização do imóvel"
+                allowfullscreen>
+              </iframe>
+            </div>
+            <div class="map-address-row">
+              <span>📍 ${im.localizacao || 'Ver no mapa'}</span>
+              <a href="https://www.google.com/maps?q=${im.lat},${im.lng}" target="_blank" rel="noopener">
+                Abrir no Google Maps →
+              </a>
+            </div>
+          </div>
+        ` : ''}
+
         <!-- CTA -->
         <div class="cta-section">
           <div class="cta-txt">
@@ -488,7 +639,78 @@ window.addEventListener('load', init);
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' && fotos.length > 1) navFoto(1);
   if (e.key === 'ArrowLeft'  && fotos.length > 1) navFoto(-1);
+  if (e.key === 'Escape') fecharVideo();
 });
+
+// ================================================================
+// ---- VÍDEO: funções públicas ----
+// ================================================================
+
+function detectarTipoVideoPublic(url) {
+  if (!url) return 'link';
+  if (/youtu\.be\/|youtube\.com\/(watch|shorts|embed)/.test(url)) return 'youtube';
+  if (/vimeo\.com/.test(url)) return 'vimeo';
+  if (/instagram\.com\/(reel|p|tv)/.test(url)) return 'instagram';
+  if (/\.mp4|\.webm/.test(url)) return 'direto';
+  return 'link';
+}
+
+function thumbVideoPublic(url, tipo) {
+  if (tipo === 'youtube') {
+    const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([A-Za-z0-9_-]{11})/);
+    return m ? `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg` : null;
+  }
+  return null;
+}
+
+function embedUrl(url, tipo) {
+  if (tipo === 'youtube') {
+    const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([A-Za-z0-9_-]{11})/);
+    if (m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`;
+  }
+  if (tipo === 'vimeo') {
+    const m = url.match(/vimeo\.com\/(\d+)/);
+    if (m) return `https://player.vimeo.com/video/${m[1]}?autoplay=1`;
+  }
+  if (tipo === 'instagram') {
+    // Extrai a URL base do post
+    const m = url.match(/(https:\/\/www\.instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+)/);
+    if (m) return `${m[1]}/embed/`;
+  }
+  return null;
+}
+
+function abrirVideo(url, tipo) {
+  const lb   = document.getElementById('video-lightbox');
+  const wrap = document.getElementById('video-lightbox-wrap');
+  const src  = embedUrl(url, tipo);
+
+  if (src) {
+    wrap.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+  } else if (tipo === 'direto') {
+    wrap.innerHTML = `<video src="${url}" controls autoplay style="position:absolute;top:0;left:0;width:100%;height:100%;background:#000;"></video>`;
+  } else {
+    // Abre em nova aba para links não embeddáveis
+    window.open(url, '_blank');
+    return;
+  }
+
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharVideo() {
+  const lb   = document.getElementById('video-lightbox');
+  const wrap = document.getElementById('video-lightbox-wrap');
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+  // Pequeno delay pra parar o áudio antes de remover o iframe
+  setTimeout(() => { wrap.innerHTML = ''; }, 300);
+}
+
+function fecharVideoLightbox(e) {
+  if (e.target === document.getElementById('video-lightbox')) fecharVideo();
+}
 </script>
 </body>
 </html>

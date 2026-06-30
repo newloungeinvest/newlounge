@@ -398,6 +398,46 @@
     }
     .foto-count { font-size: 12px; color: var(--text2); margin-top: 6px; }
 
+    /* ---- VÍDEOS ---- */
+    .video-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .video-item {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 10px 14px;
+    }
+    .video-thumb {
+      width: 72px; height: 48px; border-radius: 3px;
+      background: var(--bg); overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text3); font-size: 22px;
+    }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .video-info { flex: 1; min-width: 0; }
+    .video-info span { font-size: 12px; color: var(--text2); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .video-add-row { display: flex; gap: 8px; margin-top: 8px; }
+    .video-add-row input { flex: 1; margin: 0; }
+
+    /* ---- MAPA ---- */
+    .map-preview {
+      width: 100%; height: 240px;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      position: relative; margin-top: 8px;
+    }
+    .map-preview iframe { width: 100%; height: 100%; border: none; display: block; }
+    .map-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text3); gap: 8px; font-size: 13px;
+    }
+    .map-placeholder-ico { font-size: 36px; }
+    .coord-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: flex-end; margin-top: 8px; }
+    .coord-row .form-group { margin: 0; }
+    .map-status { font-size: 11px; color: var(--text3); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+    .map-status.ok { color: var(--success); }
+    .map-status.err { color: var(--danger); }
+
     /* ---- TOAST ---- */
     .toast {
       position: fixed; bottom: 24px; right: 24px;
@@ -644,6 +684,39 @@
       <div class="fotos-grid" id="fotos-preview"></div>
       <p class="foto-count" id="foto-count"></p>
 
+      <!-- VÍDEOS DO EMPREENDIMENTO -->
+      <div class="section-title">🎬 Vídeos do empreendimento</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;">Cole links do YouTube, Vimeo ou Instagram Reels. Ex: <code style="font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:3px;">https://youtu.be/abc123</code></p>
+      <div id="video-list" class="video-list"></div>
+      <div class="video-add-row">
+        <input type="text" id="f-video-url" placeholder="Cole o link do vídeo aqui..." oninput="previewVideoThumb()">
+        <button class="btn btn-ghost btn-sm" onclick="adicionarVideo()">+ Adicionar</button>
+      </div>
+      <p id="video-count" class="foto-count" style="margin-top:6px;"></p>
+
+      <!-- LOCALIZAÇÃO PRECISA — MAPA -->
+      <div class="section-title">📍 Localização precisa no mapa</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;">Informe as coordenadas para exibir o mapa exato do empreendimento na página do imóvel.</p>
+      <div class="coord-row">
+        <div class="form-group">
+          <label>Latitude</label>
+          <input type="text" id="f-lat" placeholder="-9.66567" oninput="atualizarMapa()">
+        </div>
+        <div class="form-group">
+          <label>Longitude</label>
+          <input type="text" id="f-lng" placeholder="-35.73502" oninput="atualizarMapa()">
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="buscarCoordenadas()" title="Buscar coordenadas pelo endereço" style="margin-bottom:0;height:40px;">🔍 Buscar</button>
+      </div>
+      <div id="map-status" class="map-status"></div>
+      <div class="map-preview" id="map-preview">
+        <div class="map-placeholder">
+          <span class="map-placeholder-ico">🗺️</span>
+          <span>Preencha latitude e longitude para visualizar o mapa</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px;">💡 Dica rápida: abra o Google Maps, clique com o botão direito no local do imóvel → "O que há aqui?" → copie as coordenadas.</p>
+
       <!-- CONTATO -->
       <div class="section-title">Contato</div>
       <div class="form-group">
@@ -754,6 +827,7 @@ let imoveis    = [];
 let filtro     = 'todos';
 let editandoId = null;
 let fotos      = []; // [{ url, file|null, isNew }]
+let videos     = []; // [{ url, tipo, thumb }]
 
 // ---- AUTH ----
 async function fazerLogin() {
@@ -937,6 +1011,15 @@ function abrirModal(id) {
     document.getElementById('f-ativo').checked       = im.ativo !== false;
     document.getElementById('f-ordem').value         = im.ordem          || 0;
 
+    // Carrega vídeos existentes
+    videos = Array.isArray(im.videos) ? [...im.videos] : [];
+    renderVideos();
+
+    // Carrega coordenadas
+    document.getElementById('f-lat').value = im.lat || '';
+    document.getElementById('f-lng').value = im.lng || '';
+    if (im.lat && im.lng) atualizarMapa(); else limparMapaPreview();
+
     // Carrega fotos existentes
     const urls = [];
     if (im.foto_principal) urls.push(im.foto_principal);
@@ -972,6 +1055,14 @@ function limparForm() {
   document.getElementById('f-destaque').checked = false;
   document.getElementById('f-ativo').checked    = true;
   document.getElementById('f-ordem').value      = '0';
+  // Limpar vídeos
+  videos = [];
+  renderVideos();
+  // Limpar mapa
+  document.getElementById('f-lat').value = '';
+  document.getElementById('f-lng').value = '';
+  document.getElementById('f-video-url').value = '';
+  limparMapaPreview();
   fotos = [];
   document.getElementById('fotos-preview').innerHTML = '';
   document.getElementById('foto-count').textContent  = '';
@@ -1059,6 +1150,9 @@ async function salvarImovel() {
       ordem:         parseInt(document.getElementById('f-ordem').value) || 0,
       foto_principal: urls[0] || '',
       fotos:          urls,
+      videos:         videos.map(v => v.url),
+      lat:            document.getElementById('f-lat').value.trim() || null,
+      lng:            document.getElementById('f-lng').value.trim() || null,
     };
 
     const { error } = editandoId
@@ -1312,6 +1406,207 @@ function toast(msg, tipo = 'success') {
   el.className   = `toast visible ${tipo}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.className = 'toast', 3500);
+}
+
+// ================================================================
+// ---- VÍDEOS ----
+// ================================================================
+
+function detectarTipoVideo(url) {
+  if (!url) return null;
+  if (/youtu\.be\/|youtube\.com\/(watch|shorts|embed)/.test(url)) return 'youtube';
+  if (/vimeo\.com/.test(url)) return 'vimeo';
+  if (/instagram\.com\/(reel|p|tv)/.test(url)) return 'instagram';
+  if (/\.mp4|\.webm/.test(url)) return 'direto';
+  return 'link';
+}
+
+function extrairYoutubeId(url) {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function extrairVimeoId(url) {
+  const m = url.match(/vimeo\.com\/(\d+)/);
+  return m ? m[1] : null;
+}
+
+function thumbVideo(url, tipo) {
+  if (tipo === 'youtube') {
+    const id = extrairYoutubeId(url);
+    return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
+  }
+  if (tipo === 'vimeo') {
+    return null; // Vimeo thumb requer API async — deixa sem thumb
+  }
+  return null;
+}
+
+function normalizeVideoUrl(url, tipo) {
+  if (tipo === 'youtube') {
+    const id = extrairYoutubeId(url);
+    return id ? `https://www.youtube.com/watch?v=${id}` : url;
+  }
+  return url;
+}
+
+function previewVideoThumb() {
+  const url = document.getElementById('f-video-url').value.trim();
+  const tipo = detectarTipoVideo(url);
+  // sem ação visual no campo — só feedback no botão
+}
+
+function adicionarVideo() {
+  const input = document.getElementById('f-video-url');
+  const url   = input.value.trim();
+  if (!url) { toast('Cole o link do vídeo primeiro', 'warn'); return; }
+
+  const tipo = detectarTipoVideo(url);
+  if (!tipo) { toast('Link não reconhecido', 'error'); return; }
+
+  const normalizado = normalizeVideoUrl(url, tipo);
+
+  // Impede duplicata
+  if (videos.some(v => v.url === normalizado)) {
+    toast('Este vídeo já foi adicionado', 'warn');
+    input.value = '';
+    return;
+  }
+
+  const thumb = thumbVideo(url, tipo);
+  videos.push({ url: normalizado, tipo, thumb });
+  input.value = '';
+  renderVideos();
+  toast('Vídeo adicionado!', 'success');
+}
+
+function removerVideo(idx) {
+  videos.splice(idx, 1);
+  renderVideos();
+}
+
+function moverVideo(idx, dir) {
+  const destino = idx + dir;
+  if (destino < 0 || destino >= videos.length) return;
+  [videos[idx], videos[destino]] = [videos[destino], videos[idx]];
+  renderVideos();
+}
+
+function renderVideos() {
+  const el = document.getElementById('video-list');
+  if (!videos.length) {
+    el.innerHTML = '';
+    document.getElementById('video-count').textContent = '';
+    return;
+  }
+
+  const icones = { youtube: '▶️', vimeo: '🎬', instagram: '📸', direto: '🎥', link: '🔗' };
+
+  el.innerHTML = videos.map((v, i) => `
+    <div class="video-item">
+      <div class="video-thumb">
+        ${v.thumb
+          ? `<img src="${v.thumb}" alt="thumb" onerror="this.parentElement.innerHTML='${icones[v.tipo] || '🎬'}';">`
+          : (icones[v.tipo] || '🎬')
+        }
+      </div>
+      <div class="video-info">
+        <span style="color:var(--gold);font-size:10px;letter-spacing:1px;text-transform:uppercase;">${v.tipo}</span>
+        <span>${v.url}</span>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        ${i > 0                  ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="moverVideo(${i},-1)" title="Mover para cima">↑</button>` : ''}
+        ${i < videos.length - 1 ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="moverVideo(${i},+1)" title="Mover para baixo">↓</button>` : ''}
+        <button class="btn btn-danger btn-icon btn-sm" onclick="removerVideo(${i})" title="Remover">×</button>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('video-count').textContent = `${videos.length} vídeo${videos.length > 1 ? 's' : ''} adicionado${videos.length > 1 ? 's' : ''}`;
+}
+
+// ================================================================
+// ---- MAPA / COORDENADAS ----
+// ================================================================
+
+function atualizarMapa() {
+  const lat = parseFloat(document.getElementById('f-lat').value);
+  const lng = parseFloat(document.getElementById('f-lng').value);
+  const status = document.getElementById('map-status');
+  const preview = document.getElementById('map-preview');
+
+  if (isNaN(lat) || isNaN(lng)) {
+    limparMapaPreview();
+    status.textContent = '';
+    return;
+  }
+
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    status.className  = 'map-status err';
+    status.textContent = '⚠️ Coordenadas fora do intervalo válido';
+    limparMapaPreview();
+    return;
+  }
+
+  status.className  = 'map-status ok';
+  status.textContent = `✓ ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+  // Embed Google Maps via iframe público (sem API key)
+  const zoom  = 16;
+  const src   = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.005},${lat-0.004},${lng+0.005},${lat+0.004}&layer=mapnik&marker=${lat},${lng}`;
+
+  preview.innerHTML = `
+    <iframe
+      src="${src}"
+      loading="lazy"
+      title="Localização do imóvel"
+      allowfullscreen>
+    </iframe>
+  `;
+}
+
+function limparMapaPreview() {
+  document.getElementById('map-preview').innerHTML = `
+    <div class="map-placeholder">
+      <span class="map-placeholder-ico">🗺️</span>
+      <span>Preencha latitude e longitude para visualizar o mapa</span>
+    </div>`;
+}
+
+async function buscarCoordenadas() {
+  const endereco = document.getElementById('f-localizacao').value.trim();
+  if (!endereco) {
+    toast('Preencha o campo "Localização exibida" antes de buscar', 'warn');
+    return;
+  }
+
+  const btn = document.querySelector('button[onclick="buscarCoordenadas()"]');
+  const textoOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳';
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco + ', Brasil')}&format=json&limit=1`;
+    const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+    const data = await res.json();
+
+    if (!data.length) {
+      toast('Endereço não encontrado. Tente ser mais específico.', 'error');
+      return;
+    }
+
+    const { lat, lon } = data[0];
+    document.getElementById('f-lat').value = parseFloat(lat).toFixed(6);
+    document.getElementById('f-lng').value = parseFloat(lon).toFixed(6);
+    atualizarMapa();
+    toast(`Localização encontrada: ${data[0].display_name.substring(0,60)}...`, 'success');
+
+  } catch (e) {
+    toast('Erro ao buscar localização. Insira as coordenadas manualmente.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
 }
 
 // Drag & drop no drop zone
