@@ -619,7 +619,351 @@
       .stats-section { grid-template-columns: 1fr 1fr; }
     }
 
-    /* ===== CARROSSEL PUBLICIDADE (tema escuro imobiliária) ===== */
+    /* ============================================================
+       IMÓVEL EM DESTAQUE — HERO DINÂMICO
+    ============================================================ */
+    .destaque-section {
+      padding: 0 48px 0;
+      margin-bottom: -1px;
+    }
+    .destaque-inner { max-width: 1280px; margin: 0 auto; }
+    .destaque-label {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 20px;
+    }
+    .destaque-label::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+
+    .destaque-card {
+      position: relative;
+      border-radius: 6px; overflow: hidden;
+      border: 1px solid rgba(201,169,110,0.2);
+      cursor: pointer;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      background: var(--bg3);
+      min-height: 520px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .destaque-card:hover { border-color: rgba(201,169,110,0.5); box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
+    .destaque-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      transition: transform 0.6s cubic-bezier(0.25,0.1,0.25,1);
+    }
+    .destaque-card:hover .destaque-bg { transform: scale(1.04); }
+    .destaque-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(8,8,8,0.97) 0%,
+        rgba(8,8,8,0.75) 35%,
+        rgba(8,8,8,0.25) 65%,
+        rgba(8,8,8,0.05) 100%
+      );
+    }
+    .destaque-placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px; color: var(--text3);
+      background: linear-gradient(135deg, #0f0e0c 0%, #0a0908 100%);
+    }
+    .destaque-badge-tag {
+      position: absolute; top: 24px; left: 24px;
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      background: var(--gold); color: #080808;
+      padding: 5px 14px; border-radius: 2px; font-weight: 700;
+      z-index: 2;
+    }
+    .destaque-tipo-tag {
+      position: absolute; top: 24px; right: 24px;
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      background: rgba(8,8,8,0.82); color: var(--text2);
+      border: 1px solid var(--border2);
+      padding: 5px 12px; border-radius: 2px;
+      z-index: 2;
+    }
+    .destaque-content {
+      position: relative; z-index: 2;
+      padding: 40px 48px;
+    }
+    .destaque-loc {
+      font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 10px; font-weight: 500;
+    }
+    .destaque-nome {
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.5vw, 52px);
+      font-weight: 700; line-height: 1.1;
+      margin-bottom: 16px; color: var(--text);
+    }
+    .destaque-desc {
+      font-size: 15px; color: var(--text2); line-height: 1.7;
+      max-width: 580px; margin-bottom: 24px;
+    }
+    .destaque-specs-row {
+      display: flex; gap: 28px; flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .destaque-spec {
+      font-size: 13px; color: var(--text2);
+    }
+    .destaque-spec strong { color: var(--text); font-weight: 600; }
+    .destaque-spec::before { content: '◆ '; font-size: 7px; color: var(--gold); }
+    .destaque-footer-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap;
+      padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .destaque-preco {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.5vw, 38px);
+      font-weight: 700; color: var(--text); line-height: 1;
+    }
+    .destaque-yield {
+      text-align: right;
+    }
+    .destaque-yield-num { font-size: 22px; color: var(--gold); font-weight: 700; }
+    .destaque-yield-lbl { font-size: 10px; color: var(--text3); margin-top: 3px; letter-spacing: 0.5px; }
+    .destaque-ctas { display: flex; gap: 12px; align-items: center; }
+    .btn-destaque-ver {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold); color: #080808;
+      font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+      font-weight: 700; padding: 13px 26px; border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .btn-destaque-ver:hover { background: var(--gold2); transform: translateY(-1px); }
+    .btn-destaque-zap {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(37,211,102,0.12); color: #25D366;
+      border: 1px solid rgba(37,211,102,0.3);
+      font-size: 12px; font-weight: 600; padding: 12px 20px; border-radius: 2px;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-destaque-zap:hover { background: rgba(37,211,102,0.2); border-color: #25D366; }
+    .destaque-loading {
+      min-height: 200px; display: flex; align-items: center; justify-content: center;
+      color: var(--text3); flex-direction: column; gap: 12px;
+    }
+
+    /* ============================================================
+       LAYOUT PORTFÓLIO + SIDEBAR (2 colunas)
+    ============================================================ */
+    .portfolio-sidebar-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 36px;
+      align-items: start;
+    }
+    .portfolio-main-col { min-width: 0; }
+
+    /* ============================================================
+       SIDEBAR — NOTÍCIAS + INSTAGRAM
+    ============================================================ */
+    .sidebar { display: flex; flex-direction: column; gap: 28px; }
+
+    /* Instagram */
+    .sidebar-instagram {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 6px; overflow: hidden;
+    }
+    .sidebar-insta-header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .insta-logo {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .insta-logo svg { width: 20px; height: 20px; fill: white; }
+    .insta-handle-wrap { flex: 1; min-width: 0; }
+    .insta-handle-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .insta-handle-sub  { font-size: 11px; color: var(--text3); }
+    .insta-follow-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: linear-gradient(135deg, #f09433, #dc2743, #bc1888);
+      color: #fff; font-size: 11px; font-weight: 700;
+      padding: 7px 14px; border-radius: 4px;
+      letter-spacing: 0.5px; white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+    .insta-follow-btn:hover { opacity: 0.88; }
+    .insta-preview-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 2px;
+    }
+    .insta-preview-item {
+      aspect-ratio: 1; background: var(--bg3);
+      overflow: hidden; position: relative;
+    }
+    .insta-preview-item img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .insta-preview-item:hover img { transform: scale(1.08); }
+    .insta-preview-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: var(--text3);
+    }
+    .insta-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .insta-footer a {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 12px; color: var(--gold);
+      letter-spacing: 0.5px;
+      transition: opacity 0.2s;
+    }
+    .insta-footer a:hover { opacity: 0.8; }
+
+    /* Notícias econômicas */
+    .sidebar-news {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 6px; overflow: hidden;
+    }
+    .sidebar-news-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .news-header-left { display: flex; align-items: center; gap: 8px; }
+    .news-pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(201,169,110,0.6); }
+      50%       { box-shadow: 0 0 0 6px rgba(201,169,110,0); }
+    }
+    .news-header-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .news-update-time  { font-size: 10px; color: var(--text3); }
+    .news-list { padding: 0; }
+    .news-item {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.18s;
+    }
+    .news-item:last-child { border-bottom: none; }
+    .news-item:hover { background: rgba(201,169,110,0.04); }
+    .news-item-tag {
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 5px;
+    }
+    .news-item-title {
+      font-size: 13px; font-weight: 500; line-height: 1.4;
+      color: var(--text); margin-bottom: 5px;
+    }
+    .news-item-meta { font-size: 11px; color: var(--text3); }
+    .news-item-summary {
+      font-size: 12px; color: var(--text2); line-height: 1.55;
+      margin-top: 5px; display: none;
+    }
+    .news-item:hover .news-item-summary { display: block; }
+    .news-loading { padding: 24px 20px; text-align: center; color: var(--text3); font-size: 13px; }
+    .news-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .news-footer a {
+      font-size: 11px; color: var(--text3); letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .news-footer a:hover { color: var(--gold); }
+
+    /* Índices econômicos */
+    .sidebar-indices {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 6px; overflow: hidden;
+    }
+    .indices-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .indices-header span { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .indices-grid { padding: 14px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .indice-item { }
+    .indice-nome { font-size: 10px; color: var(--text3); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px; }
+    .indice-val  { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; }
+    .indice-var  { font-size: 11px; margin-top: 2px; font-weight: 500; }
+    .indice-var.up   { color: #52c07a; }
+    .indice-var.down { color: #e05252; }
+    .indice-fonte { padding: 6px 20px 12px; font-size: 10px; color: var(--text3); }
+
+    /* ============================================================
+       TICKER DE NOTÍCIAS (topo da seção portfólio)
+    ============================================================ */
+    .news-ticker-bar {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      overflow: hidden;
+      display: flex; align-items: center;
+      height: 40px;
+      margin-bottom: 0;
+    }
+    .ticker-label {
+      flex-shrink: 0;
+      background: var(--gold);
+      color: #080808;
+      font-size: 9px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0 16px;
+      height: 100%;
+      display: flex; align-items: center;
+      white-space: nowrap;
+    }
+    .ticker-track-wrap {
+      flex: 1; overflow: hidden; position: relative;
+      height: 100%; display: flex; align-items: center;
+    }
+    .ticker-track {
+      display: flex; align-items: center;
+      white-space: nowrap;
+      animation: ticker-scroll 40s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text2);
+      padding: 0 28px;
+    }
+    .ticker-item-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .ticker-item a { color: var(--text2); transition: color 0.2s; }
+    .ticker-item a:hover { color: var(--gold); }
+
+    /* ============================================================
+       RESPONSIVE AJUSTES NOVOS
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .portfolio-sidebar-layout { grid-template-columns: 1fr; }
+      .sidebar { display: grid; grid-template-columns: repeat(2,1fr); }
+      .destaque-section { padding: 0 20px 0; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { grid-template-columns: 1fr; }
+      .destaque-content { padding: 24px 20px; }
+      .destaque-nome { font-size: 26px; }
+      .destaque-specs-row { gap: 14px; }
+      .destaque-footer-row { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* ============================================================
+       CARROSSEL PUBLICIDADE (tema escuro imobiliária)
+    ============================================================ */
     .carrossel-section-im{padding:0 48px 48px;}
     .carrossel-wrap-im{
       max-width:1280px;margin:0 auto;position:relative;
@@ -744,6 +1088,21 @@
 </section>
 
 <!-- ============================================================
+     IMÓVEL EM DESTAQUE
+============================================================ -->
+<section class="destaque-section" id="destaque-section" style="padding-top:48px;">
+  <div class="destaque-inner">
+    <div class="destaque-label">✦ Oportunidade em destaque</div>
+    <div id="destaque-card">
+      <div class="destaque-loading">
+        <div class="spinner"></div>
+        <span style="font-size:13px;">Carregando destaque...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      STATS
 ============================================================ -->
 <div class="stats-section">
@@ -787,39 +1146,146 @@
     <p class="section-sub">Cada imóvel é avaliado sob critérios técnicos, jurídicos e patrimoniais. Apresentamos apenas oportunidades validadas pela nossa equipe.</p>
     <div class="divider"></div>
 
-    <div class="portfolio-top">
-      <div class="portfolio-filters" id="portfolio-filters">
-        <button class="filter-pill active" data-tipo="todos" onclick="setFiltro('todos',this)">Todos</button>
-        <button class="filter-pill" data-tipo="alto-padrao" onclick="setFiltro('alto-padrao',this)">Alto padrão</button>
-        <button class="filter-pill" data-tipo="beira-mar" onclick="setFiltro('beira-mar',this)">Beira-mar</button>
-        <button class="filter-pill" data-tipo="compacto" onclick="setFiltro('compacto',this)">Compactos rentáveis</button>
-        <button class="filter-pill" data-tipo="comercial" onclick="setFiltro('comercial',this)">Comerciais</button>
-        <button class="filter-pill" data-tipo="terreno" onclick="setFiltro('terreno',this)">Terrenos</button>
-        <button class="filter-pill" data-tipo="lancamento" onclick="setFiltro('lancamento',this)">Lançamentos</button>
-        <button class="filter-pill" data-tipo="off-market" onclick="setFiltro('off-market',this)">Off-market</button>
+    <!-- TICKER DE NOTÍCIAS -->
+    <div class="news-ticker-bar" id="news-ticker-bar" style="display:none;margin-bottom:24px;border-radius:4px;">
+      <div class="ticker-label">📰 Mercado</div>
+      <div class="ticker-track-wrap">
+        <div class="ticker-track" id="ticker-track"></div>
       </div>
-      <div class="portfolio-count" id="portfolio-count"></div>
     </div>
 
-    <!-- FILTRO DE PREÇO -->
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
-      <span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);">Faixa de valor:</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="preco-filters">
-        <button class="filter-pill active" data-preco="0" onclick="setPreco(0,0,this)">Qualquer</button>
-        <button class="filter-pill" data-preco="1" onclick="setPreco(0,1000000,this)">Até R$ 1M</button>
-        <button class="filter-pill" data-preco="2" onclick="setPreco(1000000,5000000,this)">R$ 1M – R$ 5M</button>
-        <button class="filter-pill" data-preco="3" onclick="setPreco(5000000,15000000,this)">R$ 5M – R$ 15M</button>
-        <button class="filter-pill" data-preco="4" onclick="setPreco(15000000,0,this)">Acima de R$ 15M</button>
-      </div>
-      <a href="investidor.html" style="margin-left:auto;font-size:11px;letter-spacing:1px;border:1px solid rgba(201,169,110,.3);color:var(--gold);padding:6px 14px;border-radius:2px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,169,110,.3)'">✦ Área do Investidor</a>
-    </div>
+    <!-- LAYOUT 2 COLUNAS: portfólio + sidebar -->
+    <div class="portfolio-sidebar-layout">
 
-    <div class="cards-grid" id="cards-grid">
-      <div class="empty-state" style="grid-column:1/-1;padding:60px 0;">
-        <div class="spinner"></div>
-        <p style="margin-top:16px;color:var(--text3);">Carregando portfólio...</p>
-      </div>
-    </div>
+      <!-- COLUNA PRINCIPAL -->
+      <div class="portfolio-main-col">
+
+        <div class="portfolio-top">
+          <div class="portfolio-filters" id="portfolio-filters">
+            <button class="filter-pill active" data-tipo="todos" onclick="setFiltro('todos',this)">Todos</button>
+            <button class="filter-pill" data-tipo="alto-padrao" onclick="setFiltro('alto-padrao',this)">Alto padrão</button>
+            <button class="filter-pill" data-tipo="beira-mar" onclick="setFiltro('beira-mar',this)">Beira-mar</button>
+            <button class="filter-pill" data-tipo="compacto" onclick="setFiltro('compacto',this)">Compactos rentáveis</button>
+            <button class="filter-pill" data-tipo="comercial" onclick="setFiltro('comercial',this)">Comerciais</button>
+            <button class="filter-pill" data-tipo="terreno" onclick="setFiltro('terreno',this)">Terrenos</button>
+            <button class="filter-pill" data-tipo="lancamento" onclick="setFiltro('lancamento',this)">Lançamentos</button>
+            <button class="filter-pill" data-tipo="off-market" onclick="setFiltro('off-market',this)">Off-market</button>
+          </div>
+          <div class="portfolio-count" id="portfolio-count"></div>
+        </div>
+
+        <!-- FILTRO DE PREÇO -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
+          <span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);">Faixa de valor:</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="preco-filters">
+            <button class="filter-pill active" data-preco="0" onclick="setPreco(0,0,this)">Qualquer</button>
+            <button class="filter-pill" data-preco="1" onclick="setPreco(0,1000000,this)">Até R$ 1M</button>
+            <button class="filter-pill" data-preco="2" onclick="setPreco(1000000,5000000,this)">R$ 1M – R$ 5M</button>
+            <button class="filter-pill" data-preco="3" onclick="setPreco(5000000,15000000,this)">R$ 5M – R$ 15M</button>
+            <button class="filter-pill" data-preco="4" onclick="setPreco(15000000,0,this)">Acima de R$ 15M</button>
+          </div>
+          <a href="investidor.html" style="margin-left:auto;font-size:11px;letter-spacing:1px;border:1px solid rgba(201,169,110,.3);color:var(--gold);padding:6px 14px;border-radius:2px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,169,110,.3)'">✦ Área do Investidor</a>
+        </div>
+
+        <div class="cards-grid" id="cards-grid">
+          <div class="empty-state" style="grid-column:1/-1;padding:60px 0;">
+            <div class="spinner"></div>
+            <p style="margin-top:16px;color:var(--text3);">Carregando portfólio...</p>
+          </div>
+        </div>
+
+      </div><!-- /portfolio-main-col -->
+
+      <!-- SIDEBAR DIREITA -->
+      <aside class="sidebar">
+
+        <!-- INSTAGRAM -->
+        <div class="sidebar-instagram">
+          <div class="sidebar-insta-header">
+            <div class="insta-logo">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </div>
+            <div class="insta-handle-wrap">
+              <div class="insta-handle-name">@newlounge.invest</div>
+              <div class="insta-handle-sub">Imóveis · Investimentos · Patrimônio</div>
+            </div>
+          </div>
+          <!-- Preview grid placeholder — posts reais via link -->
+          <div class="insta-preview-grid">
+            <div class="insta-preview-item"><div class="insta-preview-placeholder">🏠</div></div>
+            <div class="insta-preview-item"><div class="insta-preview-placeholder">📊</div></div>
+            <div class="insta-preview-item"><div class="insta-preview-placeholder">🌊</div></div>
+            <div class="insta-preview-item"><div class="insta-preview-placeholder">🏙️</div></div>
+            <div class="insta-preview-item"><div class="insta-preview-placeholder">💎</div></div>
+            <div class="insta-preview-item"><div class="insta-preview-placeholder">📍</div></div>
+          </div>
+          <div class="insta-footer">
+            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="opacity:.7">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+              Ver perfil no Instagram →
+            </a>
+          </div>
+        </div>
+
+        <!-- ÍNDICES ECONÔMICOS -->
+        <div class="sidebar-indices">
+          <div class="indices-header">
+            <span>📈 Indicadores</span>
+          </div>
+          <div class="indices-grid" id="indices-grid">
+            <div class="indice-item">
+              <div class="indice-nome">Selic</div>
+              <div class="indice-val" id="idx-selic">—</div>
+              <div class="indice-var" id="idx-selic-var"></div>
+            </div>
+            <div class="indice-item">
+              <div class="indice-nome">IPCA 12m</div>
+              <div class="indice-val" id="idx-ipca">—</div>
+              <div class="indice-var" id="idx-ipca-var"></div>
+            </div>
+            <div class="indice-item">
+              <div class="indice-nome">IGPM 12m</div>
+              <div class="indice-val" id="idx-igpm">—</div>
+              <div class="indice-var" id="idx-igpm-var"></div>
+            </div>
+            <div class="indice-item">
+              <div class="indice-nome">USD / BRL</div>
+              <div class="indice-val" id="idx-dolar">—</div>
+              <div class="indice-var" id="idx-dolar-var"></div>
+            </div>
+          </div>
+          <div class="indice-fonte" id="indices-fonte">Carregando...</div>
+        </div>
+
+        <!-- NOTÍCIAS ECONÔMICAS -->
+        <div class="sidebar-news">
+          <div class="sidebar-news-header">
+            <div class="news-header-left">
+              <div class="news-pulse"></div>
+              <span class="news-header-title">Mercado imobiliário</span>
+            </div>
+            <span class="news-update-time" id="news-update-time"></span>
+          </div>
+          <div class="news-list" id="news-list">
+            <div class="news-loading">
+              <div class="spinner" style="width:16px;height:16px;"></div>
+              <span style="margin-left:8px;">Carregando notícias...</span>
+            </div>
+          </div>
+          <div class="news-footer">
+            <a href="https://valoreconomico.com.br/financas/imveis-urbanos" target="_blank" rel="noopener">
+              Ver mais no Valor Econômico →
+            </a>
+          </div>
+        </div>
+
+      </aside><!-- /sidebar -->
+
+    </div><!-- /portfolio-sidebar-layout -->
 
   </div>
 </section>
@@ -1006,7 +1472,7 @@
       </div>
       <div class="footer-links">
         <a href="/politica-privacidade">Privacidade</a>
-        <a href="#">Instagram</a>
+        <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener">Instagram</a>
         <a href="#">LinkedIn</a>
       </div>
     </div>
@@ -1128,8 +1594,10 @@ async function init() {
     .order('ordem',    { ascending: true })
     .order('criado_em', { ascending: false });
 
-  // Carrega carrossel independente do resultado dos imóveis
+  // Carrega carrossel, notícias e índices em paralelo
   carregarCarrossel();
+  carregarNoticias();
+  carregarIndices();
 
   if (error) {
     document.getElementById('cards-grid').innerHTML =
@@ -1138,6 +1606,9 @@ async function init() {
   }
 
   imoveis = data || [];
+
+  // Renderiza o destaque (usa o imóvel com destaque=true ou o primeiro)
+  renderDestaque(imoveis);
 
   // Atualiza contador no stats
   const totalEl = document.getElementById('count-imoveis');
@@ -1476,6 +1947,244 @@ function reiniciarAutoplay() { iniciarAutoplay(); }
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && carrosselSlides.length > 1) iniciarAutoplay();
 });
+
+// ================================================================
+// ---- IMÓVEL EM DESTAQUE ----
+// ================================================================
+function renderDestaque(imoveis) {
+  const el = document.getElementById('destaque-card');
+  if (!el) return;
+
+  // Prioridade: destaque=true, depois primeiro da lista
+  const im = imoveis.find(i => i.destaque) || imoveis[0];
+  if (!im) { el.innerHTML = ''; document.getElementById('destaque-section').style.display = 'none'; return; }
+
+  const fotos = [];
+  if (im.foto_principal) fotos.push(im.foto_principal);
+  if (im.fotos) im.fotos.forEach(f => { if (f && !fotos.includes(f)) fotos.push(f); });
+
+  const preco = im.preco_display || (im.preco ? 'R$ ' + Number(im.preco).toLocaleString('pt-BR') : '');
+  const wpp   = im.whatsapp || '5582999570442';
+  const msg   = encodeURIComponent(`Olá! Vi o destaque "${im.titulo}"${im.localizacao ? ' — ' + im.localizacao : ''} no site e tenho interesse. Podemos conversar?`);
+
+  const specs = [];
+  if (im.area_m2) specs.push(`<span class="destaque-spec"><strong>${im.area_m2} m²</strong></span>`);
+  if (im.suites)  specs.push(`<span class="destaque-spec"><strong>${im.suites}</strong> suítes</span>`);
+  else if (im.quartos) specs.push(`<span class="destaque-spec"><strong>${im.quartos}</strong> quartos</span>`);
+  if (im.vagas)   specs.push(`<span class="destaque-spec"><strong>${im.vagas}</strong> vagas</span>`);
+
+  const bgStyle = fotos.length
+    ? `background-image:url('${fotos[0]}')`
+    : '';
+
+  el.innerHTML = `
+    <div class="destaque-card" onclick="abrirModal('${im.id}')">
+      ${fotos.length
+        ? `<div class="destaque-bg" style="${bgStyle}"></div>`
+        : `<div class="destaque-placeholder">🏠</div>`
+      }
+      <div class="destaque-overlay"></div>
+      ${im.badge   ? `<span class="destaque-badge-tag">${escHtml(im.badge)}</span>` : '<span class="destaque-badge-tag">Destaque</span>'}
+      ${im.tipo    ? `<span class="destaque-tipo-tag">${tipoLabel(im.tipo)}</span>` : ''}
+
+      <div class="destaque-content">
+        ${im.localizacao ? `<div class="destaque-loc">${escHtml(im.localizacao)}</div>` : ''}
+        <h2 class="destaque-nome">${escHtml(im.titulo)}</h2>
+        ${im.descricao ? `<p class="destaque-desc">${escHtml(im.descricao.substring(0, 200))}${im.descricao.length > 200 ? '…' : ''}</p>` : ''}
+        ${specs.length ? `<div class="destaque-specs-row">${specs.join('')}</div>` : ''}
+
+        <div class="destaque-footer-row">
+          <div>
+            ${preco ? `<div class="destaque-preco">${escHtml(preco)}</div>` : ''}
+          </div>
+          ${im.yield_texto ? `
+            <div class="destaque-yield">
+              <div class="destaque-yield-num">${escHtml(im.yield_texto)}</div>
+              <div class="destaque-yield-lbl">${escHtml(im.yield_label || 'Yield')}</div>
+            </div>` : ''}
+          <div class="destaque-ctas" onclick="event.stopPropagation()">
+            <a class="btn-destaque-ver" href="imovel?id=${im.id}">
+              Ver imóvel completo →
+            </a>
+            <a class="btn-destaque-zap" href="https://wa.me/${wpp}?text=${msg}" target="_blank">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+              </svg>
+              Tenho interesse
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ================================================================
+// ---- NOTÍCIAS ECONÔMICAS (RSS via rss2json) ----
+// ================================================================
+
+// Notícias curadas estáticas — sempre exibem mesmo sem API
+// Serão substituídas por feed real quando disponível
+const NOTICIAS_ESTATICAS = [
+  {
+    tag: 'Mercado imobiliário', title: 'Crédito imobiliário bate recorde e deve superar R$ 300 bi em 2025',
+    date: 'Valor Econômico', summary: 'Caixa Econômica Federal lidera concessões; taxa Selic comportada estimula financiamentos de longo prazo.',
+    url: 'https://valoreconomico.com.br'
+  },
+  {
+    tag: 'Selic & Renda Fixa', title: 'Comitê mantém Selic em 13,75% e sinaliza próximo corte',
+    date: 'Banco Central', summary: 'Decisão era esperada pelo mercado. Analistas projetam início do ciclo de cortes no segundo semestre.',
+    url: 'https://bcb.gov.br'
+  },
+  {
+    tag: 'Imóveis de alto padrão', title: 'Segmento de luxo cresce 22% e resiste à alta dos juros',
+    date: 'ABRAINC', summary: 'Lançamentos acima de R$ 1,5 mi registram velocidade de vendas recorde em capitais como São Paulo, Rio e Maceió.',
+    url: 'https://abrainc.org.br'
+  },
+  {
+    tag: 'IPCA & Inflação', title: 'IPCA de maio fica em 0,44% e acumulado em 12 meses recua',
+    date: 'IBGE', summary: 'Grupo habitação sobe 0,61% no mês, impulsionado por energia elétrica e aluguel residencial.',
+    url: 'https://ibge.gov.br'
+  },
+  {
+    tag: 'CRI & Fundos', title: 'FIIs imobiliários distribuem R$ 3,2 bi em dividendos no 1º tri',
+    date: 'B3', summary: 'Fundos de tijolo lideram retorno médio de 1,1% ao mês. Logística e lajes corporativas puxam valorização.',
+    url: 'https://b3.com.br'
+  },
+  {
+    tag: 'Nordeste', title: 'Maceió e Fortaleza registram maior crescimento de lançamentos do país',
+    date: 'ADEMI', summary: 'Valorização impulsionada por infraestrutura portuária, turismo e migração de capitais do Sudeste.',
+    url: 'https://ademi.org.br'
+  },
+  {
+    tag: 'Regularização', title: 'Lei de regularização fundiária deve beneficiar 900 mil imóveis até 2026',
+    date: 'Ministério das Cidades', summary: 'Programa "Casa Legal" agiliza REURB-S e REURB-E, desbloqueando acesso ao crédito e à venda formal.',
+    url: 'https://cidades.gov.br'
+  },
+];
+
+async function carregarNoticias() {
+  const lista = document.getElementById('news-list');
+  const timeEl = document.getElementById('news-update-time');
+
+  // Tentar buscar via RSS2JSON (grátis, sem CORS)
+  let noticias = null;
+  try {
+    const feeds = [
+      'https://api.rss2json.com/v1/api.json?rss_url=https://valoreconomico.com.br/financas/imveis-urbanos&count=6',
+    ];
+    const res  = await Promise.race([
+      fetch(feeds[0]),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+    ]);
+    const data = await res.json();
+    if (data.status === 'ok' && data.items && data.items.length) {
+      noticias = data.items.slice(0, 6).map(n => ({
+        tag:     'Valor Econômico',
+        title:   n.title,
+        date:    new Date(n.pubDate).toLocaleDateString('pt-BR', { day:'2-digit', month:'short' }),
+        summary: (n.description || '').replace(/<[^>]+>/g,'').substring(0, 120) + '...',
+        url:     n.link
+      }));
+    }
+  } catch (_) { /* fallback para estáticas */ }
+
+  const dados = noticias || NOTICIAS_ESTATICAS;
+
+  if (timeEl) {
+    const agora = new Date();
+    timeEl.textContent = agora.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  lista.innerHTML = dados.map(n => `
+    <div class="news-item" onclick="window.open('${n.url}','_blank')">
+      <div class="news-item-tag">${n.tag}</div>
+      <div class="news-item-title">${n.title}</div>
+      <div class="news-item-meta">${n.date}</div>
+      <div class="news-item-summary">${n.summary}</div>
+    </div>
+  `).join('');
+
+  // Montar ticker com as mesmas notícias (duplicar para loop contínuo)
+  const tickerEl = document.getElementById('ticker-track');
+  const tickerBar = document.getElementById('news-ticker-bar');
+  if (tickerEl && tickerBar) {
+    const items = dados.map(n =>
+      `<span class="ticker-item">
+        <span class="ticker-item-dot"></span>
+        <a href="${n.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${n.title}</a>
+      </span>`
+    ).join('');
+    // Duplicar para criar loop contínuo
+    tickerEl.innerHTML = items + items;
+    tickerBar.style.display = 'flex';
+  }
+}
+
+// ================================================================
+// ---- ÍNDICES ECONÔMICOS (BACEN API pública) ----
+// ================================================================
+async function carregarIndices() {
+  const fonteEl = document.getElementById('indices-fonte');
+  try {
+    // BACEN API: série 432 = Selic Meta | série 13522 = IPCA 12m | série 189 = IGP-M 12m
+    // AwesomeAPI para câmbio (sem autenticação)
+    const [selicRes, ipcaRes, igpmRes, dolarRes] = await Promise.allSettled([
+      fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json').then(r => r.json()),
+      fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.13522/dados/ultimos/1?formato=json').then(r => r.json()),
+      fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.189/dados/ultimos/1?formato=json').then(r => r.json()),
+      fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL').then(r => r.json()),
+    ]);
+
+    // Selic
+    const selic = document.getElementById('idx-selic');
+    const selicVar = document.getElementById('idx-selic-var');
+    if (selicRes.status === 'fulfilled' && selicRes.value.length) {
+      const v = parseFloat(selicRes.value[0].valor);
+      selic.textContent = v.toFixed(2).replace('.',',') + '% a.a.';
+      selicVar.textContent = 'Meta atual'; selicVar.className = 'indice-var';
+    }
+
+    // IPCA
+    const ipca = document.getElementById('idx-ipca');
+    const ipcaVar = document.getElementById('idx-ipca-var');
+    if (ipcaRes.status === 'fulfilled' && ipcaRes.value.length) {
+      const v = parseFloat(ipcaRes.value[0].valor);
+      ipca.textContent = v.toFixed(2).replace('.',',') + '%';
+      ipcaVar.textContent = v > 4.5 ? '▲ Acima da meta' : v > 3 ? '▲ Na banda' : '▼ Abaixo da meta';
+      ipcaVar.className = 'indice-var ' + (v > 4.5 ? 'down' : 'up');
+    }
+
+    // IGP-M
+    const igpm = document.getElementById('idx-igpm');
+    const igpmVar = document.getElementById('idx-igpm-var');
+    if (igpmRes.status === 'fulfilled' && igpmRes.value.length) {
+      const v = parseFloat(igpmRes.value[0].valor);
+      igpm.textContent = v.toFixed(2).replace('.',',') + '%';
+      igpmVar.textContent = (v >= 0 ? '▲ ' : '▼ ') + 'em 12 meses';
+      igpmVar.className = 'indice-var ' + (v >= 0 ? 'up' : 'down');
+    }
+
+    // Dólar
+    const dolar = document.getElementById('idx-dolar');
+    const dolarVar = document.getElementById('idx-dolar-var');
+    if (dolarRes.status === 'fulfilled' && dolarRes.value.USDBRL) {
+      const v  = parseFloat(dolarRes.value.USDBRL.bid);
+      const pctChange = parseFloat(dolarRes.value.USDBRL.pctChange);
+      dolar.textContent = 'R$ ' + v.toFixed(2).replace('.',',');
+      dolarVar.textContent = (pctChange >= 0 ? '▲ ' : '▼ ') + Math.abs(pctChange).toFixed(2) + '% hoje';
+      dolarVar.className = 'indice-var ' + (pctChange >= 0 ? 'down' : 'up'); // dólar subindo é ruim
+    }
+
+    if (fonteEl) {
+      const agora = new Date();
+      fonteEl.textContent = `BCB / AwesomeAPI · ${agora.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}`;
+    }
+
+  } catch (_) {
+    if (fonteEl) fonteEl.textContent = 'Dados indisponíveis no momento';
+  }
+}
 
 // ---- START ----
 window.addEventListener('load', init);
