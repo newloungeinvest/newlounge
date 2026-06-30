@@ -868,6 +868,7 @@
         <div class="servico-num">/ 02</div>
         <div class="servico-nome">Análise de viabilidade</div>
         <p class="servico-desc">Estudos financeiros, fluxo de caixa, sensibilidade e cenários para decisões de investimento embasadas.</p>
+        <a href="simulador.html" style="display:inline-block;margin-top:12px;font-size:12px;letter-spacing:1px;color:var(--gold);border-bottom:1px solid var(--gold);padding-bottom:2px;">Simular agora →</a>
       </div>
       <div class="servico-item">
         <div class="servico-num">/ 03</div>
@@ -1127,6 +1128,9 @@ async function init() {
     .order('ordem',    { ascending: true })
     .order('criado_em', { ascending: false });
 
+  // Carrega carrossel independente do resultado dos imóveis
+  carregarCarrossel();
+
   if (error) {
     document.getElementById('cards-grid').innerHTML =
       '<div class="empty-state"><p>Erro ao carregar portfólio. Tente novamente.</p></div>';
@@ -1134,7 +1138,6 @@ async function init() {
   }
 
   imoveis = data || [];
-  carregarCarrossel();
 
   // Atualiza contador no stats
   const totalEl = document.getElementById('count-imoveis');
