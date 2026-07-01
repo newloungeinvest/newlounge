@@ -829,37 +829,30 @@
     }
     .insta-footer a:hover { opacity: 0.8; }
 
-    /* Cards Instagram — fundos branded com gradiente dourado/escuro */
-    .insta-preview-item { position: relative; display: block; }
-    .insta-card-overlay {
-      position: absolute; inset: 0;
-      display: flex; align-items: flex-end; padding: 6px;
-      opacity: 0; transition: opacity 0.25s;
-      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%);
+    /* Cards de links — grid 2x3 funcional */
+    .insta-preview-item {
+      position: relative; display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; padding: 10px 6px; text-align: center;
+      border-radius: 6px; transition: transform 0.2s, border-color 0.2s;
+      border: 1px solid rgba(201,169,110,0.12);
+      text-decoration: none; cursor: pointer;
     }
-    .insta-preview-item:hover .insta-card-overlay { opacity: 1; }
+    .insta-preview-item:hover { transform: translateY(-2px); border-color: rgba(201,169,110,0.35); }
+    .insta-card-icon { font-size: 20px; line-height: 1; }
     .insta-card-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--gold);
+      font-size: 8px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--gold); line-height: 1.3;
     }
-    /* Cada card com gradiente temático premium */
-    .insta-card-1 { background: linear-gradient(135deg, #1a120a 0%, #2a1e0e 40%, #c9a96e22 100%); }
-    .insta-card-2 { background: linear-gradient(135deg, #0a0a14 0%, #111128 50%, #c9a96e18 100%); }
-    .insta-card-3 { background: linear-gradient(135deg, #050e18 0%, #0a1a28 50%, #1a4a6e22 100%); }
-    .insta-card-4 { background: linear-gradient(135deg, #0e0a06 0%, #1e1208 50%, #4a3218 100%); }
-    .insta-card-5 { background: linear-gradient(135deg, #08080f 0%, #12120a 50%, #c9a96e10 100%); }
-    .insta-card-6 { background: linear-gradient(135deg, #0a0808 0%, #180e0e 50%, #c9a96e15 100%); }
-    /* Ícone de câmera sutil no centro */
-    .insta-card-1::before, .insta-card-2::before, .insta-card-3::before,
-    .insta-card-4::before, .insta-card-5::before, .insta-card-6::before {
-      content: '';
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 28px; height: 28px;
-      background: rgba(201,169,110,0.12);
-      border-radius: 8px;
-      border: 1px solid rgba(201,169,110,0.2);
+    .insta-card-sub {
+      font-size: 7px; color: #666; letter-spacing: 0.2px; line-height: 1.3;
     }
+    .insta-card-1 { background: linear-gradient(135deg, #1a120a, #2a1e0e); }
+    .insta-card-2 { background: linear-gradient(135deg, #0a0a14, #111128); }
+    .insta-card-3 { background: linear-gradient(135deg, #050e18, #0a1a28); }
+    .insta-card-4 { background: linear-gradient(135deg, #0e0a06, #1e1208); }
+    .insta-card-5 { background: linear-gradient(135deg, #080f08, #0f1a0f); }
+    .insta-card-6 { background: linear-gradient(135deg, #100808, #1e1010); }
     .insta-follow-btn-wrap {
       padding: 16px 20px; border-top: 1px solid var(--border);
     }
@@ -1266,26 +1259,57 @@
               <div class="insta-handle-sub">Imóveis · Investimentos · Patrimônio</div>
             </div>
           </div>
-          <!-- Preview grid — 6 teasers visuais branded -->
+          <!-- Grid de links rápidos — 6 cards funcionais -->
           <div class="insta-preview-grid">
-            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-preview-item insta-card-1" aria-label="Post 1 - Imóveis de alto padrão">
-              <div class="insta-card-overlay"><span class="insta-card-label">Alto Padrão</span></div>
+
+            <!-- Card 1: NLI Instagram -->
+            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener"
+               class="insta-preview-item insta-card-1" title="Instagram NLI">
+              <span class="insta-card-icon">📸</span>
+              <span class="insta-card-label">NLI Feed</span>
+              <span class="insta-card-sub">@newlounge.invest</span>
             </a>
-            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-preview-item insta-card-2" aria-label="Post 2 - Investimentos">
-              <div class="insta-card-overlay"><span class="insta-card-label">Investimento</span></div>
+
+            <!-- Card 2: NLS Sport Instagram -->
+            <a href="https://www.instagram.com/newloungesport/" target="_blank" rel="noopener"
+               class="insta-preview-item insta-card-2" title="Instagram NLS Sport">
+              <span class="insta-card-icon">⚡</span>
+              <span class="insta-card-label">NLS Sport</span>
+              <span class="insta-card-sub">@newloungesport</span>
             </a>
-            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-preview-item insta-card-3" aria-label="Post 3 - Beira-mar">
-              <div class="insta-card-overlay"><span class="insta-card-label">Beira-Mar</span></div>
+
+            <!-- Card 3: Notícias mundo -->
+            <a href="https://www.bbc.com/portuguese" target="_blank" rel="noopener"
+               class="insta-preview-item insta-card-3" title="Notícias do Mundo">
+              <span class="insta-card-icon">🌎</span>
+              <span class="insta-card-label">Mundo</span>
+              <span class="insta-card-sub">BBC Brasil</span>
             </a>
-            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-preview-item insta-card-4" aria-label="Post 4 - Terrenos">
-              <div class="insta-card-overlay"><span class="insta-card-label">Terrenos</span></div>
+
+            <!-- Card 4: Notícias esporte brasileiro -->
+            <a href="https://ge.globo.com/" target="_blank" rel="noopener"
+               class="insta-preview-item insta-card-4" title="Esporte Brasileiro">
+              <span class="insta-card-icon">⚽</span>
+              <span class="insta-card-label">Esporte BR</span>
+              <span class="insta-card-sub">ge.globo.com</span>
             </a>
-            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-preview-item insta-card-5" aria-label="Post 5 - Off-market">
-              <div class="insta-card-overlay"><span class="insta-card-label">Off-Market</span></div>
+
+            <!-- Card 5: Esporte mundial -->
+            <a href="https://www.espn.com.br/" target="_blank" rel="noopener"
+               class="insta-preview-item insta-card-5" title="Esporte Mundial">
+              <span class="insta-card-icon">🏆</span>
+              <span class="insta-card-label">Esporte World</span>
+              <span class="insta-card-sub">ESPN Brasil</span>
             </a>
-            <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-preview-item insta-card-6" aria-label="Post 6 - Patrimônio">
-              <div class="insta-card-overlay"><span class="insta-card-label">Patrimônio</span></div>
+
+            <!-- Card 6: Clima Alagoas -->
+            <a href="https://www.climatempo.com.br/previsao-do-tempo/cidade/239/maceio-al" target="_blank" rel="noopener"
+               class="insta-preview-item insta-card-6" title="Clima em Alagoas">
+              <span class="insta-card-icon">🌤️</span>
+              <span class="insta-card-label">Clima AL</span>
+              <span class="insta-card-sub">Maceió · Alagoas</span>
             </a>
+
           </div>
           <div class="insta-follow-btn-wrap">
             <a href="https://www.instagram.com/newlounge.invest/" target="_blank" rel="noopener" class="insta-follow-btn">
