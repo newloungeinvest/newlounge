@@ -555,7 +555,22 @@
       <div class="form-grp"><label>Título *</label><input type="text" id="mban-titulo-f" placeholder="Ex: Monte sua casa, equipe sua rotina."></div>
       <div class="form-grp"><label>Subtítulo</label><input type="text" id="mban-sub" placeholder="Subtítulo ou descrição"></div>
       <div class="form-grp"><label>Chamada (texto auxiliar)</label><input type="text" id="mban-chamada"></div>
-      <div class="form-grp"><label>URL da imagem</label><input type="text" id="mban-img" placeholder="https://..."></div>
+      <div class="form-grp">
+        <label>Imagem do banner</label>
+        <!-- Upload direto -->
+        <div class="foto-drop" id="ban-drop" style="margin-bottom:8px;">
+          <input type="file" id="ban-foto-file" accept="image/*" onchange="handleBannerFoto(this.files[0])">
+          <div class="foto-drop-ico">🖼️</div>
+          <div class="foto-drop-txt"><strong>Toque para fazer upload</strong><br><small>JPG, PNG, WEBP · Máx. 5MB</small></div>
+        </div>
+        <div id="ban-preview-wrap" style="display:none;margin-bottom:8px;position:relative;aspect-ratio:16/6;border-radius:4px;overflow:hidden;border:1px solid var(--border);">
+          <img id="ban-preview-img" src="" alt="preview" style="width:100%;height:100%;object-fit:cover;display:block;">
+          <button onclick="limparBannerFoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border:none;color:#fff;width:24px;height:24px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">— ou cole a URL diretamente —</div>
+        <input type="text" id="mban-img" placeholder="https://... (opcional se fizer upload acima)">
+        <p id="ban-upload-status" style="font-size:11px;margin-top:4px;color:var(--text3);"></p>
+      </div>
       <div class="form-grp"><label>Link do botão</label><input type="text" id="mban-link" placeholder="https://..."></div>
       <div class="form-grp"><label>Texto do botão</label><input type="text" id="mban-btntxt" placeholder="Ver produtos"></div>
       <div class="grid-2">
@@ -935,6 +950,19 @@ async function salvarProduto() {
       ? await sb.from('produtos').update(dados).eq('id', editandoId)
       : await sb.from('produtos').insert({ id, ...dados });
     if (error) throw error;
+
+    // ✅ FIX: sincronizar tabela imagens_produto para que a galeria apareça no site
+    if (urls.length > 0) {
+      await sb.from('imagens_produto').delete().eq('produto_id', id);
+      const imgRows = urls.map((url, ordem) => ({
+        produto_id: id,
+        url,
+        ordem,
+      }));
+      const { error: imgErr } = await sb.from('imagens_produto').insert(imgRows);
+      if (imgErr) console.warn('imagens_produto insert warning:', imgErr.message);
+    }
+
     // Salvar variantes
     if (variantesForm.length) {
       const varsDados = variantesForm.map(v => ({
@@ -1180,6 +1208,7 @@ function abrirModalBanner(id) {
     document.getElementById('mban-ativo').checked  = b.ativo !== false;
   } else {
     ['mban-titulo-f','mban-sub','mban-chamada','mban-img','mban-link','mban-btntxt'].forEach(i => document.getElementById(i).value = '');
+    limparBannerFoto();
     document.getElementById('mban-pos').value  = 'hero';
     document.getElementById('mban-plat').value = 'loja';
     document.getElementById('mban-ordem').value = 0;
@@ -1187,13 +1216,43 @@ function abrirModalBanner(id) {
   }
   abrirModal('modal-banner');
 }
+// ===== BANNER FOTO =====
+let bannerFotoFile = null;
+function handleBannerFoto(file) {
+  if (!file) return;
+  bannerFotoFile = file;
+  const preview = document.getElementById('ban-preview-wrap');
+  const img = document.getElementById('ban-preview-img');
+  img.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  document.getElementById('ban-upload-status').textContent = `📎 ${file.name} selecionada — será enviada ao salvar`;
+}
+function limparBannerFoto() {
+  bannerFotoFile = null;
+  document.getElementById('ban-preview-wrap').style.display = 'none';
+  document.getElementById('ban-preview-img').src = '';
+  document.getElementById('ban-upload-status').textContent = '';
+  document.getElementById('ban-foto-file').value = '';
+}
+async function uploadBannerFoto() {
+  if (!bannerFotoFile) return null;
+  const ext  = (bannerFotoFile.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `banners/${Date.now()}.${ext}`;
+  const { error } = await sb.storage.from('produtos-fotos').upload(path, bannerFotoFile, { upsert: true, cacheControl: '2592000' });
+  if (error) { toast('Erro no upload da imagem: ' + error.message, 'error'); return null; }
+  const { data: { publicUrl } } = sb.storage.from('produtos-fotos').getPublicUrl(path);
+  return publicUrl;
+}
+
 async function salvarBanner() {
   const titulo = document.getElementById('mban-titulo-f').value.trim();
   if (!titulo) { toast('Título é obrigatório', 'error'); return; }
+  const uploadedUrl = await uploadBannerFoto();
+  const imgUrl = uploadedUrl || document.getElementById('mban-img').value.trim();
   const dados = {
     titulo, subtitulo: document.getElementById('mban-sub').value.trim(),
     chamada: document.getElementById('mban-chamada').value.trim(),
-    imagem_url: document.getElementById('mban-img').value.trim(),
+    imagem_url: imgUrl,
     link: document.getElementById('mban-link').value.trim(),
     link_texto: document.getElementById('mban-btntxt').value.trim(),
     posicao: document.getElementById('mban-pos').value,
