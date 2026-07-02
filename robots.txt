@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin-loja.html
+Disallow: /pedido.html
+Disallow: /checkout.html
+
+Sitemap: https://newloungeinvest.com.br/sitemap.xml
