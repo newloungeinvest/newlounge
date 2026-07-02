@@ -134,6 +134,33 @@
       transition: all 0.2s;
     }
     .nav-cta:hover { border-color: var(--gold); color: var(--gold); }
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: rgba(10,10,10,0.98);
+      border-bottom: 1px solid rgba(201,169,110,0.25);
+      flex-direction: column;
+      padding: 8px 0 16px;
+      z-index: 999;
+      backdrop-filter: blur(8px);
+    }
+    .nav-mobile-menu a {
+      padding: 14px 24px;
+      color: #e8e8e8;
+      font-size: 14px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-mobile-menu a:active { color: var(--gold); }
+    .nav-mobile-menu .mm-cta {
+      margin: 12px 24px 0;
+      text-align: center;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      border-radius: 2px;
+      padding: 12px;
+    }
     .nav-menu-btn {
       display: none;
       background: none; border: none; cursor: pointer;
@@ -651,6 +678,7 @@
       .nav { padding: 0 20px; }
       .nav-links, .nav-cta { display: none; }
       .nav-menu-btn { display: block; }
+      .nav-mobile-menu.aberto { display: flex; }
       .hero { padding: 100px 20px 60px; }
       .stats-section { grid-template-columns: repeat(2,1fr); }
       .stat-item { padding: 28px 24px; border-right: none; border-bottom: 1px solid var(--border); }
@@ -1139,8 +1167,18 @@
     <li><a href="#contato">Contato</a></li>
   </ul>
   <a class="nav-cta" href="https://wa.me/5582999570442?text=Olá%2C%20gostaria%20de%20falar%20com%20um%20curador%20da%20New%20Lounge%20Invest." target="_blank" rel="noopener">Falar com curador</a>
-  <button class="nav-menu-btn" id="menu-btn">☰</button>
+  <button class="nav-menu-btn" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">☰</button>
 </nav>
+
+<!-- MENU MOBILE -->
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a href="#portfolio">Imóveis</a>
+  <a href="#servicos">Serviços</a>
+  <a href="#sobre">Sobre</a>
+  <a href="#contato">Contato</a>
+  <a href="investidor.html">✦ Área do Investidor</a>
+  <a class="mm-cta" href="https://wa.me/5582999570442?text=Olá%2C%20gostaria%20de%20falar%20com%20um%20curador%20da%20New%20Lounge%20Invest." target="_blank" rel="noopener">Falar com curador</a>
+</div>
 
 <!-- ============================================================
      HERO
@@ -2335,6 +2373,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ---- START ----
 window.addEventListener('load', init);
+</script>
+
+<script>
+/* Menu mobile */
+(function(){
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('nav-mobile-menu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', () => {
+    const aberto = menu.classList.toggle('aberto');
+    btn.textContent = aberto ? '✕' : '☰';
+    btn.setAttribute('aria-expanded', aberto);
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('aberto');
+    btn.textContent = '☰';
+    btn.setAttribute('aria-expanded', 'false');
+  }));
+})();
 </script>
 </body>
 </html>
